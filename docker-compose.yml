@@ -13,11 +13,14 @@ services:
     container_name: node
     restart: always
     volumes:
-      - /Users/babdelka/Desktop/git/ft_transcendence/transcendence:/usr/src/app
+      - ./transcendence:/usr/src/app
+      # - type: bind
+      #   source: ./transcendence
+      #   target: /usr/src/app
     ports:
       - 3000:3000
     working_dir: /usr/src/app
-    command: bash -c "npm install && npm run start"
+    command: bash -c "npm install && npm run start:dev"
     networks:
       my-network:
         ipv4_address: 10.0.0.10
@@ -27,24 +30,23 @@ services:
     container_name: pg_database
     restart: always
     volumes:
-      - /Users/babdelka/Desktop/git/ft_transcendence/pg_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: admin
-      POSTGRES_DB: trs_db 
+      - ./pg_data:/var/lib/postgresql/data
+    env_file:
+      - ./env/.postgres.env
     networks:
       my-network:
         ipv4_address: 10.0.0.11
-    ports:
+    expose:
       - 5432
 
   pgadmin:
+    depends_on:
+      - postgres
     image: dpage/pgadmin4
     container_name: pgadmin
     restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: user@email.com
-      PGADMIN_DEFAULT_PASSWORD: password
+    env_file:
+      - ./env/.pgadmin.env
     ports:
       - 5050:80
     networks:
