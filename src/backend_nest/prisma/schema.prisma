@@ -11,7 +11,18 @@ datasource db {
 }
 
 model User {
-  id        Int      @default(autoincrement()) @id
-  email     String   @unique
-  name      String?
+  id              Int       @id @default(autoincrement())
+
+  login42         String    @unique
+
+  // If username is not set, the client need to finish setting up the account
+  username        String?   @unique
+
+  // Holds the profile img in base64
+  avatar          String?
+
+  // Multi-factor Authentication. If not set then 2FA is not enabled
+  mfaKey          String?
+
+  @@map(name: "users")
 }
