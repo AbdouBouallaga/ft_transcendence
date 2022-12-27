@@ -1,3 +1,4 @@
 src/frontend_next/node_modules
 src/backend_nest/node_modules
+src/backend_nest/.env
 storage/postgres_data/
