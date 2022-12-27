@@ -8,22 +8,33 @@ networks:
         - subnet: 10.0.0.0/24
 
 services:
-  node:
-    image: node:12.16.1
-    container_name: node
+  Frontend:
+    image: node:18.12.1-buster
+    container_name: Frontend
     restart: always
     volumes:
-      - ./transcendence:/usr/src/app
-      # - type: bind
-      #   source: ./transcendence
-      #   target: /usr/src/app
+      - ./src/frontend_next:/usr/src/app
     ports:
-      - 3000:3000
+      - 80:3000
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm run dev"
+    networks:
+      my-network:
+        ipv4_address: 10.0.0.2
+  
+  Backend:
+    image: node:18.12.1-buster
+    container_name: Backend
+    restart: always
+    volumes:
+      - ./src/backend_nest:/usr/src/app
+    ports:
+      - 5000:3000
     working_dir: /usr/src/app
     command: bash -c "npm install && npm run start:dev"
     networks:
       my-network:
-        ipv4_address: 10.0.0.10
+        ipv4_address: 10.0.0.3
 
   postgres:
     image: postgres:latest
@@ -35,7 +46,7 @@ services:
       - ./env/.postgres.env
     networks:
       my-network:
-        ipv4_address: 10.0.0.11
+        ipv4_address: 10.0.0.4
     expose:
       - 5432
 
@@ -51,6 +62,6 @@ services:
       - 5050:80
     networks:
       my-network:
-        ipv4_address: 10.0.0.12
+        ipv4_address: 10.0.0.5
     volumes:
       - ./storage/pgadmin_data:/var/lib/pgadmin

@@ -1,2 +1,3 @@
-transcendence/node_modules
+src/frontend_next/node_modules
+src/backend_nest/node_modules
 storage/postgres_data/
