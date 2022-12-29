@@ -8,16 +8,32 @@ networks:
         - subnet: 10.0.0.0/24
 
 services:
+  loadbalancer:
+    image: nginx:1.19.6
+    container_name: loadbalancer
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./storage/nginx/conf.d:/etc/nginx/conf.d
+      # - ./storage/nginx/ssl:/etc/nginx/ssl
+    networks:
+      my-network:
+        ipv4_address: 10.0.0.111
+
   Frontend:
     image: node:18.12.1-buster
     container_name: Frontend
     restart: always
     volumes:
       - ./src/frontend_next:/usr/src/app
-    ports:
-      - 80:3000
+    # ports:
+    #   - 80:3000
     working_dir: /usr/src/app
     command: bash -c "npm install && npm run dev"
+    extra_hosts:
+      - "api.127.0.0.1.nip.io:10.0.0.3"
     networks:
       my-network:
         ipv4_address: 10.0.0.2
@@ -28,9 +44,9 @@ services:
     restart: always
     volumes:
       - ./src/backend_nest:/usr/src/app
-    ports:
-      - 3000:3000
-      - 5333:5555
+    # ports:
+    #   - 3000:3000
+    #   - 5333:5555
     working_dir: /usr/src/app
     command: bash -c "npm install && npx prisma migrate reset --force && npx prisma studio > /dev/null | npm run start:dev"
     networks:
