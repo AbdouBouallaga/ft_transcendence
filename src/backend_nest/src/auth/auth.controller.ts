@@ -1,6 +1,8 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FortyTwoAuthGuard } from './guards';
+import { Response } from 'express';
+import { JwtAuthGuard } from './guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -8,11 +10,13 @@ export class AuthController {
 
     @Get('42')
     @UseGuards(FortyTwoAuthGuard)
-    async auth42(@Request() req: any) {}
+    async auth42(@Req() req: any) {}
 
     @Get('42/callback')
     @UseGuards(FortyTwoAuthGuard)
-    async callback42(@Request() req: any) : Promise<{ access_token: string }> {
-        return this.authService.login42(req);
+    async callback42(@Req() req: any, @Res({ passthrough: true }) res: Response) : Promise<void> {
+        const { access_token } = this.authService.login42(req);
+
+        res.cookie('access_token', access_token);
     }
 }

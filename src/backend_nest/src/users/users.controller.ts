@@ -1,14 +1,15 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/guards';
+import { User } from '@prisma/client';
 
 @Controller('users')
 export class UsersController {
+    constructor(private readonly usersService: UsersService) {}
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
-    profile(@Request() req) {
-        const user = req.user;
-        delete user.mfaKey;
-        return { user };
+    profile(@Req() req: any) : User {
+        return req.user;
     }
 }

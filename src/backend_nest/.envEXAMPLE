@@ -1,6 +1,0 @@
-#create .env file in this directory, it will be ignored by git, stays local
-
-DATABASE_URL="postgresql://admin:password@postgres:5432/trs_db?schema=public"
-JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-FORTYTWO_APP_ID= "your_42_app_id"
-FORTYTWO_APP_SECRET= "your_42_app_secret"

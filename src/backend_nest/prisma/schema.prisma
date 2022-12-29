@@ -11,18 +11,51 @@ datasource db {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
 
-  login42         String    @unique
+  login42      String    @unique
 
-  // If username is not set, the client need to finish setting up the account
-  username        String?   @unique
+  username     String?   @unique
+  avatar       String?
 
-  // Holds the profile img in base64
-  avatar          String?
+  followedBy   Follows[] @relation("following")
+  following    Follows[] @relation("follower")
 
-  // Multi-factor Authentication. If not set then 2FA is not enabled
-  mfaKey          String?
+  gamesCreated Game[]    @relation("hasCreatedGame")
+  gamesJoined  Game[]    @relation("hasJoinedGame")
 
-  @@map(name: "users")
+  @@map("users")
+}
+
+enum Status {
+  OK
+  BLOCKED
+}
+
+model Follows {
+  follower    User   @relation("follower", fields: [followerId], references: [id])
+  followerId  Int
+  following   User   @relation("following", fields: [followingId], references: [id])
+  followingId Int
+
+  status      Status @default(OK)
+
+  @@id([followerId, followingId])
+  @@map("follows")
+}
+
+model Game {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+
+  player1      User     @relation("hasCreatedGame", fields: [idPlayer1], references: [id])
+  idPlayer1    Int
+  player2      User     @relation("hasJoinedGame", fields: [idPlayer2], references: [id])
+  idPlayer2    Int
+
+  scorePlayer1 Int
+  scorePlayer2 Int
+
+  @@map(name: "games")
 }

@@ -1,15 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { UsersPrismaService } from 'src/prisma/users-prisma.service';
+import { UserPrismaService } from 'src/prisma/user.service';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly usersPrisma: UsersPrismaService,
+    constructor(private readonly userPrisma: UserPrismaService,
                 private readonly jwtService: JwtService) {}
 
-    async validateUserByLogin42(login42: string): Promise<User> {
-        return await this.usersPrisma.findOrCreateUserByLogin42(login42);
+    async validateUser(data: { login42: string }) : Promise<User> {
+        return await this.userPrisma.findOrCreateUser(data);
     }
 
     login42(req: any) : { access_token: string } {
