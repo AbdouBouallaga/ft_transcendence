@@ -44,6 +44,8 @@ services:
     restart: always
     volumes:
       - ./src/backend_nest:/usr/src/app
+    depends_on:
+      - postgres
     # ports:
     #   - 3000:3000
     #   - 5333:5555
@@ -66,19 +68,3 @@ services:
         ipv4_address: 10.0.0.4
     expose:
       - 5432
-
-  pgadmin:
-    depends_on:
-      - postgres
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    restart: always
-    env_file:
-      - ./env/.pgadmin.env
-    ports:
-      - 5050:80
-    networks:
-      my-network:
-        ipv4_address: 10.0.0.5
-    volumes:
-      - ./storage/pgadmin_data:/var/lib/pgadmin
