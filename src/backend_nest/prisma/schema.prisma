@@ -11,19 +11,19 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  createdAt    DateTime  @default(now())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
 
-  login42      String    @unique
+  login42 String @unique
 
-  username     String?   @unique
-  avatar       String?
+  username String @unique
+  avatar   String
 
-  followedBy   Follows[] @relation("following")
-  following    Follows[] @relation("follower")
+  followedBy Follows[] @relation("following")
+  following  Follows[] @relation("follower")
 
-  gamesCreated Game[]    @relation("hasCreatedGame")
-  gamesJoined  Game[]    @relation("hasJoinedGame")
+  gamesCreated Game[] @relation("hasCreatedGame")
+  gamesJoined  Game[] @relation("hasJoinedGame")
 
   @@map("users")
 }
@@ -34,25 +34,25 @@ enum Status {
 }
 
 model Follows {
-  follower    User   @relation("follower", fields: [followerId], references: [id])
+  follower    User @relation("follower", fields: [followerId], references: [id])
   followerId  Int
-  following   User   @relation("following", fields: [followingId], references: [id])
+  following   User @relation("following", fields: [followingId], references: [id])
   followingId Int
 
-  status      Status @default(OK)
+  status Status @default(OK)
 
   @@id([followerId, followingId])
   @@map("follows")
 }
 
 model Game {
-  id           Int      @id @default(autoincrement())
-  createdAt    DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
 
-  player1      User     @relation("hasCreatedGame", fields: [idPlayer1], references: [id])
-  idPlayer1    Int
-  player2      User     @relation("hasJoinedGame", fields: [idPlayer2], references: [id])
-  idPlayer2    Int
+  player1   User @relation("hasCreatedGame", fields: [idPlayer1], references: [id])
+  idPlayer1 Int
+  player2   User @relation("hasJoinedGame", fields: [idPlayer2], references: [id])
+  idPlayer2 Int
 
   scorePlayer1 Int
   scorePlayer2 Int

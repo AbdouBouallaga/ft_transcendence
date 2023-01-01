@@ -6,8 +6,8 @@ CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "login42" TEXT NOT NULL,
-    "username" TEXT,
-    "avatar" TEXT,
+    "username" TEXT NOT NULL,
+    "avatar" TEXT NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );

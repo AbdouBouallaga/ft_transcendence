@@ -15,7 +15,8 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
 
     async validate(accessToken: string, refreshToken: string, profile: any) {
         const login42 = profile.username;
-        const user = await this.authService.validateUser({ login42 });
+        const avatar = profile._json.image.link;
+        const user = await this.authService.validateUser(login42, avatar);
         if (!user) {
             throw new UnauthorizedException();
         }
