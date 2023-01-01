@@ -17,4 +17,11 @@ export class UsersService {
     async getMatchHistory(username: string) : Promise<Game[]> {
         return await this.userPrisma.findAllGames(username);
     }
+
+    async getFullProfile(username: string) : Promise<any> {
+        const user = await this.getProfile(username);
+        const friends = await this.getFriends(username);
+        const matchHistory = await this.getMatchHistory(username);
+        return { ...user, friends, matchHistory};
+    }
 }

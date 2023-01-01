@@ -25,6 +25,12 @@ export class UsersController {
         return await this.usersService.getMatchHistory(req.user.username);
     }
 
+    @Get('me/fullProfile')
+    @UseGuards(JwtAuthGuard)
+    async getMyFullProfile(@Req() req: any) : Promise<any> {
+        return await this.usersService.getFullProfile(req.user.username);
+    }
+
     @Get(':username')
     @UseGuards(JwtAuthGuard)
     async getProfile(@Param('username') username: string) : Promise<User> {
@@ -41,5 +47,11 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     async getGameHistory(@Param('username') username: string) : Promise<Game[]> {
         return await this.usersService.getMatchHistory(username);
+    }
+
+    @Get(':username/fullProfile')
+    @UseGuards(JwtAuthGuard)
+    async getFullProfile(@Param('username') username: string) : Promise<any> {
+        return await this.usersService.getFullProfile(username);
     }
 }
