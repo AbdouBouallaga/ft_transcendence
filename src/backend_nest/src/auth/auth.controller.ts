@@ -25,6 +25,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) : Promise<void> {
         res.clearCookie('access_token');
+        res.redirect('http://127.0.0.1.nip.io');
         res.end();
     }
 }
