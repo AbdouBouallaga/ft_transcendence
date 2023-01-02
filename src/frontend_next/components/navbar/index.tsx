@@ -21,9 +21,9 @@ const Navbar = () => {
   const router = useRouter();
     return (
       <nav className="w-64 flex flex-col h-screen border-r-2 border-black">
-          <form>
+          {/* <form>
             <input className="w-full h-12 text-center border border-right" type="text" placeholder="Search player" />
-          </form>
+          </form> */}
           <Link href='/' className="m-2 p-2 h-12 text-center border border-gray-300 bg-gray-100 hover:bg-gray-300">
             HOME
           </Link>

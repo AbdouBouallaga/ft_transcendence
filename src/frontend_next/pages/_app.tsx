@@ -3,7 +3,7 @@ import Head from 'next/head'
 import type { AppProps } from 'next/app'
 import Router, {useRouter} from 'next/router';
 import { useEffect, useState } from 'react'
-import Navbar from '../components/Navbar';
+import Navbar from '../components/navbar';
 import axios from 'axios';
 import { waitForDebugger } from 'inspector';
 
@@ -30,7 +30,7 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         let appRootContainer = document.getElementById('appRootContainer');
         axios.get('http://127.0.0.1.nip.io/api/users/me')
         .then((response) => {
-          console.log(response);
+          // console.log(response);
           setData(response.data);
           if (response.data.login42){
             routeMo('/', true, true);
