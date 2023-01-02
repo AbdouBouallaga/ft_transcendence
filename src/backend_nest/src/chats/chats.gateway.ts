@@ -2,9 +2,17 @@ import { WebSocketGateway, SubscribeMessage, MessageBody } from '@nestjs/websock
 import { ChatsService } from './chats.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import {WebSocketServer} from "@nestjs/websockets";
 
 @WebSocketGateway()
 export class ChatsGateway {
+  @WebSocketServer()
+  server;
+
+  @SubscribeMessage('message')
+  handleMessage(@MessageBody() message: string): void {
+    this.server.emit('message', message);
+  }
   constructor(private readonly chatsService: ChatsService) {}
 
   @SubscribeMessage('createChat')
