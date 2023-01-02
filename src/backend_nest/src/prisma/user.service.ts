@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Game, User } from "@prisma/client";
+import { UpdateUser } from "src/users/dto";
 
 @Injectable()
 export class UserPrismaService {
@@ -11,7 +12,7 @@ export class UserPrismaService {
             username = login42;
         }
 
-        const user = await this.findUser(username);
+        const user = await this.findUserByLogin42(login42);
         if (!user) {
             const newUser = await this.createUser(login42, avatar);
             if (!newUser) {
@@ -22,10 +23,18 @@ export class UserPrismaService {
         return user;
     }
 
-    async findUser(username: string ) : Promise<User> {
+    async findUser(username: string) : Promise<User> {
         return await this.prisma.user.findUnique({
             where: {
                 username,
+            }
+        });
+    }
+
+    async findUserByLogin42(login42: string) : Promise<User> {
+        return await this.prisma.user.findUnique({
+            where: {
+                login42,
             }
         });
     }
@@ -80,5 +89,26 @@ export class UserPrismaService {
             }
         });
         return games;
+    }
+
+    async findUsersContains(username: string) : Promise<User[]> {
+        return await this.prisma.user.findMany({
+            where: {
+                username: {
+                    contains: username,
+                }
+            }
+        });
+    }
+
+    async updateUsername(oldUsername: string, updateUser: UpdateUser) : Promise<User> {
+        return await this.prisma.user.update({
+            where: {
+                username: oldUsername,
+            },
+            data: {
+                ...updateUser,
+            }
+        });
     }
 }

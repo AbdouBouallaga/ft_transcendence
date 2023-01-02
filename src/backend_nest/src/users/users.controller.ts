@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { Game, User } from '@prisma/client';
+import { UpdateUser } from './dto';
 
 @Controller('users')
 export class UsersController {
@@ -15,7 +16,7 @@ export class UsersController {
 
     @Get('me/friends')
     @UseGuards(JwtAuthGuard)
-    async findMyFriends(@Req() req: any) : Promise<User[]> {
+    async getMyFriends(@Req() req: any) : Promise<User[]> {
         return await this.usersService.getFriends(req.user.username);
     }
 
@@ -39,7 +40,7 @@ export class UsersController {
 
     @Get(':username/friends')
     @UseGuards(JwtAuthGuard)
-    async findFriends(@Param('username') username: string) : Promise<User[]> {
+    async getFriends(@Param('username') username: string) : Promise<User[]> {
         return await this.usersService.getFriends(username);
     }
 
@@ -53,5 +54,18 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     async getFullProfile(@Param('username') username: string) : Promise<any> {
         return await this.usersService.getFullProfile(username);
+    }
+
+    @Get('find/:username')
+    @UseGuards(JwtAuthGuard)
+    async findUsers(@Param('username') username: string) : Promise<User[]> {
+        return await this.usersService.findUsersContains(username);
+    }
+
+    @Post('me')
+    @UseGuards(JwtAuthGuard)
+    async updateMyUsername(@Req() req: any, @Body() updateUser: UpdateUser) : Promise<User> {
+        const oldUsername = req.user.username;
+        return await this.usersService.updateUsername(oldUsername, updateUser);
     }
 }
