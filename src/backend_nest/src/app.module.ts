@@ -3,8 +3,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { ChatsModule } from './chats/chats.module';
-import { SocketModule } from './socket/socket.module';
+import { ChatModule } from './chats/chats.module';
 import { SocketModule } from './socket/socket.module';
 
 @Module({
@@ -15,7 +14,7 @@ import { SocketModule } from './socket/socket.module';
     PrismaModule,
     AuthModule,
     UsersModule,
-    ChatsModule,
+    ChatModule,
     SocketModule
   ]
 })

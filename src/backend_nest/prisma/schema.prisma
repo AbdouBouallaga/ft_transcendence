@@ -16,6 +16,9 @@ model User {
 
   login42 String @unique
 
+  intra_id   Int @unique
+
+
   username String @unique
   avatar   String
 
@@ -58,4 +61,19 @@ model Game {
   scorePlayer2 Int
 
   @@map(name: "games")
+}
+
+
+model conversation {
+  id         Int                @id @default(autoincrement())
+  title      String?            @db.VarChar(40)
+  type       conversation_type? @default(DIRECT)
+  active     Boolean?           @default(true)
+  public     Boolean?           @default(false)
+  protected  Boolean?           @default(false)
+  password   String?            @db.VarChar(225)
+  created_at DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at DateTime?          @default(now()) @db.Timestamp(6)
+  members    members[]
+  message    message[]
 }
