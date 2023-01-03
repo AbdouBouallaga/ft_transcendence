@@ -33,8 +33,10 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             if (userIndex > -1) {
                 this.server.in(this.users[userIndex].socketId).disconnectSockets();
                 this.users[userIndex].socketId = client.id;
-            } else this.users.push({ intra_id: client.user, socketId: client.id });
+            } 
+            else this.users.push({ intra_id: client.user, socketId: client.id });
             await client.join("online");
+            
             await this.prismaService.users.update({
                 where: { intra_id: client.user },
                 data: { status: "ONLINE" },

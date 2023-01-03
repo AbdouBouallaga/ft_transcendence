@@ -18,10 +18,12 @@ model User {
 
   intra_id   Int @unique
 
-
+  status   status_t?    @default(OFFLINE)
   username String @unique
   avatar   String
 
+
+ message                                 message[]
   followedBy Follows[] @relation("following")
   following  Follows[] @relation("follower")
 
