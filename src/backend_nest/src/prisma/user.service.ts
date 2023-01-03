@@ -111,4 +111,15 @@ export class UserPrismaService {
             }
         });
     }
+
+    async setTwoFactorAuthSecret(login42: string, tfaSecret: string) : Promise<User> {
+        return await this.prisma.user.update({
+            where: {
+                login42,
+            },
+            data: {
+                tfaSecret,
+            }
+        });
+    }
 }

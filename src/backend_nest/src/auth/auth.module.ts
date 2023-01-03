@@ -3,6 +3,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { FortyTwoStrategy, JwtStrategy } from './strategies';
 import { JwtModule } from '@nestjs/jwt';
+import { TwoFactorAuthController } from './tfa.controller';
+import { TwoFactorAuthService } from './tfa.service';
 
 @Module({
   imports: [
@@ -11,8 +13,8 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '1d' }
     })
   ],
-  controllers: [AuthController],
-  providers: [AuthService, FortyTwoStrategy, JwtStrategy],
+  controllers: [AuthController, TwoFactorAuthController],
+  providers: [AuthService, FortyTwoStrategy, JwtStrategy, TwoFactorAuthService],
   exports: [AuthService]
 })
 export class AuthModule {}

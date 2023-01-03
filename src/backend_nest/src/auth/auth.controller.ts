@@ -14,11 +14,15 @@ export class AuthController {
 
     @Get('42/callback')
     @UseGuards(FortyTwoAuthGuard)
-    async callback42(@Req() req: any, @Res({ passthrough: true }) res: Response) : Promise<void> {
-        const { access_token } = this.authService.login42(req);
+    async callback42(@Req() req: any, @Res({ passthrough: true }) res: Response) : Promise<{ login42: string }> {
+        const { access_token, login42 } = this.authService.login42(req);
 
         res.cookie('access_token', access_token);
         res.redirect('http://127.0.0.1.nip.io');
+
+        return {
+            login42,
+        };
     }
 
     @Get('logout')
