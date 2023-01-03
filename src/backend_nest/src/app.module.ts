@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ChatsModule } from './chats/chats.module';
 import { SocketModule } from './socket/socket.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
