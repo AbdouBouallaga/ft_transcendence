@@ -16,19 +16,22 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
   const [Nav_active, setNav_active] = useState(false)
   const [appReady, setappReady] = useState(false)
   const [data,setData] = useState({})
+  const router = useRouter();
 
   async function routeMo(uri:any, nav:boolean, app:boolean, isError:boolean = false){
+    const apply = () =>{
+      setNav_active(nav);
+      setappReady(app);
+    }
     if (AppProps.router.route !== '/login' && !isError)
       uri = AppProps.router.route;
-    Router.push(uri);
-    await sleep(150);
-    setNav_active(nav);
-    setappReady(app);
+    router.push(uri);
+    router.events.on('routeChangeComplete', apply)
   }
   useEffect(()=>{
     const fetchData = async () => {
         let appRootContainer = document.getElementById('appRootContainer');
-        axios.get('http://127.0.0.1.nip.io/api/users/me')
+        axios.get('/api/users/me')
         .then((response) => {
           console.log(response);
           setData(response.data);
@@ -50,6 +53,10 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         <meta name="description" content="Ping Pong game." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+        />
     </Head>
     {appReady && 
      <div id='appRoot' className="min-h-screen flex">
