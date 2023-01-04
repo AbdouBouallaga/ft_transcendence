@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { TwoFactorAuthService } from "./tfa.service";
 import { JwtAuthGuard } from "./guards";
 import { Response } from "express";
@@ -21,16 +21,19 @@ export class TwoFactorAuthController {
         await this.twoFactorAuthService.setTwoFactorAuthEnabled(login42, false);
     }
 
-    @Get('enable')
+    @Post('enable')
     @UseGuards(JwtAuthGuard)
-    async confirmTwoFactorAuthEnabling(@Req() req: any, @Res({ passthrough: true }) res: Response, @Body('tfaCode') tfaCode: string) {
+    async confirmTwoFactorAuthEnabling(@Req() req: any, @Res({ passthrough: true }) res: Response, @Body('tfaCode') tfaCode: string) : Promise<{ success: boolean }> {
         const login42 = req.user.login42;
         const { access_token } = await this.twoFactorAuthService.verifyTwoFactorAuthCode(login42, tfaCode);
         await this.twoFactorAuthService.setTwoFactorAuthEnabled(login42, true);
         res.cookie('access_token', access_token);
+        return {
+            success: true,
+        };
     }
 
-    @Get('verify')
+    @Post('verify')
     async verifyTwoFactorAuthEnabling(@Res({ passthrough: true }) res: Response, @Body('login42') login42: string, @Body('tfaCode') tfaCode: string) {
         const { access_token } = await this.twoFactorAuthService.verifyTwoFactorAuthCode(login42, tfaCode);
         res.cookie('access_token', access_token);

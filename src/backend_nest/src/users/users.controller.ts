@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/guards';
-import { Game, User } from '@prisma/client';
 import { UpdateUser } from './dto';
+import { GameStats, UserProfile } from './interfaces';
 
 @Controller('users')
 export class UsersController {
@@ -10,19 +10,26 @@ export class UsersController {
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
-    getMyProfile(@Req() req: any) : User {
+    getMyProfile(@Req() req: any) : UserProfile {
         return req.user;
+    }
+
+    @Post('me')
+    @UseGuards(JwtAuthGuard)
+    async updateMyUsername(@Req() req: any, @Body() updateUser: UpdateUser) : Promise<UserProfile> {
+        const oldUsername = req.user.username;
+        return await this.usersService.updateUsername(oldUsername, updateUser);
     }
 
     @Get('me/friends')
     @UseGuards(JwtAuthGuard)
-    async getMyFriends(@Req() req: any) : Promise<User[]> {
+    async getMyFriends(@Req() req: any) : Promise<UserProfile[]> {
         return await this.usersService.getFriends(req.user.username);
     }
 
     @Get('me/history')
     @UseGuards(JwtAuthGuard)
-    async getMyGameHistory(@Req() req: any) : Promise<Game[]> {
+    async getMyGameHistory(@Req() req: any) : Promise<GameStats[]> {
         return await this.usersService.getMatchHistory(req.user.username);
     }
 
@@ -34,19 +41,19 @@ export class UsersController {
 
     @Get(':username')
     @UseGuards(JwtAuthGuard)
-    async getProfile(@Param('username') username: string) : Promise<User> {
+    async getProfile(@Param('username') username: string) : Promise<UserProfile> {
         return await this.usersService.getProfile(username);
     }
 
     @Get(':username/friends')
     @UseGuards(JwtAuthGuard)
-    async getFriends(@Param('username') username: string) : Promise<User[]> {
+    async getFriends(@Param('username') username: string) : Promise<UserProfile[]> {
         return await this.usersService.getFriends(username);
     }
 
     @Get(':username/history')
     @UseGuards(JwtAuthGuard)
-    async getGameHistory(@Param('username') username: string) : Promise<Game[]> {
+    async getGameHistory(@Param('username') username: string) : Promise<GameStats[]> {
         return await this.usersService.getMatchHistory(username);
     }
 
@@ -58,14 +65,7 @@ export class UsersController {
 
     @Get('find/:username')
     @UseGuards(JwtAuthGuard)
-    async findUsers(@Param('username') username: string) : Promise<User[]> {
+    async findUsers(@Param('username') username: string) : Promise<UserProfile[]> {
         return await this.usersService.findUsersContains(username);
-    }
-
-    @Post('me')
-    @UseGuards(JwtAuthGuard)
-    async updateMyUsername(@Req() req: any, @Body() updateUser: UpdateUser) : Promise<User> {
-        const oldUsername = req.user.username;
-        return await this.usersService.updateUsername(oldUsername, updateUser);
     }
 }

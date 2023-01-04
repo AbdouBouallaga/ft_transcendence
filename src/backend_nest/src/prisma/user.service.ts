@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Game, User } from "@prisma/client";
 import { UpdateUser } from "src/users/dto";
+import { GameStats } from "src/users/interfaces";
 
 @Injectable()
 export class UserPrismaService {
@@ -67,7 +68,7 @@ export class UserPrismaService {
         return friends;
     }
 
-    async findAllGames(username: string) : Promise<Game[]> {
+    async findAllGames(username: string) : Promise<GameStats[]> {
         const games = await this.prisma.game.findMany({
             where: {
                 OR: [
@@ -86,6 +87,10 @@ export class UserPrismaService {
                         }
                     }
                 ]
+            },
+            include: {
+                player1: true,
+                player2: true,
             }
         });
         return games;

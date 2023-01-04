@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Game, User } from '@prisma/client';
 import { UserPrismaService } from 'src/prisma/user.service';
 import { UpdateUser } from './dto';
+import { GameStats, UserProfile } from './interfaces';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
         return await this.userPrisma.findAllFriends(username);
     }
 
-    async getMatchHistory(username: string) : Promise<Game[]> {
+    async getMatchHistory(username: string) : Promise<GameStats[]> {
         return await this.userPrisma.findAllGames(username);
     }
 
@@ -26,11 +27,11 @@ export class UsersService {
         return { ...user, friends, matchHistory};
     }
 
-    async findUsersContains(username: string) : Promise<User[]> {
+    async findUsersContains(username: string) : Promise<UserProfile[]> {
         return await this.userPrisma.findUsersContains(username);
     }
 
-    async updateUsername(oldUsername: string, updateUser: UpdateUser) : Promise<User> {
+    async updateUsername(oldUsername: string, updateUser: UpdateUser) : Promise<UserProfile> {
         return await this.userPrisma.updateUsername(oldUsername, updateUser);
     }
 }
