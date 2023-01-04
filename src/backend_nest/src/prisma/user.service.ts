@@ -122,4 +122,15 @@ export class UserPrismaService {
             }
         });
     }
+
+    async setTwoFactorAuthEnabled(login42: string, tfaEnabled: boolean) : Promise<User> {
+        return await this.prisma.user.update({
+            where: {
+                login42,
+            },
+            data: {
+                tfaEnabled,
+            }
+        });
+    }
 }

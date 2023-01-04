@@ -14,6 +14,10 @@ export class TwoFactorAuthService {
         return await this.userPrisma.setTwoFactorAuthSecret(login42, tfaSecret);
     }
 
+    async setTwoFactorAuthEnabled(login42: string, tfaEnabled: boolean) : Promise<User> {
+        return await this.userPrisma.setTwoFactorAuthEnabled(login42, tfaEnabled);
+    }
+
     async generateTwoFactorAuthSecret(login42: string) : Promise<{ otpAuthURL: string }> {
         const secret = authenticator.generateSecret();
         const otpAuth = authenticator.keyuri(login42, process.env.AUTH_APP_NAME, secret);

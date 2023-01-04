@@ -19,7 +19,8 @@ model User {
   username String @unique
   avatar   String
 
-  tfaSecret String?
+  tfaSecret  String?
+  tfaEnabled Boolean @default(false)
 
   followedBy Follows[] @relation("following")
   following  Follows[] @relation("follower")
