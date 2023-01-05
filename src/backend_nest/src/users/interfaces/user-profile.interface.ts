@@ -1,13 +1,21 @@
+import { type } from "os";
 import { GameStats } from "./index";
 
-export interface UserProfile {
-    username: string,
-    avatar: string,
-    tfaEnabled: boolean,
+export class UserProfile {
+    username: string;
+    login42: string;
+    avatar: string;
+
+    constructor(user: any) {
+        this.username = user.username;
+        this.login42 = user.login42;
+        this.avatar = user.avatar;
+    }
 };
 
 export interface UserFullProfile {
-    profile: UserProfile,
+    username: string,
+    avatar: string,
     friends: UserProfile[],
     games: GameStats[],
 }

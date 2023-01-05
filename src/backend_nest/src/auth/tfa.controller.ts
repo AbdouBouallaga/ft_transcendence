@@ -34,9 +34,11 @@ export class TwoFactorAuthController {
     }
 
     @Post('verify')
-    async verifyTwoFactorAuthEnabling(@Res({ passthrough: true }) res: Response, @Body('login42') login42: string, @Body('tfaCode') tfaCode: string) {
+    async verifyTwoFactorAuthEnabling(@Req() req: any, @Res({ passthrough: true }) res: Response, @Body('tfaCode') tfaCode: string) {
+        const login42 = req.cookies['key'];
         const { access_token } = await this.twoFactorAuthService.verifyTwoFactorAuthCode(login42, tfaCode);
+        res.clearCookie('key');
         res.cookie('access_token', access_token);
-        res.redirect('http://127.0.0.1.nip.io');
+        res.redirect(process.env.HOME_URL);
     }
 }

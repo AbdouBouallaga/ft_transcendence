@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Game, User } from "@prisma/client";
 import { UpdateUser } from "src/users/dto";
-import { GameStats } from "src/users/interfaces";
+import { GameStats, UserFullGameStats, UserProfile } from "src/users/interfaces";
 
 @Injectable()
 export class UserPrismaService {
@@ -93,7 +93,28 @@ export class UserPrismaService {
                 player2: true,
             }
         });
-        return games;
+        let getGameWithFullStats = function (game: any, index: number) : GameStats {
+            let winner: UserProfile = new UserProfile(game.player1);
+            let winnerScore: number = game.scorePlayer1;
+            let loser: UserProfile = new UserProfile(game.player2);
+            let loserScore: number = game.scorePlayer2;
+            if (winnerScore < loserScore) {
+                [winner, loser] = [loser, winner];
+                [winnerScore, loserScore] = [loserScore, winnerScore];
+            }
+            let won: boolean = true;
+            if (loser.username === username) {
+                won = false;
+            }
+            return {
+                winner,
+                winnerScore,
+                loser,
+                loserScore,
+                won,
+            };
+        };
+        return games.map(getGameWithFullStats);
     }
 
     async findUsersContains(username: string) : Promise<User[]> {

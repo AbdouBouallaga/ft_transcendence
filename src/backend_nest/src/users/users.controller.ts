@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/comm
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { UpdateUser } from './dto';
-import { GameStats, UserProfile } from './interfaces';
+import { GameStats, UserFullProfile, UserProfile } from './interfaces';
 
 @Controller('users')
 export class UsersController {
@@ -11,7 +11,7 @@ export class UsersController {
     @Get('me')
     @UseGuards(JwtAuthGuard)
     getMyProfile(@Req() req: any) : UserProfile {
-        return req.user;
+        return new UserProfile(req.user);
     }
 
     @Post('me')
@@ -35,7 +35,7 @@ export class UsersController {
 
     @Get('me/fullProfile')
     @UseGuards(JwtAuthGuard)
-    async getMyFullProfile(@Req() req: any) : Promise<any> {
+    async getMyFullProfile(@Req() req: any) : Promise<UserFullProfile> {
         return await this.usersService.getFullProfile(req.user.username);
     }
 
@@ -59,7 +59,7 @@ export class UsersController {
 
     @Get(':username/fullProfile')
     @UseGuards(JwtAuthGuard)
-    async getFullProfile(@Param('username') username: string) : Promise<any> {
+    async getFullProfile(@Param('username') username: string) : Promise<UserFullProfile> {
         return await this.usersService.getFullProfile(username);
     }
 
