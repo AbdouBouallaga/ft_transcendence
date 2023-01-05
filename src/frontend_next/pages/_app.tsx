@@ -16,6 +16,11 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
   const [Nav_active, setNav_active] = useState(false)
   const [appReady, setappReady] = useState(false)
   const [data,setData] = useState({})
+  const [profile, setProfile] = useState({
+    id: 0,
+    username: '',
+    avatar: '',}
+  )
 
   async function routeMo(uri:any, nav:boolean, app:boolean, isError:boolean = false){
     if (AppProps.router.route !== '/login' && !isError)
@@ -27,10 +32,13 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
   }
   useEffect(()=>{
     const fetchData = async () => {
-        let appRootContainer = document.getElementById('appRootContainer');
+        // let appRootContainer = document.getElementById('appRootContainer');
         axios.get('http://127.0.0.1.nip.io/api/users/me')
         .then((response) => {
           // console.log(response);
+          // console.log(response.data)
+          const {id, username, avatar} = response.data;
+          setProfile({id, username, avatar})
           setData(response.data);
           if (response.data.login42){
             routeMo('/', true, true);
@@ -52,13 +60,10 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
     </Head>
     {appReady && 
-     <div id='appRoot' className="min-h-screen flex">
-        <div id='appNav' className=''>
-          {Nav_active && <Navbar />}
-        </div>
-        <div id='appRootContainer' className="flex-1 h-screen ">
+     <div id='appRoot' className="min-h-screen">
+          {Nav_active && <Navbar profile={profile} />}
+          {/* <Navbar profile={profile} /> */}
           <Component {...pageProps} />  
-        </div>
       </div>
     }
     </>
