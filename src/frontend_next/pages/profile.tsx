@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Alert } from 'reactstrap';
 import axios from "axios";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Alert } from 'reactstrap';
 
 const Profile = () => {
   // State to store the user's profile data
   const [profile, setProfile] = useState({
     username: "",
     avatar: "",
-    auth:""
+    auth:"",
+    tfaEnabled: false,
   });
   const [edit, setEdit] = useState(false);
 
@@ -21,6 +22,7 @@ const Profile = () => {
   const [qr2faConfirm, set2faConfirm] = useState(false);
   const [qr2faCodeInput, set2faCodeInput] = useState('0');
   const [qr2faCodeError, set2faCodeError] = useState(false);
+  const [enabled2fa, set2faEnabled] = useState(false);
 
   function modal2faDefault(){
     toggle2faModal();
@@ -41,6 +43,34 @@ const Profile = () => {
       .catch((error) => {
           console.log(error);
       })
+  }
+  async function disable2fa() {
+    const input = document.getElementById('2faCodeInput') as HTMLInputElement;
+    console.log(input.value);
+    if (input.value){
+      set2faCodeError(false);
+      axios({
+        method: 'POST',
+        url: '/api/auth/tfa/disable',
+        data: {
+          tfaCode: input?.value
+        },
+      })
+      .then((response) => {
+        if (response.data.success){
+          set2faConfirm(true);
+          set2faCodeError(false);
+        }
+        setqrnextButton(false);
+        setqrprevButton(false);
+        })
+        .catch((error) => {
+          set2faCodeError(true);
+        })
+      }
+      else {
+        set2faCodeError(true);
+      }
   }
   async function confirm2fa() {
     const input = document.getElementById('2faCodeInput') as HTMLInputElement;
@@ -74,13 +104,14 @@ const Profile = () => {
   useEffect(() => {
     async function fetchProfile() {
       axios
-        .get("http://127.0.0.1.nip.io/api/users/me/fullprofile")
+        .get("/api/users/me/fullprofile")
         .then((response) => {
-          const { username, avatar } = response.data;
+          const { username, avatar, tfaEnabled} = response.data;
           console.log(username, avatar);
           setProfile({
             username,
             avatar,
+            tfaEnabled,
           });
         })
         .catch((error) => {
@@ -99,19 +130,22 @@ const Profile = () => {
       <div className="avatar">
         <img src={profile.avatar} alt={profile.username} />
       </div>
-      <h1>Profile</h1>
+      <h1><b>{profile.username}</b></h1>
 
       <>
         {/* <p>Username: {profile.username}</p> */}
         {/* <p>Score: {profile.score}</p> */}
-        <button onClick={() => setEdit((edit) => !edit)}>Edit</button>
-        <button className='btn btn-primary m-2' onClick={enable2fa}>Enable 2fa</button>
+        <div className="">
+        <button className='btn btn-primary m-2' onClick={() => setEdit((edit) => !edit)}>Edit</button>
+        {profile.tfaEnabled ? <button className='btn btn-danger m-2' onClick={toggle2faModal} >Disable 2fa</button> : <button className='btn btn-primary m-2' onClick={enable2fa}>Enable 2fa</button>}
+        {/* <button className='btn btn-primary m-2' onClick={enable2fa}>Enable 2fa</button> */}
+        </div>
       </>
-
       {edit ? <ModalEdit setEdit={setEdit} profile={profile} /> : null}
     </div>
     <Modal isOpen={enable2famodal} toggle={modal2faDefault} size="sm">
         <ModalHeader toggle2faModal={toggle2faModal}>Enable 2fa</ModalHeader>
+        {!profile.tfaEnabled &&
         <ModalBody>
           {qrnextButton &&
           <div id="2faQr">
@@ -136,8 +170,29 @@ const Profile = () => {
           </div>
           }
         </ModalBody>
+      }
+      {profile.tfaEnabled &&
+      <ModalBody>
+        {!qr2faConfirm &&
+        <div className='' id="2faConfirm">
+        <input id="2faCodeValidForm" className='m-auto' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6}/>
+        <button className='m-auto' onClick={disable2fa}>Confirm</button>
+        </div>
+        }
+        {qr2faCodeError &&
+          <div id='enabled' className='alert alert-danger text-center'>
+            <strong >Wrong Code !!</strong>
+          </div>
+          }
+        {qr2faConfirm &&
+          <div id='enabled' className='alert alert-success text-center'>
+            <strong >2fa Disabled successfully</strong>
+          </div>
+        }
+      </ModalBody>
+      }
         <ModalFooter>
-          {qrnextButton && 
+          {qrnextButton && !profile.tfaEnabled &&
           <button id='qrnextButton' className=' btn btn-primary' onClick={() => {
             set2faCodeError(false);
             setqrnextButton(!qrnextButton)

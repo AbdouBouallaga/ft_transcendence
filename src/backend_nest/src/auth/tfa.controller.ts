@@ -14,11 +14,16 @@ export class TwoFactorAuthController {
         return await this.twoFactorAuthService.generateTwoFactorAuthSecret(login42);
     }
 
-    @Get('disable')
+    @Post('disable')
     @UseGuards(JwtAuthGuard)
-    async disableTwoFactorAuth(@Req() req: any) {
+    async disableTwoFactorAuth(@Req() req: any, @Res({ passthrough: true }) res: Response, @Body('tfaCode') tfaCode: string) : Promise<{ success: boolean }> {
         const login42 = req.user.login42;
+        const { access_token } = await this.twoFactorAuthService.verifyTwoFactorAuthCode(login42, tfaCode);
         await this.twoFactorAuthService.setTwoFactorAuthEnabled(login42, false);
+        res.cookie('access_token', access_token);
+        return {
+            success: true,
+        };
     }
 
     @Post('enable')
@@ -37,8 +42,10 @@ export class TwoFactorAuthController {
     async verifyTwoFactorAuthEnabling(@Req() req: any, @Res({ passthrough: true }) res: Response, @Body('tfaCode') tfaCode: string) {
         const login42 = req.cookies['key'];
         const { access_token } = await this.twoFactorAuthService.verifyTwoFactorAuthCode(login42, tfaCode);
-        res.clearCookie('key');
         res.cookie('access_token', access_token);
-        res.redirect(process.env.HOME_URL);
+        res.clearCookie('key');
+        return {
+            success: true,
+        };
     }
 }

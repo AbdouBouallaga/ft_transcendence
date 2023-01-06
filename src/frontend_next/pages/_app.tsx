@@ -22,7 +22,7 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
     avatar: '',}
   )
 
-  async function routeMo(uri:any, nav:boolean, app:boolean, isError:boolean = false){
+  async function routeMo(uri:any, nav:boolean, app:boolean, isError:boolean = false){ //route and display content
     const apply = () =>{
       setNav_active(nav);
       setappReady(app);
@@ -30,9 +30,14 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
     if (AppProps.router.route !== '/login' && !isError)
       uri = AppProps.router.route;
     Router.push(uri);
-    Router.events.on('routeChangeComplete', apply)
+    Router.events.on('routeChangeComplete', apply) /// this is the key
   }
+  
   useEffect(()=>{
+    if (AppProps.router.route == '/verify2fa'){
+      routeMo('/verify2fa', false, true);
+    }
+    else {
     const fetchData = async () => {
         // let appRootContainer = document.getElementById('appRootContainer');
         axios.get('/api/users/me')
@@ -52,6 +57,7 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         });
       }
       fetchData()
+    }
   },[])
     return (
     <>
@@ -60,6 +66,10 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         <meta name="description" content="Ping Pong game." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <link	
+          rel="stylesheet"	
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"	
+        />
     </Head>
     {appReady && 
      <div id='appRoot' className="min-h-screen">

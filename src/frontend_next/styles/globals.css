@@ -79,6 +79,7 @@ ul {
 	border-radius: 6px;
 	padding: 20px;
 	margin-bottom: 20px;
+	position: unset; /* chouf hadi */
   }
   
   h1 {
