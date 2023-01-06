@@ -8,6 +8,8 @@ CREATE TABLE "users" (
     "login42" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "avatar" TEXT NOT NULL,
+    "tfaSecret" TEXT,
+    "tfaEnabled" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );

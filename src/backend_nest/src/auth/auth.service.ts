@@ -12,7 +12,7 @@ export class AuthService {
         return await this.userPrisma.findOrCreateUser(login42, avatar);
     }
 
-    login42(req: any) : { access_token: string } {
+    login42(req: any) : { access_token: string, login42: string } {
         if (!req.user) {
             throw new UnauthorizedException();
         }
@@ -22,7 +22,8 @@ export class AuthService {
             login42: user.login42
         };
         return {
-            access_token: this.jwtService.sign(payload)
+            access_token: this.jwtService.sign(payload),
+            login42: user.login42
         };
     }
 }
