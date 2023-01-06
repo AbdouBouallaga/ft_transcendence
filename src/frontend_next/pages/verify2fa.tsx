@@ -40,7 +40,7 @@ export default function Login2fa() {
               Verify 2FA
             </h2>
             <br />
-            <div>
+            <div className="flex">
               <input type="text" name="code" id="code2faVerify" placeholder="code" className="form-control" />
               <button onClick={confirm2fa} id="verify2fa" className="btn btn-primary">Verify</button>
             </div>
