@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Alert } from 'reactstrap';
 import axios from "axios";
 
 const Profile = () => {
@@ -12,6 +13,62 @@ const Profile = () => {
 
   // State to store the edit mode status
   const [isEditing, setIsEditing] = useState(false);
+
+  //2fa
+  const [data2fa, set2fa] = useState({});
+  const [qrnextButton, setqrnextButton] = useState(true);
+  const [qrprevButton, setqrprevButton] = useState(false);
+  const [qr2faConfirm, set2faConfirm] = useState(false);
+  const [qr2faCodeInput, set2faCodeInput] = useState('0');
+  const [qr2faCodeError, set2faCodeError] = useState(false);
+
+  function modal2faDefault(){
+    toggle2faModal();
+    setqrnextButton(true);
+    setqrprevButton(false);
+    set2faConfirm(false);
+    set2faCodeError(false);
+  }
+
+  const toggle2faModal = () => setModal(!enable2famodal);
+  const [enable2famodal, setModal] = useState(false);
+  async function enable2fa() {
+    axios.get('api/auth/tfa/generate')
+    .then((response) => {
+      set2fa(response.data);
+      toggle2faModal();
+      })
+      .catch((error) => {
+          console.log(error);
+      })
+  }
+  async function confirm2fa() {
+    const input = document.getElementById('2faCodeInput') as HTMLInputElement;
+    if (input.value){
+      set2faCodeError(false);
+      axios({
+        method: 'POST',
+        url: '/api/auth/tfa/enable',
+        data: {
+          tfaCode: input?.value
+        },
+      })
+      .then((response) => {
+        if (response.data.success){
+          set2faConfirm(true);
+        }
+        setqrnextButton(false);
+        setqrprevButton(false);
+        })
+        .catch((error) => {
+          set2faCodeError(true);
+        })
+      }
+      else {
+        set2faCodeError(true);
+      }
+  }
+
 
   // Fetch the user's profile data when the component mounts
   useEffect(() => {
@@ -37,6 +94,7 @@ const Profile = () => {
 
   // Render the profile data in a card
   return (
+    <>
     <div className="card">
       <div className="avatar">
         <img src={profile.avatar} alt={profile.username} />
@@ -47,16 +105,68 @@ const Profile = () => {
         {/* <p>Username: {profile.username}</p> */}
         {/* <p>Score: {profile.score}</p> */}
         <button onClick={() => setEdit((edit) => !edit)}>Edit</button>
+        <button className='btn btn-primary m-2' onClick={enable2fa}>Enable 2fa</button>
       </>
 
-      {edit ? <Modal setEdit={setEdit} profile={profile} /> : null}
+      {edit ? <ModalEdit setEdit={setEdit} profile={profile} /> : null}
     </div>
+    <Modal isOpen={enable2famodal} toggle={modal2faDefault} size="sm">
+        <ModalHeader toggle2faModal={toggle2faModal}>Enable 2fa</ModalHeader>
+        <ModalBody>
+          {qrnextButton &&
+          <div id="2faQr">
+            <p className='text-center'>Scan this QR code with your authenticator app</p>
+            <img className='m-auto' src={data2fa.otpAuthURL} alt="qr" />
+          </div>
+          }
+          {qrprevButton &&
+          <div className='' id="2faConfirm">
+            <input id="2faCodeValidForm" className='m-auto' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6}/>
+            <button className='m-auto' onClick={confirm2fa}>Confirm</button>
+          </div>
+          }
+          {qr2faCodeError &&
+          <div id='enabled' className='alert alert-danger text-center'>
+            <strong >Wrong Code !!</strong>
+          </div>
+          }
+          {qr2faConfirm &&
+          <div id='enabled' className='alert alert-success text-center'>
+            <strong >2fa enabled successfully</strong>
+          </div>
+          }
+        </ModalBody>
+        <ModalFooter>
+          {qrnextButton && 
+          <button id='qrnextButton' className=' btn btn-primary' onClick={() => {
+            set2faCodeError(false);
+            setqrnextButton(!qrnextButton)
+            setqrprevButton(!qrprevButton)
+          }}>
+            Next
+          </button>
+          }
+          {qrprevButton &&
+          <button id='qrprevButton' className=' btn btn-primary' onClick={() => {
+            set2faCodeError(false);
+            setqrprevButton(!qrprevButton)
+            setqrnextButton(!qrnextButton)
+          }}>
+            Previous
+          </button>
+          }
+          <button className='btn btn-danger' onClick={modal2faDefault}>
+            Cancel
+          </button>
+        </ModalFooter>
+      </Modal>
+    </>
   );
 };
 
 export default Profile;
 
-const Modal = ({ setEdit, profile }) => {
+const ModalEdit = ({ setEdit, profile }) => {
 
   const [createObjectURL, setCreateObjectURL] = useState(null);
   const uploadToClient = (event) => {

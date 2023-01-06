@@ -23,17 +23,19 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
   )
 
   async function routeMo(uri:any, nav:boolean, app:boolean, isError:boolean = false){
+    const apply = () =>{
+      setNav_active(nav);
+      setappReady(app);
+    }
     if (AppProps.router.route !== '/login' && !isError)
       uri = AppProps.router.route;
     Router.push(uri);
-    await sleep(150);
-    setNav_active(nav);
-    setappReady(app);
+    Router.events.on('routeChangeComplete', apply)
   }
   useEffect(()=>{
     const fetchData = async () => {
         // let appRootContainer = document.getElementById('appRootContainer');
-        axios.get('http://127.0.0.1.nip.io/api/users/me')
+        axios.get('/api/users/me')
         .then((response) => {
           // console.log(response);
           // console.log(response.data)
