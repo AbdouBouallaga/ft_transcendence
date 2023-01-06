@@ -42,7 +42,7 @@ nav {
   backdrop-filter: brightness(1.9);
 }
 /* chat */
-ul {
+/* ul {
 	list-style: none;
 	padding: 0;
   }
@@ -70,7 +70,7 @@ ul {
 	color: #fff;
 	border-radius: 4px;
 	cursor: pointer;
-  }
+  } */
 
 /* profile */
 .card {

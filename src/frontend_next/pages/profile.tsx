@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Router, {useRouter} from 'next/router';
 import axios from "axios";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Alert } from 'reactstrap';
 
@@ -60,6 +61,7 @@ const Profile = () => {
         if (response.data.success){
           set2faConfirm(true);
           set2faCodeError(false);
+          set2faEnabled(false);
         }
         setqrnextButton(false);
         setqrprevButton(false);
@@ -86,6 +88,7 @@ const Profile = () => {
       .then((response) => {
         if (response.data.success){
           set2faConfirm(true);
+          set2faEnabled(true);
         }
         setqrnextButton(false);
         setqrprevButton(false);
@@ -119,7 +122,7 @@ const Profile = () => {
         });
     }
     fetchProfile();
-  }, []);
+  }, [enabled2fa]);
 
   // Function to toggle edit mode
 
@@ -154,9 +157,9 @@ const Profile = () => {
           </div>
           }
           {qrprevButton &&
-          <div className='' id="2faConfirm">
-            <input id="2faCodeValidForm" className='m-auto' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6}/>
-            <button className='m-auto' onClick={confirm2fa}>Confirm</button>
+          <div className='flex' id="2faConfirm">
+            <input id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6}/>
+            <button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</button>
           </div>
           }
           {qr2faCodeError &&
@@ -174,19 +177,19 @@ const Profile = () => {
       {profile.tfaEnabled &&
       <ModalBody>
         {!qr2faConfirm &&
-        <div className='' id="2faConfirm">
-        <input id="2faCodeValidForm" className='m-auto' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6}/>
-        <button className='m-auto' onClick={disable2fa}>Confirm</button>
+        <div className='flex' id="2faConfirm">
+        <input id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6}/>
+        <button className='btn btn btn-primary' onClick={disable2fa}>Confirm</button>
         </div>
+        }
+        {qr2faConfirm &&
+          <div id='enabled' className='alert alert-success text-center'>
+            <strong >2fa Disabled successfully</strong>
+          </div>
         }
         {qr2faCodeError &&
           <div id='enabled' className='alert alert-danger text-center'>
             <strong >Wrong Code !!</strong>
-          </div>
-          }
-        {qr2faConfirm &&
-          <div id='enabled' className='alert alert-success text-center'>
-            <strong >2fa Disabled successfully</strong>
           </div>
         }
       </ModalBody>

@@ -40,13 +40,15 @@ export default function Login2fa() {
               Verify 2FA
             </h2>
             <br />
-            <input type="text" name="code" id="code2faVerify" placeholder="code" />
+            <div>
+              <input type="text" name="code" id="code2faVerify" placeholder="code" className="form-control" />
+              <button onClick={confirm2fa} id="verify2fa" className="btn btn-primary">Verify</button>
+            </div>
             {qr2faCodeError &&
             <div id='enabled' className='alert alert-danger text-center'>
             <strong >Wrong Code !!</strong>
             </div>
             }
-            <button onClick={confirm2fa} id="verify2fa" className="btn btn-primary">Verify</button>
        </div>
        </div>
         </div>
