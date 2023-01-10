@@ -66,10 +66,6 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         <meta name="description" content="Ping Pong game." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        <link	
-          rel="stylesheet"	
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"	
-        />
     </Head>
     {appReady && 
      <div id='appRoot' className="min-h-screen">

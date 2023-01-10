@@ -4,21 +4,21 @@ import Router, {useRouter} from 'next/router';
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
+import { Dropdown, Avatar } from "flowbite-react";
 
 const Navbar = ({ profile } :any) => {
 
-  const [NavDrop, setNavDrop] = useState(false);
   return (
   <>
-    <nav className="">
-      <div className="container flex flex-wrap items-center justify-between mx-auto">
+    <nav id="Navbar" className="">
+      <div className="container flex items-center justify-between mx-auto">
         <Link href="/" className="flex items-center">
           {/* <img src="https://flowbite.com/docs/images/logo.svg" className="h-6 mr-3 sm:h-10" alt="Flowbite Logo" /> */}
           <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
             PingPong
           </span>
         </Link>
-        <div className="hidden w-full md:block md:w-auto">
+        <div className=" w-full flex justify-end">
           <ul className="flex  p-4  items-center  flex-row space-x-8  text-sm font-medium  ">
             <li>
               <a
@@ -51,58 +51,32 @@ const Navbar = ({ profile } :any) => {
               </a>
             </li>
             <li>
-              <a onClick={()=>{
-                setNavDrop(!NavDrop)
-            }}>
-              <Image
-                className="w-10 h-10 rounded-full"
-                width={100}
-                height={100}
-                src={profile?.avatar}
-                alt={profile?.username}
-              />
-              </a>
+              <Dropdown label={<Avatar alt="Nav Drop settings" img={profile?.avatar} rounded={true}/>}
+                        inline={true} 
+                        arrowIcon={false}>
+              <Dropdown.Header>
+                <span className="block text-sm">
+                  Signed in as 
+                </span>
+                <span className="block text-sm font-medium truncate">
+                  {profile?.username}
+                </span>
+              </Dropdown.Header>
+              <Dropdown.Item onClick={()=>{Router.push("/profile")}}>
+                Profile
+              </Dropdown.Item>
+              <Dropdown.Item>
+                Settings
+              </Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item onClick={()=>{Router.push("/api/auth/logout")}}>
+                Sign out
+              </Dropdown.Item>
+            </Dropdown>
             </li>
           </ul>
         </div>
       </div>
-    { NavDrop &&
-    <div
-     id="dropdownNavbar"
-     className="z-100 bg-white divide-y divide-gray-100 rounded shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
-      >
-     <ul
-       className="py-1 text-sm text-gray-700 dark:text-gray-400"
-       aria-labelledby="dropdownLargeButton"
-     >
-       <li>
-         <a
-           onClick={()=>{Router.push("/profile")}}
-           href="#"
-           className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-         >
-           Profile
-         </a>
-       </li>
-       <li>
-         <a
-           href="#"
-           className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-         >
-           Settings
-         </a>
-       </li>
-     </ul>
-     <div className="py-1">
-       <a
-         href="/api/auth/logout"
-         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
-       >
-         Sign out
-       </a>
-     </div>
-    </div>
-}
     </nav>
 </>
   );

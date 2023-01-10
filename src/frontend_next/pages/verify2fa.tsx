@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Button, TextInput, Badge} from "flowbite-react";
 
 
 
@@ -7,15 +8,15 @@ export default function Login2fa() {
   const [qr2faCodeError, set2faCodeError] = useState(false);
 
   async function confirm2fa() {
-    const input = document.getElementById('code2faVerify') as HTMLInputElement;
-    console.log(input.value);
-    if (input.value){
+    const TextInput = document.getElementById('code2faVerify') as HTMLInputElement;
+    console.log(TextInput.value);
+    if (TextInput.value){
       set2faCodeError(false);
       axios({
         method: 'POST',
         url: '/api/auth/tfa/verify',
         data: {
-          tfaCode: input?.value
+          tfaCode: TextInput?.value
         },
       })
       .then((response) => {
@@ -41,13 +42,16 @@ export default function Login2fa() {
             </h2>
             <br />
             <div className="flex">
-              <input type="text" name="code" id="code2faVerify" placeholder="code" className="form-control" />
-              <button onClick={confirm2fa} id="verify2fa" className="btn btn-primary">Verify</button>
+              <TextInput type="text" name="code" id="code2faVerify" placeholder="code" className="form-control" />
+              <Button onClick={confirm2fa} id="verify2fa" className="btn btn-primary">Verify</Button>
             </div>
             {qr2faCodeError &&
-            <div id='enabled' className='alert alert-danger text-center'>
-            <strong >Wrong Code !!</strong>
-            </div>
+            <Badge
+            color="failure"
+            size="L"
+            >
+            <strong>WRONG CODE !!!</strong>
+            </Badge>
             }
        </div>
        </div>
