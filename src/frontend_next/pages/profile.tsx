@@ -252,9 +252,9 @@ const Profile = () => {
                 <strong >Wrong Code !!</strong>
               </Badge>
               }
-              {qr2faConfirm &&
+              {qr2faConfirm && // roles inverted i know
               <Badge color="success" size="L">
-                <strong >2fa enabled successfully</strong>
+                <strong >2fa disabled successfully</strong>
               </Badge>
               }
             </Modal.Body>
@@ -270,9 +270,9 @@ const Profile = () => {
             </div>
             </>
             }
-            {qr2faConfirm &&
+            {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
               <Badge color="success" size="L">
-              <strong >2fa disabled successfully</strong>
+              <strong >2fa enabled successfully</strong>
             </Badge>
             }
             {qr2faCodeError &&
