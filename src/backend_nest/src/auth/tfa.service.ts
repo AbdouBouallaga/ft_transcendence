@@ -4,6 +4,7 @@ import { authenticator } from "otplib";
 import { UserPrismaService } from "src/prisma/user.service";
 import { toDataURL } from "qrcode";
 import { JwtService } from "@nestjs/jwt";
+import * as CryptoJS from "crypto-js";
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -21,7 +22,8 @@ export class TwoFactorAuthService {
     async generateTwoFactorAuthSecret(login42: string) : Promise<{ otpAuthURL: string }> {
         const secret = authenticator.generateSecret();
         const otpAuth = authenticator.keyuri(login42, process.env.AUTH_APP_NAME, secret);
-        await this.userPrisma.setTwoFactorAuthSecret(login42, secret);
+        const encryptedSecret = CryptoJS.AES.encrypt(secret, process.env.PASSPHRASE_SECRET).toString();
+        await this.userPrisma.setTwoFactorAuthSecret(login42, encryptedSecret);
         const otpAuthURL = await toDataURL(otpAuth);
         return { otpAuthURL };
     }
@@ -31,9 +33,11 @@ export class TwoFactorAuthService {
         if (!user) {
             throw new InternalServerErrorException();
         }
+        const bytes = CryptoJS.AES.decrypt(user.tfaSecret, process.env.PASSPHRASE_SECRET);
+        const secret = bytes.toString(CryptoJS.enc.Utf8);
         const isValid = authenticator.verify({
             token: tfaCode,
-            secret: user.tfaSecret
+            secret,
         });
         if (!isValid) {
             throw new UnauthorizedException();
