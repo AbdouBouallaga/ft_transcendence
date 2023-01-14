@@ -1,7 +1,7 @@
 
-#game-screen {
+/* #game-screen {
   display: none;
-}
+} */
 
 #room-input{
   display: flex;
@@ -11,11 +11,11 @@
 }
 
 .paddle {
-  --position: 50%;
+  --position: 50;
 
   position: absolute;
   background-color: #ddd;
-  top: var(--position);
+  top: calc((var(--position) * 1vh));
   width: 1vh;
   transform: translateY(-50%);
   width: 1vh;
@@ -31,13 +31,13 @@
 }
 
 .ball {
-  --x: 50%;
-  --y: 50%;
+  --x: 50;
+  --y: 50;
 
   position: absolute;
   background-color: #ddd;
-  left: var(--x);
-  top: var(--y);
+  left: calc((var(--x) * 1vw));
+  top: calc((var(--y) * 1vh));
   transform: translateY(-50%, -50%);
   width: 2.5vh;
   height: 2.5vh;
