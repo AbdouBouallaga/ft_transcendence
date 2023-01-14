@@ -1,4 +1,6 @@
 import '../styles/globals.css'
+import '../styles/gameStyle.css';
+
 import Head from 'next/head'
 import type { AppProps } from 'next/app'
 import Router, {useRouter} from 'next/router';
@@ -68,10 +70,9 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
     </Head>
     {appReady && 
-     <div id='appRoot' className="min-h-screen">
-          {Nav_active && <Navbar profile={profile} />}
-          {/* <Navbar profile={profile} /> */}
-          <Component {...pageProps} />  
+      <div id='appRoot' className="h-screen flex flex-col">
+        {Nav_active && <Navbar profile={profile} />}
+        <Component {...pageProps} />  
       </div>
     }
     </>

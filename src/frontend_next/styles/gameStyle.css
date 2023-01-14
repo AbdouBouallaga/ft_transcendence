@@ -1,0 +1,66 @@
+
+#game-screen {
+  display: none;
+}
+
+#room-input{
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  align-items: center;
+}
+
+.paddle {
+  --position: 50%;
+
+  position: absolute;
+  background-color: #ddd;
+  top: var(--position);
+  width: 1vh;
+  transform: translateY(-50%);
+  width: 1vh;
+  height: 15vh;
+}
+
+#my-paddle {
+  left: 1vw;
+}
+
+#op-paddle {
+  right: 1vw;
+}
+
+.ball {
+  --x: 50%;
+  --y: 50%;
+
+  position: absolute;
+  background-color: #ddd;
+  left: var(--x);
+  top: var(--y);
+  transform: translateY(-50%, -50%);
+  width: 2.5vh;
+  height: 2.5vh;
+  border-radius: 50%;
+}
+
+.score {
+  display: flex;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 7vh;
+  color: #ddd;
+  opacity: 50%;
+}
+
+#my-score {
+  border-right: 3px solid;
+  padding-right: 3vw;
+  margin-top: 2vw;
+}
+
+#op-score {
+  border-left: 3px solid;
+  padding-left: 3vw;
+  margin-top: 2vw;
+}
