@@ -49,7 +49,7 @@ const game = () => {
           const rect = this.rect();
       
           // if the ball has crossed upper or lower boundaries
-          if (rect.bottom >= window.innerHeight || rect.top <= gameScreenUpOffset) {
+          if (rect.bottom >= window.innerHeight || rect.top <= gameDivRef.current.offsetTop) {
             this.direction.y *= -1;
           }
           // if one of the paddlesRect satisfy the collision test then bounce the ball (by x = -x)
@@ -118,7 +118,7 @@ const game = () => {
         const opPaddleRect = opPaddle.rect();
         // moves my paddle when w or s are pressed
         if (keyState.ArrowUp) {
-          if (myPaddleRect.top > gameScreenUpOffset) {
+          if (myPaddleRect.top > gameDivRef.current.offsetTop) {
             socket.emit("moveUp", "move that shit up");
             myPaddle.position -= PADDLE_MOVE_DISTANCE;
           }
@@ -130,7 +130,7 @@ const game = () => {
         }
         // moves opponent paddle when up or down arrow are pressed
         if (keyState.w) {
-          if (opPaddleRect.top > gameScreenUpOffset) {
+          if (opPaddleRect.top > gameDivRef.current.offsetTop) {
             opPaddle.position -= PADDLE_MOVE_DISTANCE;
           }
         } else if (keyState.s) {
@@ -173,7 +173,6 @@ const game = () => {
     const [keyState, setKeyState] = useState({});
     const [socket, setSocket] = useState();
 
-    const [gameScreenUpOffset, setGameScreenUpOffset] = useState(0);
 
     const [lastTime, setLastTime] = useState();
     function update(time) {
@@ -190,15 +189,12 @@ const game = () => {
 
     useEffect(() => {// game loop, render on lastTime change
         if (init) {
-            console.log(window.innerHeight - gameDivRef.current.offsetHeight);
-                window.requestAnimationFrame(update);
+            window.requestAnimationFrame(update);
         }
     }, [lastTime]);
 
     useEffect(() => { // initialize game after the page is loaded then start the game
-
         console.log("init = ", init);
-        setGameScreenUpOffset(window.innerHeight - gameDivRef.current.offsetHeight);
         setBall(new Ball(ballRef.current));
         setMyPaddle(new Paddle(myPaddleRef.current));
         setOpPaddle(new Paddle(opPaddleRef.current));
