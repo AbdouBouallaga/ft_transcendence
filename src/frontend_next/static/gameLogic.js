@@ -37,6 +37,7 @@ class Ball {
   }
 
   updatePosition(delta, paddlesRect) {
+    console.log("INSIDE UPDATE POSITION");
     this.x += this.direction.x * this.speed * delta;
     this.y += this.direction.y * this.speed * delta;
     this.speed += INCREASE_SPEED * delta;

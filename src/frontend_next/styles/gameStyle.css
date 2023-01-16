@@ -18,7 +18,7 @@
   top: calc((var(--position) * 1vh));
   width: 1vh;
   transform: translateY(-50%);
-  width: 1vh;
+  /* width: 1vh; */
   height: 15vh;
 }
 
