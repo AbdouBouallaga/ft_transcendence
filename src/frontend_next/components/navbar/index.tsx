@@ -10,10 +10,9 @@ const Navbar = ({ profile } :any) => {
 
   return (
   <>
-    <nav id="Navbar" className="">
-      <div className="container flex items-center justify-between mx-auto">
+    <nav id="Navbar" className="z-100">
+      <div className="px-2 flex items-center justify-between mx-auto">
         <Link href="/" className="flex items-center">
-          {/* <img src="https://flowbite.com/docs/images/logo.svg" className="h-6 mr-3 sm:h-10" alt="Flowbite Logo" /> */}
           <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
             PingPong
           </span>

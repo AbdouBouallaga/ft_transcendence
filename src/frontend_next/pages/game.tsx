@@ -3,15 +3,18 @@ import Script from "next/script";
 import io from "socket.io-client";
 import { Timeline } from "flowbite-react";
 import index from ".";
+import { Console } from "console";
 
 const PADDLE_MOVE_DISTANCE = 0.8;
 
 const game = () => {
     const INITIAL_SPEED = 0.05;
     const INCREASE_SPEED = 0.000001;
+
     class Ball {
-        constructor(ballElement) {
+        constructor(ballElement, offsetTop) {
           this.ballElement = ballElement;
+          this.offsetTop = offsetTop;
           this.resetPosition();
         }
       
@@ -49,7 +52,7 @@ const game = () => {
           const rect = this.rect();
       
           // if the ball has crossed upper or lower boundaries
-          if (rect.bottom >= window.innerHeight || rect.top <= gameDivRef.current.offsetTop) {
+          if (rect.bottom >= window.innerHeight || rect.top <= this.offsetTop) {
             this.direction.y *= -1;
           }
           // if one of the paddlesRect satisfy the collision test then bounce the ball (by x = -x)
@@ -118,7 +121,7 @@ const game = () => {
         const opPaddleRect = opPaddle.rect();
         // moves my paddle when w or s are pressed
         if (keyState.ArrowUp) {
-          if (myPaddleRect.top > gameDivRef.current.offsetTop) {
+          if (myPaddleRect.top > screenTopOffset) {
             socket.emit("moveUp", "move that shit up");
             myPaddle.position -= PADDLE_MOVE_DISTANCE;
           }
@@ -130,7 +133,7 @@ const game = () => {
         }
         // moves opponent paddle when up or down arrow are pressed
         if (keyState.w) {
-          if (opPaddleRect.top > gameDivRef.current.offsetTop) {
+          if (opPaddleRect.top > screenTopOffset) {
             opPaddle.position -= PADDLE_MOVE_DISTANCE;
           }
         } else if (keyState.s) {
@@ -146,23 +149,37 @@ const game = () => {
         if (init) {
             if (rect.left <= 0) {
                 setOpScore(opScore + 1);
-                opScoreRef.current.innerText = opScore;
               //this.resetPosition();
             } else if (rect.right >= window.innerWidth) {
                 setMyScore(myScore + 1);
-                myScoreRef.current.innerText = myScore;
               //this.resetPosition();
             }
         }
     }
 
-    const doc = useRef(null);
+    function joingame(){
+        const room = roomIdRef.current.value;
+        if (room){
+            socket.emit("join", room);
+            // ...
+            gameDivRef.current.style.display = "block";
+            roomDivRef.current.style.display = "none";
+            setBall(new Ball(ballRef.current, gameDivRef.current.offsetTop));
+            setScreenTopOffset(gameDivRef.current.offsetTop);
+            window.requestAnimationFrame(update); // start the game loop
+        }
+        else {
+            alert("Please enter a room id");
+        }
+
+    }
+
     const ballRef = useRef(null);
     const myPaddleRef = useRef(null);
     const opPaddleRef = useRef(null);
-    const myScoreRef = useRef(null);
-    const opScoreRef = useRef(null);
     const gameDivRef = useRef(null);
+    const roomDivRef = useRef(null);
+    const roomIdRef = useRef(null);
     
     const [init, setInit] = useState(false);
     const [ball, setBall] = useState();
@@ -172,6 +189,7 @@ const game = () => {
     const [opScore, setOpScore] = useState(0);
     const [keyState, setKeyState] = useState({});
     const [socket, setSocket] = useState();
+    const [screenTopOffset, setScreenTopOffset] = useState(0);
 
 
     const [lastTime, setLastTime] = useState();
@@ -194,13 +212,9 @@ const game = () => {
     }, [lastTime]);
 
     useEffect(() => { // initialize game after the page is loaded then start the game
-        console.log("init = ", init);
-        setBall(new Ball(ballRef.current));
         setMyPaddle(new Paddle(myPaddleRef.current));
         setOpPaddle(new Paddle(opPaddleRef.current));
-        myScoreRef.current.innerText = myScore;
-        opScoreRef.current.innerText = opScore;
-
+        
         setSocket(io()); // connect to the server
 
         // add event listeners for key presses
@@ -211,7 +225,7 @@ const game = () => {
             setKeyState((state) => ({ ...state, [e.key]: false }));
         });
         setInit(true);
-        window.requestAnimationFrame(update); // start the game loop
+        // window.requestAnimationFrame(update); // start the game loop
         return () => {
             console.log("unmounting");
             window.removeEventListener("keydown", (e) => {
@@ -226,11 +240,11 @@ const game = () => {
     , []);
   return(
   <>
-    <div ref={gameDivRef} className='-z-1 flex flex-col h-full bg-black bg-opacity-50'>
+    <div ref={gameDivRef} className='gameDiv flex flex-col h-full bg-black bg-opacity-50'>
         <div className="relative" >
             <div className="score">
-              <div ref={myScoreRef} id="my-score"></div>
-              <div ref={opScoreRef} id="op-score"></div>
+              <div id="my-score">{myScore}</div>
+              <div id="op-score">{opScore}</div>
               <div ref={ballRef} className="ball" id="ball"
               ></div>
               <div ref={myPaddleRef} className="paddle" id="my-paddle"></div>
@@ -238,14 +252,14 @@ const game = () => {
             </div>
       </div>
     </div>
-    {/* <div id="room-input">
+    <div ref={roomDivRef} id="room-input">
       <div className="form-group">
-        <input type="text" placeholder="Enter Room" id="room-id" />
+        <input ref={roomIdRef} type="text" placeholder="Enter Room" id="room-id" />
       </div>
-      <button type="submit" className="btn btn-success" id="join-button">
+      <button type="submit" className="btn btn-success" id="join-button" onClick={joingame}>
         Join Game
       </button>
-    </div> */}
+    </div>
   </>)
 }
 

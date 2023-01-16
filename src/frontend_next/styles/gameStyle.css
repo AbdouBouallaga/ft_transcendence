@@ -3,6 +3,11 @@
   display: none;
 } */
 
+.gameDiv{
+  display: none;
+  z-index: -1;
+}
+
 #room-input{
   display: flex;
   justify-content: center;
