@@ -1,14 +1,25 @@
 
-/* #game-screen {
-  display: none;
-} */
 
-.gameDiv{
+/* .gameDiv{
   display: none;
   z-index: -1;
+} fix nav drop*/
+
+* {
+  box-sizing: border-box;
 }
 
-#room-input{
+body {
+  margin: 0;
+  background-color: #333;
+  overflow: hidden;
+}
+
+#game-screen {
+  display: none;
+}
+
+#room-screen {
   display: flex;
   justify-content: center;
   height: 100vh;
@@ -23,15 +34,15 @@
   top: calc((var(--position) * 1vh));
   width: 1vh;
   transform: translateY(-50%);
-  /* width: 1vh; */
+  width: 1vh;
   height: 15vh;
 }
 
-#my-paddle {
+#left-paddle {
   left: 1vw;
 }
 
-#op-paddle {
+#right-paddle {
   right: 1vw;
 }
 
@@ -58,14 +69,15 @@
   opacity: 50%;
 }
 
-#my-score {
+#left-score {
   border-right: 3px solid;
   padding-right: 3vw;
   margin-top: 2vw;
 }
 
-#op-score {
+#right-score {
   border-left: 3px solid;
   padding-left: 3vw;
   margin-top: 2vw;
 }
+   
