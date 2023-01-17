@@ -31,6 +31,8 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
     }
     if (AppProps.router.route !== '/login' && !isError)
       uri = AppProps.router.route;
+    if (AppProps.router.route == '/gameFull')
+      nav = false;
     Router.push(uri);
     Router.events.on('routeChangeComplete', apply) /// this is the key
   }
