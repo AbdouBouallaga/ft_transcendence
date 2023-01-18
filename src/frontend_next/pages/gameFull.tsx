@@ -1,4 +1,5 @@
 
+import { Button, Spinner } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 
@@ -18,6 +19,8 @@ const gameFull = () => {
     const joinGameBtn = useRef();
     const leftScoreRef = useRef();
     const rightScoreRef = useRef();
+    const waitingForGame = useRef();
+    const roomIdspan = useRef();
     const roomId = useRef();
     let room;
 
@@ -32,6 +35,9 @@ const gameFull = () => {
       console.log('joinGame ', room)
       if (room !== "") {
         socket.emit("joinGame", room);
+        roomScreen.current.style.display = "none";
+        waitingForGame.current.style.display = "block";
+        roomIdspan.current.innerText = room;
       }
     }
     //game
@@ -77,7 +83,8 @@ const gameFull = () => {
         socket.on("initGame", () => {
             // console.log("initGame");
             gameScreen.current.style.display = "block";
-            roomScreen.current.style.display = "none";
+            // roomScreen.current.style.display = "none";
+            waitingForGame.current.style.display = "none";
           });
       
           socket.on("rightSide", () => {
@@ -145,22 +152,34 @@ const gameFull = () => {
   return(
   <>
     <div ref={gameScreen} id="game-screen">
-      <div class="score">
+      <div className="score">
         <div ref={leftScoreRef} id="left-score">0</div>
         <div ref={rightScoreRef} id="right-score">0</div>
       </div>
-      <div ref={ballElement} class="ball" id="ball"></div>
-      <div ref={leftPaddle} class="paddle" id="left-paddle"></div>
-      <div ref={rightPaddle} class="paddle" id="right-paddle"></div>
+      <div ref={ballElement} className="ball" id="ball"></div>
+      <div ref={leftPaddle} className="paddle" id="left-paddle"></div>
+      <div ref={rightPaddle} className="paddle" id="right-paddle"></div>
     </div>
-    <div ref={roomScreen} id="room-screen">
-      <div class="form-group">
-        <input ref={roomId} type="text" placeholder="Enter Room" id="room-id" />
+  <div className="flex flex-col items-center justify-center h-screen">
+    <div ref={roomScreen} id="room-screen" className="aero p-6 rounded-lg shadow-lg">
+      <div className="form-group">
+        <input ref={roomId} type="text" placeholder="Enter Room" id="room-id" className="rounded-l"/>
       </div>
-      <button ref={joinGameBtn} class="btn btn-success" id="join-button">
+      <Button ref={joinGameBtn} className="btn btn-success rounded-none rounded-r" id="join-button">
         Join Game
-      </button>
+      </Button>
     </div>
+    <div ref={waitingForGame} className="aero content-center p-6 rounded-lg shadow-lg bg-gray-50" style={{display: "none"}}>
+      <div className="text-center">
+        <h1>Waiting for another player...</h1>
+        <p>Share this room ID with your friend: <span ref={roomIdspan}></span></p>
+        <Spinner
+          aria-label="loading"
+          size="xl"
+        />
+      </div>
+    </div>
+  </div>
   </>)
 }
 
