@@ -47,8 +47,8 @@ const gameFull = () => {
       if (gameStarted === false) return;
       if (lastTime) {
         const delta = time - lastTime;
-        if (keyState.ArrowUp) {
-          console.log("UPDATE GAME: ARROWUP");
+        if (keyState.ArrowUp && mySide !== "spectator") {
+          // console.log("UPDATE GAME: ARROWUP");
           socket.emit("updateGame", {
             delta,
             PressedKeysObj: {
@@ -57,8 +57,8 @@ const gameFull = () => {
             },
             room,
           });
-        } else if (keyState.ArrowDown) {
-          console.log("UPDATE GAME: ARROWDOWN");
+        } else if (keyState.ArrowDown &&  mySide !== "spectator") {
+          // console.log("UPDATE GAME: ARROWDOWN");
           socket.emit("updateGame", {
             delta,
             PressedKeysObj: {
@@ -67,7 +67,7 @@ const gameFull = () => {
             },
             room,
           });
-        } else {
+        } else if (mySide !== "spectator") {
           socket.emit("updateGame", {
             delta,
             room,
@@ -92,6 +92,11 @@ const gameFull = () => {
       
             console.log("Changed my side to", mySide);
           });
+          socket.on("spectatorSide", () => {
+            mySide = "spectator";
+      
+            console.log("Changed my side to", mySide);
+          });
       
           socket.on("startGame", (s) => {
             console.log("on startGame event: ", s);
@@ -99,7 +104,7 @@ const gameFull = () => {
             gameStarted = true;
             window.requestAnimationFrame(update);
           });
-          console.log("GAME ",gameStarted);
+          // console.log("GAME ",gameStarted);
           socket.on("setLeftPaddlePosition", (newPos) => {
             leftPaddle.current.style.setProperty("--position", newPos);
             // console.log("setleftPaddle.currentPosition event");
@@ -122,7 +127,17 @@ const gameFull = () => {
             ballElement.current.style.setProperty("--x", x);
             ballElement.current.style.setProperty("--y", y);
           });
-        
+        return () => {
+            socket.emit("disconnect", room, mySide);
+            socket.off("initGame");
+            socket.off("rightSide");
+            socket.off("startGame");
+            socket.off("setLeftPaddlePosition");
+            socket.off("setRightPaddlePosition");
+            socket.off("updateRightScore");
+            socket.off("updateLeftScore");
+            socket.off("setBall");
+        }
     }, [socket]);
 
     useEffect(() => { // initialize game after the page is loaded then start the game
