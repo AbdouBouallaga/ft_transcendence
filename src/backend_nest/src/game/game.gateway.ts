@@ -1,9 +1,12 @@
 
 import { OnModuleInit } from "@nestjs/common";
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { hasSubscribers } from "diagnostics_channel";
 import { Server } from "socket.io";
+import { Interval } from "@nestjs/schedule";
 
 let rooms = {};
+
 let player;
 //ball file
 const INITIAL_SPEED = 0.03;
@@ -32,7 +35,7 @@ class Ball {
       this.x += this.direction.x * this.speed * delta;
       this.y += this.direction.y * this.speed * delta;
       // emit the setBall event to client to change the x and y of the ball
-      this.io.to(this.room).emit("setBall", { x: this.x, y: this.y });
+      // this.io.to(this.room).emit("setBall", { x: this.x, y: this.y });
       this.speed += INCREASE_SPEED * delta;
       // if the ball has crossed upper or lower boundaries
       // y <= 1.25 means it reached the top (1.25 is the ballHeight/2), 98.75(100-1.25)
@@ -48,7 +51,7 @@ class Ball {
     resetPosition() {
       this.x = 50;
       this.y = 50;
-      this.io.to(this.room).emit("setBall", { x: this.x, y: this.y });
+      // this.io.to(this.room).emit("setBall", { x: this.x, y: this.y });
       this.direction = { x: 0 };
       while (
         Math.abs(this.direction.x) <= 0.2 ||
@@ -110,7 +113,7 @@ class Paddle {
     }
   
     setPaddlePosition() {
-      this.io.to(this.room).emit(`set${this.side}PaddlePosition`, this.position);
+      // this.io.to(this.room).emit(`set${this.side}PaddlePosition`, this.position);
     }
   
     resetPosition() {
@@ -129,6 +132,7 @@ class Game {
     rightPaddle: any;
     leftScore: number;
     rightScore: number;
+    PressedKeysObjGeneral: any;
   constructor(players, ball, room) {
     this.ball = ball;
     this.room = room;
@@ -136,9 +140,10 @@ class Game {
     this.rightPaddle = players[1].paddle;
     this.leftScore = 0;
     this.rightScore = 0;
+    this.PressedKeysObjGeneral = {};
   }
   // this will be called upon updateGame
-  update(delta, PressedKeysObj) {
+  update(io, delta, PressedKeysObj) {
     const paddles = [this.leftPaddle, this.rightPaddle];
     this.ball.updatePosition(delta, paddles);
     if (PressedKeysObj) {
@@ -147,6 +152,15 @@ class Game {
     if (this.isRoundFinished()) {
       this.startNewRound();
     }
+    io.to(this.room).emit("UA", {
+      // l: this.leftScore,
+      // r: this.rightScore,
+      x: this.ball.x,
+      y: this.ball.y,
+      // lp: this.leftPaddle.position,
+      // rp: this.rightPaddle.position,
+    });
+    this.PressedKeysObjGeneral = null;
   }
 
   handleMoves(obj) {
@@ -179,10 +193,10 @@ class Game {
   startNewRound() {
     if (this.ball.x <= 0) {
       this.rightScore++;
-      this.ball.io.to(this.room).emit("updateRightScore", this.rightScore);
+      // this.ball.io.to(this.room).emit("updateRightScore", this.rightScore);
     } else if (this.ball.x >= 100) {
       this.leftScore++;
-      this.ball.io.to(this.room).emit("updateLeftScore", this.leftScore);
+      // this.ball.io.to(this.room).emit("updateLeftScore", this.leftScore);
     }
     this.ball.resetPosition();
     this.leftPaddle.resetPosition();
@@ -196,6 +210,15 @@ class Game {
   }
 };
 //end 
+
+function requestedUpdate(io, room, delta) {
+    rooms[room].Interval = setInterval(() => {
+        if (room in rooms !== false) {
+          rooms[room].game.update(io, delta, rooms[room].game.PressedKeysObjGeneral);
+        }
+    }, delta);
+
+}
 
 @WebSocketGateway()
 export class GameGateway implements OnModuleInit {
@@ -214,6 +237,7 @@ export class GameGateway implements OnModuleInit {
         player = "1";
         socket.join(room);
         rooms[room] = {
+          ready: 0,
           numOfPlayers: 1,
           players: [
             {
@@ -238,14 +262,15 @@ export class GameGateway implements OnModuleInit {
           });
           rooms[room].ball = new Ball(this.server, room);
           socket.emit("rightSide");
-          this.server.to(room).emit("initGame");
           rooms[room].game = new Game(
             rooms[room].players,
             rooms[room].ball,
             room
-          );
-          rooms[room].numOfPlayers = 2;
-          console.log("2nd player, game initiated: ");
+            );
+            rooms[room].numOfPlayers = 2;
+            console.log("2nd player, game initiated: ");
+            // console.log(rooms[room].game);
+          this.server.to(room).emit("initGame");
           this.server.to(room).emit("startGame", room);
         } else if (
           socket.id !== rooms[room].players[0].id &&
@@ -260,19 +285,39 @@ export class GameGateway implements OnModuleInit {
         }
       }
     });
-    socket.on("updateGame", ({ delta, PressedKeysObj, room }) => {
-      rooms[room].game.update(delta, PressedKeysObj);
+    socket.on("updateGame", ({PressedKeysObj, room }) => {
+      rooms[room].game.PressedKeysObjGeneral = PressedKeysObj;
+    });
+    socket.on("updateGameStart", (room) => {
+      if (room in rooms){
+        rooms[room].ready += 1;
+        if (rooms[room].ready === 2) {
+          requestedUpdate(this.server, room, 1000/50);
+        }
+      }
     });
     socket.on("disconnect", () => {
       console.log("disconnected");
       for (let room in rooms) {
         if (rooms[room].players[0].id === socket.id) {
-          rooms[room].players[0].paddle.resetPosition();
+          rooms[room].players[0].disconnected = true;
           this.server.to(room).emit("leftPlayerDisconnected");
           // rooms[room]
         } else if (rooms[room].players[1].id === socket.id) {
-          rooms[room].players[1].paddle.resetPosition();
+          rooms[room].players[1].disconnected = true;
           this.server.to(room).emit("rightPlayerDisconnected");
+        }
+        if (rooms[room].spectators.includes(socket.id)) {
+          rooms[room].spectators.splice(
+            rooms[room].spectators.indexOf(socket.id),
+            1
+          );
+        }
+        if (rooms[room].players[1].disconnected === true && rooms[room].players[0].disconnected === true) {
+          clearInterval(rooms[room].Interval);
+          delete rooms[room];
+          this.server.to(room).emit("PlayerDisconnected");
+          console.log("room ", room ," deleted");
         }
       }
     });

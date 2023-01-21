@@ -2,6 +2,7 @@
 import { Button, Spinner } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
+import game from "./game";
 
 const PADDLE_MOVE_DISTANCE = 0.8;
 
@@ -10,10 +11,20 @@ const gameFull = () => {
     let keyState = {}; // this object keeps track of the state of keys when they are held
     let mySide = "left"; // a string whether this client is left or right, It is set to Left by default unless receiving a rightSide event
     
+    const initGameState = {
+        leftPaddle: 50,
+        rightPaddle: 50,
+        ball: { x: 50, y: 50 },
+        leftScore: 0,
+        rightScore: 0,
+    }
+    const [gameState, setGameState] = useState(initGameState);
+    // const gameState = initGameState;
     // DOM
-    const ballElement = useRef();
-    const leftPaddle = useRef();
-    const rightPaddle = useRef();
+    const { leftPaddle, rightPaddle, ball, leftScore, rightScore } = gameState;
+    const ballRef = useRef();
+    const leftPaddleRef = useRef();
+    const rightPaddleRef = useRef();
     const gameScreen = useRef();
     const roomScreen = useRef();  
     const joinGameBtn = useRef();
@@ -28,6 +39,7 @@ const gameFull = () => {
     //socket events
     let socket = null;
     const [init, setInit] = useState(false);
+    const [initsocket, setInitSocket] = useState(false);
     // old events
 
     function joinGame() {
@@ -41,41 +53,28 @@ const gameFull = () => {
       }
     }
     //game
-
-    let lastTime = null;
-    function update(time) {
+    
+    function HandleInput() {
       if (gameStarted === false) return;
-      if (lastTime) {
-        const delta = time - lastTime;
-        if (keyState.ArrowUp && mySide !== "spectator") {
-          // console.log("UPDATE GAME: ARROWUP");
-          socket.emit("updateGame", {
-            delta,
-            PressedKeysObj: {
-              direction: "up",
-              side: mySide,
-            },
-            room,
-          });
-        } else if (keyState.ArrowDown &&  mySide !== "spectator") {
-          // console.log("UPDATE GAME: ARROWDOWN");
-          socket.emit("updateGame", {
-            delta,
-            PressedKeysObj: {
-              direction: "down",
-              side: mySide,
-            },
-            room,
-          });
-        } else if (mySide !== "spectator") {
-          socket.emit("updateGame", {
-            delta,
-            room,
-          });
-        }
-      }
-      lastTime = time;
-      window.requestAnimationFrame(update);
+          if (keyState.ArrowUp) {
+            // console.log("UPDATE GAME: ARROWUP");
+            socket.emit("updateGame", {
+              PressedKeysObj: {
+                direction: "up",
+                side: mySide,
+              },
+              room,
+            });
+          } else if (keyState.ArrowDown) {
+            // console.log("UPDATE GAME: ARROWDOWN");
+            socket.emit("updateGame", {
+              PressedKeysObj: {
+                direction: "down",
+                side: mySide,
+              },
+              room,
+            });
+          } 
     }
 
     useEffect(() => {
@@ -102,41 +101,43 @@ const gameFull = () => {
             console.log("on startGame event: ", s);
             room = s;
             gameStarted = true;
-            window.requestAnimationFrame(update);
+            if (mySide !== "spectator") {
+              socket.emit("updateGameStart", s);
+              // window.requestAnimationFrame(update);
+            }
           });
-          // console.log("GAME ",gameStarted);
-          socket.on("setLeftPaddlePosition", (newPos) => {
-            leftPaddle.current.style.setProperty("--position", newPos);
-            // console.log("setleftPaddle.currentPosition event");
-          });
-        
-          socket.on("setRightPaddlePosition", (newPos) => {
-            rightPaddle.current.style.setProperty("--position", newPos);
-            // console.log("setrightPaddle.currentPosition event");
-          });
-        
-          socket.on("updateRightScore", (rightScore) => {
-            rightScoreRef.current.innerText = rightScore;
-          });
-        
-          socket.on("updateLeftScore", (leftScore) => {
-            leftScoreRef.current.innerText = leftScore;
-          });
-        
-          socket.on("setBall", ({ x, y }) => {
-            ballElement.current.style.setProperty("--x", x);
-            ballElement.current.style.setProperty("--y", y);
-          });
+          socket.on("UA", (data) => {
+            // setGameState((gameState)=>({
+            //     ...gameState,
+            //     // leftPaddle: data.lp,
+            //     // rightPaddle: data.rp,
+            //     ball: { x: data.x, y: data.y },
+            //     // leftScore: data.l,
+            //     // rightScore: data.r,
+
+            // }));
+            // HandleInput()
+            ballRef.current.style.setProperty("--x", data.x);
+            ballRef.current.style.setProperty("--y", data.y);
+            // leftPaddleRef.current.style.setProperty("--y", data.lp);
+            // rightPaddleRef.current.style.setProperty("--y", data.rp);
+            // leftScoreRef.current.innerText = data.l;
+            // rightScoreRef.current.innerText = data.r;
+            window.requestAnimationFrame(HandleInput);
+          }
+          );
+          setInitSocket(true);
         return () => {
-            socket.emit("disconnect", room, mySide);
+            socket.emit("disconnect", room);
             socket.off("initGame");
             socket.off("rightSide");
             socket.off("startGame");
-            socket.off("setLeftPaddlePosition");
-            socket.off("setRightPaddlePosition");
-            socket.off("updateRightScore");
-            socket.off("updateLeftScore");
-            socket.off("setBall");
+            setInitSocket(false);
+            // socket.off("setLeftPaddlePosition");
+            // socket.off("setRightPaddlePosition");
+            // socket.off("updateRightScore");
+            // socket.off("updateLeftScore");
+            // socket.off("setBall");
         }
     }, [socket]);
 
@@ -168,12 +169,12 @@ const gameFull = () => {
   <>
     <div ref={gameScreen} id="game-screen">
       <div className="score">
-        <div ref={leftScoreRef} id="left-score">0</div>
-        <div ref={rightScoreRef} id="right-score">0</div>
+        <div ref={leftScoreRef} id="left-score">{leftScore}</div>
+        <div ref={rightScoreRef} id="right-score">{rightScore}</div>
       </div>
-      <div ref={ballElement} className="ball" id="ball"></div>
-      <div ref={leftPaddle} className="paddle" id="left-paddle"></div>
-      <div ref={rightPaddle} className="paddle" id="right-paddle"></div>
+      <div ref={ballRef}className="ball" id="ball" ></div>
+      <div ref={leftPaddleRef}className="paddle" id="left-paddle" ></div>
+      <div ref={rightPaddleRef}className="paddle" id="right-paddle" ></div>
     </div>
   <div className="flex flex-col items-center justify-center h-screen">
     <div ref={roomScreen} id="room-screen" className="aero p-6 rounded-lg shadow-lg">
