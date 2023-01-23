@@ -9,7 +9,7 @@ import game from "./game";
 const PADDLE_MOVE_DISTANCE = 0.8;
 
 
-const gameFull = () => {
+const gameFull = (props) => {
     let gameStarted = false;
     let keyState = {}; // this object keeps track of the state of keys when they are held
     let mySide = "left"; // a string whether this client is left or right, It is set to Left by default unless receiving a rightSide event
@@ -42,27 +42,19 @@ const gameFull = () => {
     const [rounds, setRounds] = useState<number>(5);
     // const [mapsel, setMapsel] = useState<boolean[]>([true,false,false]);
     const [mapsel, setMapsel] = useState<number>(0);
-    let room;
-    const [l, setL] = useState<number>(0);
 
-    // function setRounds(e) {
-    //   rounds = e.target.value;
-    //   console.log("rounds", e);
-    // }
-    // function setMap(e) {
-    //   map = e.target.value;
-    //   console.log("map", e);
-    // }
+    let room;
+
+    const [socket, setSocket] = useState<SocketIOClient.Socket>(null);
+    const [init, setInit] = useState<boolean>(false);
+    const [initsocket, setInitSocket] = useState(false);
 
     function test() {
       console.log("rounds ",rounds)
       console.log("map ",map[mapsel])
+      console.log(socket.id);
+      console.log(props.profile);
     }
-    //socket events
-    let socket = null;
-    const [init, setInit] = useState(false);
-    const [initsocket, setInitSocket] = useState(false);
-    // old events
 
     function joinGame() {
       room = roomId.current.value;
@@ -71,7 +63,8 @@ const gameFull = () => {
         socket.emit("joinGame", {
           room,
           rounds,
-          map
+          map : map[mapsel],
+          login : props.profile.login42,
         });
         roomScreen.current.style.display = "none";
         waitingForGame.current.style.display = "block";
@@ -106,57 +99,69 @@ const gameFull = () => {
     useEffect(() => {
         if (!socket) return;
         socket.on("initGame", () => {
-            // console.log("initGame");
-            gameScreen.current.style.display = "block";
-            // roomScreen.current.style.display = "none";
-            waitingForGame.current.style.display = "none";
-          });
-      
-          socket.on("rightSide", () => {
-            mySide = "right";
-      
-            console.log("Changed my side to", mySide);
-          });
-          socket.on("spectatorSide", () => {
-            mySide = "spectator";
-      
-            console.log("Changed my side to", mySide);
-          });
-      
-          socket.on("startGame", (s) => {
-            console.log("on startGame event: ", s);
-            room = s;
-            gameStarted = true;
-            if (mySide !== "spectator") {
-              socket.emit("updateGameStart", s);
-              // window.requestAnimationFrame(update);
-            }
-          });
-          socket.on("updateRightScore", (rightScore) => {
-            rightScoreRef.current.innerText = rightScore;
-          });
-        
-          socket.on("updateLeftScore", (leftScore) => {
-            leftScoreRef.current.innerText = leftScore;
-          });
-          socket.on("UA", (data) => {
-            // setGameState((gameState)=>({
-            //     ...gameState,
-            //     // leftPaddle: data.lp,
-            //     // rightPaddle: data.rp,
-            //     ball: { x: data.x, y: data.y },
-            // }));
-            // HandleInput()
-            ballRef.current.style.setProperty("--x", data.x);
-            ballRef.current.style.setProperty("--y", data.y);
-            leftPaddleRef.current.style.setProperty("--position", data.lp);
-            rightPaddleRef.current.style.setProperty("--position", data.rp);
-            window.requestAnimationFrame(HandleInput);
+          // console.log("initGame");
+          gameScreen.current.style.display = "block";
+          // roomScreen.current.style.display = "none";
+          waitingForGame.current.style.display = "none";
+        });
+    
+        socket.on("rightSide", () => {
+          mySide = "right";
+          console.log("Changed my side to", mySide);
+        });
+
+        socket.on("spectatorSide", () => {
+          mySide = "spectator";
+          console.log("Changed my side to", mySide);
+        });
+    
+        socket.on("startGame", (s) => {
+          console.log("on startGame event: ", s);
+          room = s;
+          gameStarted = true;
+          if (mySide !== "spectator") {
+            socket.emit("updateGameStart", s);
+            // window.requestAnimationFrame(update);
           }
-          );
-          setInitSocket(true);
+        });
+
+        socket.on("updateRightScore", (rightScore) => {
+          rightScoreRef.current.innerText = rightScore;
+        });
+      
+        socket.on("updateLeftScore", (leftScore) => {
+          leftScoreRef.current.innerText = leftScore;
+        });
+
+        socket.on("UB", (data) => { //update ball
+          ballRef.current.style.setProperty("--x", data.x);
+          ballRef.current.style.setProperty("--y", data.y);
+          window.requestAnimationFrame(HandleInput);
+        });
+
+        socket.on("setLeftPaddlePosition", (newPos) => {
+          leftPaddleRef.current.style.setProperty("--position", newPos);
+        });
+      
+        socket.on("setRightPaddlePosition", (newPos) => {
+          rightPaddleRef.current.style.setProperty("--position", newPos);
+        });
+
+        socket.on("connect", () => {
+          console.log("Connected with id: ", socket.id);
+        });
+
+        // add event listeners for key presses
+        document.addEventListener("keydown", (e) => {
+            keyState[e.key] = true;
+          });
+        document.addEventListener("keyup", (e) => {
+          keyState[e.key] = false;
+        });
+        setInitSocket(true);
         return () => {
-            socket.emit("disconnect", room);
+            socket.emit("disconnectPlayer", {login : props.profile.login42});
+            // socket.emit("disconnect", {login : props.profile.login42});
             socket.off("initGame");
             socket.off("rightSide");
             socket.off("startGame");
@@ -167,32 +172,15 @@ const gameFull = () => {
             // socket.off("updateLeftScore");
             // socket.off("setBall");
           }
-        }, [socket]);
-        
-    useEffect(() => { // initialize game after the page is loaded then start the game
-        if (!init) {
-            if (!socket){
-                joinGameBtn.current.addEventListener("click", joinGame);
-                console.log("socket is null")
-                socket = io();
-            }
-            else {
-                socket.on("connect", () => {
-                    console.log("Connected with id: ", socket.id);
-                  });
-                // add event listeners for key presses
-                document.addEventListener("keydown", (e) => {
-                    keyState[e.key] = true;
-                  });
-                  
-                  document.addEventListener("keyup", (e) => {
-                    keyState[e.key] = false;
-                  });
-                setInit(true);
-            }
+      }, [socket]);
+      let m = false;
+      useEffect(() => { // initialize game after the page is loaded then start the game
+        if (!m){
+            m = true;
+            setSocket(io());
         }
-    }
-    , [init]);
+      }
+      , [init]);
   
   return(
   <>
@@ -236,7 +224,7 @@ const gameFull = () => {
       <div className="form-group">
         <input ref={roomId} type="text" placeholder="Enter Room" id="room-id" className="rounded-l"/>
       </div>
-      <Button ref={joinGameBtn} className="btn btn-success rounded-none rounded-r" id="join-button">
+      <Button className="btn btn-success rounded-none rounded-r" id="join-button" onClick={joinGame}>
         Join Game
       </Button>
     </div>

@@ -19,7 +19,7 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
   const [appReady, setappReady] = useState(false)
   const [data,setData] = useState({})
   const [profile, setProfile] = useState({
-    id: 0,
+    login42: 0,
     username: '',
     avatar: '',}
   )
@@ -47,9 +47,9 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
         axios.get('/api/users/me')
         .then((response) => {
           // console.log(response);
-          // console.log(response.data)
-          const {id, username, avatar} = response.data;
-          setProfile({id, username, avatar})
+          console.log(response.data)
+          const {login42, username, avatar} = response.data;
+          setProfile({login42, username, avatar})
           setData(response.data);
           if (response.data.login42){
             routeMo('/', true, true);
@@ -74,7 +74,7 @@ export default function App({ Component, pageProps , ...AppProps }: AppProps) {
     {appReady && 
       <div id='appRoot' className="h-screen flex flex-col">
         {Nav_active && <Navbar profile={profile} />}
-        <Component {...pageProps} />  
+        <Component {...pageProps} profile={profile}/>  
       </div>
     }
     </>

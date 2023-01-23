@@ -85,8 +85,8 @@ class Ball {
         );
       } else if (paddle.side === "Right") {
         return (
-          this.x >= 100 - 4.75 &&
-          this.x <= 100 - 4.25 &&
+          this.x >= 100 - 2.75 &&
+          this.x <= 100 - 1.25 &&
           this.y >= paddle.position - 8.75 &&
           this.y <= paddle.position + 8.75
         );
@@ -113,7 +113,7 @@ class Paddle {
     }
   
     setPaddlePosition() {
-      // this.io.to(this.room).emit(`set${this.side}PaddlePosition`, this.position);
+      this.io.to(this.room).emit(`set${this.side}PaddlePosition`, this.position);
     }
   
     resetPosition() {
@@ -154,11 +154,11 @@ class Game {
     if (this.isRoundFinished()) {
       this.startNewRound();
     }
-    io.to(this.room).emit("UA", {
+    io.to(this.room).emit("UB", { //UB = updateBall
       x: this.ball.x,
       y: this.ball.y,
-      lp: this.leftPaddle.position,
-      rp: this.rightPaddle.position,
+      // lp: this.leftPaddle.position,
+      // rp: this.rightPaddle.position,
     });
     this.PressedKeysObjGeneral = null;
   }
@@ -237,7 +237,9 @@ export class GameGateway implements OnModuleInit {
       let room: string = data.room;
       let rounds: number = data.rounds;
       let map: string = data.map;
-        console.log("backend: joinGame room: ", room);
+      // let login : string = data.login;
+      let login : string = socket.id;
+      console.log("user ", login, ",join room ", room);
       if (!room) return;
       // if there is no room with that name in rooms, create one and initialize it by setting the first player and then make it join the room
       if (room in rooms === false) {
@@ -248,7 +250,7 @@ export class GameGateway implements OnModuleInit {
           numOfPlayers: 1,
           players: [
             {
-              id: socket.id,
+              id: login,
               paddle: new Paddle(this.server, room, "Left"),
             },
           ],
@@ -259,12 +261,12 @@ export class GameGateway implements OnModuleInit {
         // if there is only 1 player, add the second player and make it join the room
         if (
           rooms[room].numOfPlayers === 1 &&
-          socket.id !== rooms[room].players[0].id
+          login !== rooms[room].players[0].id
         ) {
           player = "2";
           socket.join(room);
           rooms[room].players.push({
-            id: socket.id,
+            id: login,
             paddle: new Paddle(this.server, room, "Right"),
           });
           rooms[room].ball = new Ball(this.server, room);
@@ -280,12 +282,12 @@ export class GameGateway implements OnModuleInit {
           this.server.to(room).emit("initGame");
           this.server.to(room).emit("startGame", room);
         } else if (
-          socket.id !== rooms[room].players[0].id &&
-          socket.id !== rooms[room].players[1].id
+          login !== rooms[room].players[0].id &&
+          login !== rooms[room].players[1].id
         ) {
           // if 2 players are already in room add next joiner as spectator
           socket.join(room);
-          rooms[room].spectators.push(socket.id);
+          rooms[room].spectators.push(login);
           this.server.to(room).emit("initGame");
           socket.emit("spectatorSide");
           this.server.to(room).emit("startGame", room);
@@ -299,26 +301,28 @@ export class GameGateway implements OnModuleInit {
       if (room in rooms){
         rooms[room].ready += 1;
         if (rooms[room].ready === 2) {
-          requestedUpdate(this.server, room, 1000/60);
+          requestedUpdate(this.server, room, 1000/75);
         }
       }
     });
-    socket.on("disconnect", () => {
-      console.log("disconnected");
+    socket.on("disconnectPlayer", (login) => {
+      // let login : string = socket.id;
+      // let login : string = data.login;
+      console.log(dat.login,"disconnected");
       for (let room in rooms) {
-        if (rooms[room].players[0].id === socket.id) {
+        if (rooms[room].players[0].id === login) {
           rooms[room].players[0].disconnected = true;
           clearInterval(rooms[room].Interval);
           this.server.to(room).emit("rightPlayerWon");
           // rooms[room]
-        } else if (rooms[room].players[1].id === socket.id) {
+        } else if (rooms[room].players[1].id === login) {
           rooms[room].players[1].disconnected = true;
           clearInterval(rooms[room].Interval);
           this.server.to(room).emit("leftPlayerWon");
         }
-        if (rooms[room].spectators.includes(socket.id)) {
+        if (rooms[room].spectators.includes(login)) {
           rooms[room].spectators.splice(
-            rooms[room].spectators.indexOf(socket.id),
+            rooms[room].spectators.indexOf(login),
             1
           );
         }
