@@ -9,44 +9,6 @@ import game from "./game";
 const PADDLE_MOVE_DISTANCE = 0.8;
 
 
-const Tabsc: FC = () => {
-  const [activeTab, setActiveTab] = useState(0);
-  const tabsRef = useRef(null);
-console.log("active tab ========",activeTab)
-  return (
-    <>
-      <Tabs.Group
-        aria-label="Default tabs"
-        style="default"
-        ref={tabsRef}
-        onActiveTabChange={tab => setActiveTab(tab)}
-      >
-        <Tabs.Item active title="Profile">
-          Profile content
-        </Tabs.Item>
-        <Tabs.Item title="Dashboard">Dashboard content</Tabs.Item>
-        <Tabs.Item title="Settings">Settings content</Tabs.Item>
-        <Tabs.Item title="Contacts">Contacts content</Tabs.Item>
-      </Tabs.Group>
-      <div>Active tab: {activeTab}</div>
-      <Button.Group>
-        <Button color="gray" onClick={() => setActiveTab(0)}>
-          Profile
-        </Button>
-        <Button color="gray" onClick={() =>setActiveTab(1)}>
-          Dashboard
-        </Button>
-        <Button color="gray" onClick={() => setActiveTab(2)}>
-          Settings
-        </Button>
-        <Button color="gray" onClick={() => setActiveTab(3)}>
-          Contacts
-        </Button>
-      </Button.Group>
-    </>
-  );
-};
-
 const gameFull = () => {
     let gameStarted = false;
     let keyState = {}; // this object keeps track of the state of keys when they are held
@@ -76,11 +38,11 @@ const gameFull = () => {
     const roomId = useRef();
     const winner = useRef();
     const winnerText = useRef();
-    const mapTabsRef = useRef<TabsRef>();
-    const roundsTabsRef = useRef<TabsRef>();
+    const [map, setMap] = useState<string[]>(['Normal','Foot','Ice', 'Space']);
+    const [rounds, setRounds] = useState<number>(5);
+    // const [mapsel, setMapsel] = useState<boolean[]>([true,false,false]);
+    const [mapsel, setMapsel] = useState<number>(0);
     let room;
-    const [rounds, setRounds] = useState(5);
-    const [map, setMap] = useState(0);
     const [l, setL] = useState<number>(0);
 
     // function setRounds(e) {
@@ -93,11 +55,8 @@ const gameFull = () => {
     // }
 
     function test() {
-      // winnerText.current.style.color = "red";
-      // winnerText.current.innerText = "You Won!";
-      // gameScreen.current.classList.add("blur-sm");
-      console.log(roundsTabsRef)
-      console.log(mapTabsRef)
+      console.log("rounds ",rounds)
+      console.log("map ",map[mapsel])
     }
     //socket events
     let socket = null;
@@ -256,18 +215,23 @@ const gameFull = () => {
     <div ref={roomScreen} id="room-screen" className="aero p-6 flex-col rounded-lg shadow-lg">
     <h1 className="text-2xl font-bold">Rounds</h1>
     <div className="flex flex-row items-center justify-center bg-white rounded-lg">
-    <Button onClick={()=>setRounds((prev)=>prev-1)}>-</Button>
+    <Button onClick={()=>setRounds((prev)=>prev>5?prev-5:prev)}>-</Button>
     <h2 className="m-2">
       {rounds}
     </h2>
-    <Button onClick={()=>setRounds((prev)=>prev+1)}>+</Button>
+    <Button onClick={()=>setRounds((prev)=>prev<15?prev+5:prev)}>+</Button>
     </div>
-    <h1 className="text-2xl font-bold">Map</h1>
-    <Button.Group>
-      <Button title="Normal">Normal</Button>
-      <Button title="Retro">Retro</Button>
-      <Button title="Cyberpunk">Cyberpunk</Button>
-    </Button.Group>
+    <h1 className="text-2xl font-bold mt-5">Map</h1>
+    <div className="w-full flex flex-row  bg-white rounded-lg place-content-between">
+    <Button onClick={()=>setMapsel((prev)=>prev>0?prev-1:prev)}>{"<"}</Button>
+    <h2 className="m-2">{map[mapsel]}</h2>
+    <Button onClick={()=>setMapsel((prev)=>prev<map.length-1?prev+1:prev)}>{">"}</Button>
+    </div>
+    <Button className="btn btn-success" id="create-button" onClick={test}>
+      Test
+    </Button>
+    <pre />
+
     <div className="flex flex-row items-center justify-center">
       <div className="form-group">
         <input ref={roomId} type="text" placeholder="Enter Room" id="room-id" className="rounded-l"/>
