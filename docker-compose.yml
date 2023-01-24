@@ -58,7 +58,7 @@ services:
 
   postgres:
     image: postgres:latest
-    container_name: pg_database
+    container_name: postgres
     restart: always
     volumes:
       - ./storage/postgres_data:/var/lib/postgresql/data
