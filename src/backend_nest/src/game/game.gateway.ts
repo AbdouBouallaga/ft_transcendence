@@ -39,7 +39,7 @@ class Ball {
       this.speed += INCREASE_SPEED * delta;
       // if the ball has crossed upper or lower boundaries
       // y <= 1.25 means it reached the top (1.25 is the ballHeight/2), 98.75(100-1.25)
-      if (this.y <= 1.25 || this.y >= 98.75) {
+      if (this.y <= 2.25 || this.y >= 97.75) {
         this.direction.y *= -1;
       }
       // if one of the paddles satisfy the collision test then bounce the ball (by x = -x)
@@ -80,15 +80,15 @@ class Ball {
         return (
           this.x <= 2.25 &&
           this.x >= 1.75 &&
-          this.y >= paddle.position - 8.75 &&
-          this.y <= paddle.position + 8.75
+          this.y >= paddle.position - 7.5 &&
+          this.y <= paddle.position + 7.5
         );
       } else if (paddle.side === "Right") {
         return (
-          this.x >= 100 - 2.75 &&
-          this.x <= 100 - 1.25 &&
-          this.y >= paddle.position - 8.75 &&
-          this.y <= paddle.position + 8.75
+          this.x >= 100 - 2.25 &&
+          this.x <= 100 - 1.75 &&
+          this.y >= paddle.position - 7.5 &&
+          this.y <= paddle.position + 7.5
         );
       }
     }
@@ -224,7 +224,8 @@ function requestedUpdate(io, room, delta) {
 
 }
 
-@WebSocketGateway()
+@WebSocketGateway({ namespace: 'game' })
+// @WebSocketGateway()
 export class GameGateway implements OnModuleInit {
     @WebSocketServer ()
     server: Server;
@@ -237,8 +238,8 @@ export class GameGateway implements OnModuleInit {
       let room: string = data.room;
       let rounds: number = data.rounds;
       let map: string = data.map;
-      // let login : string = data.login;
-      let login : string = socket.id;
+      let login : string = data.login;
+      // let login : string = socket.id;
       console.log("user ", login, ",join room ", room);
       if (!room) return;
       // if there is no room with that name in rooms, create one and initialize it by setting the first player and then make it join the room
@@ -247,10 +248,15 @@ export class GameGateway implements OnModuleInit {
         socket.join(room);
         rooms[room] = {
           ready: 0,
+          map : map,
+          rounds : rounds,
           numOfPlayers: 1,
           players: [
             {
               id: login,
+              socketId: socket.id,
+              avatar: data.avatar,
+              UN : data.UN,
               paddle: new Paddle(this.server, room, "Left"),
             },
           ],
@@ -267,6 +273,9 @@ export class GameGateway implements OnModuleInit {
           socket.join(room);
           rooms[room].players.push({
             id: login,
+            socketId: socket.id,
+            avatar: data.avatar,
+            UN : data.UN,
             paddle: new Paddle(this.server, room, "Right"),
           });
           rooms[room].ball = new Ball(this.server, room);
@@ -279,17 +288,31 @@ export class GameGateway implements OnModuleInit {
             rooms[room].numOfPlayers = 2;
             console.log("2nd player, game initiated: ");
             // console.log(rooms[room].game);
-          this.server.to(room).emit("initGame");
+            this.server.to(room).emit("initGame", {
+              map : rooms[room].map,
+              rounds : rooms[room].rounds,
+              avatars :{ 
+                left : rooms[room].players[0].avatar,
+                right : rooms[room].players[1].avatar
+              },
+              UNs : {
+                left : rooms[room].players[0].UN,
+                right : rooms[room].players[1].UN
+              }
+            });
           this.server.to(room).emit("startGame", room);
         } else if (
-          login !== rooms[room].players[0].id &&
-          login !== rooms[room].players[1].id
+          login !== rooms[room]?.players[0]?.id &&
+          login !== rooms[room]?.players[1]?.id
         ) {
           // if 2 players are already in room add next joiner as spectator
           socket.join(room);
           rooms[room].spectators.push(login);
-          this.server.to(room).emit("initGame");
           socket.emit("spectatorSide");
+          this.server.to(room).emit("initGame", {
+            map : rooms[room].map,
+            rounds : rooms[room].rounds,
+          });
           this.server.to(room).emit("startGame", room);
         }
       }
@@ -305,31 +328,37 @@ export class GameGateway implements OnModuleInit {
         }
       }
     });
-    socket.on("disconnectPlayer", (login) => {
+    socket.on("disconnect", (data) => {
       // let login : string = socket.id;
       // let login : string = data.login;
-      console.log(dat.login,"disconnected");
+      console.log(socket.id,"disconnected");
       for (let room in rooms) {
-        if (rooms[room].players[0].id === login) {
-          rooms[room].players[0].disconnected = true;
-          clearInterval(rooms[room].Interval);
-          this.server.to(room).emit("rightPlayerWon");
-          // rooms[room]
-        } else if (rooms[room].players[1].id === login) {
-          rooms[room].players[1].disconnected = true;
-          clearInterval(rooms[room].Interval);
-          this.server.to(room).emit("leftPlayerWon");
-        }
-        if (rooms[room].spectators.includes(login)) {
+        if (rooms[room]?.spectators?.includes(socket.id)) {
           rooms[room].spectators.splice(
-            rooms[room].spectators.indexOf(login),
+            rooms[room].spectators.indexOf(socket.id),
             1
           );
         }
-        if (rooms[room].players[1].disconnected === true && rooms[room].players[0].disconnected === true) {
+        else if (rooms[room].players[0]?.socketId === socket.id) {
           clearInterval(rooms[room].Interval);
+          this.server.to(room).emit("Won", 
+          { 
+            side : 1,
+          }
+          );
+          rooms[room].players[0] = null;
           delete rooms[room];
-          this.server.to(room).emit("PlayerDisconnected");
+          console.log("room ", room ," deleted");
+        } 
+        else if (rooms[room].players[1]?.socketId === socket.id) {
+          clearInterval(rooms[room].Interval);
+          this.server.to(room).emit("Won", 
+          {
+            side : 0,
+          }
+          );
+          rooms[room].players[1] = null;
+          delete rooms[room];
           console.log("room ", room ," deleted");
         }
       }

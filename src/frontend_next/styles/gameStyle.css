@@ -9,7 +9,6 @@
 
 body {
   margin: 0;
-  background-color: #333;
   overflow: hidden;
 }
 
@@ -30,7 +29,6 @@ body {
   top: calc((var(--position) * 1vh));
   width: 1vh;
   transform: translateY(-50%);
-  width: 1vh;
   height: 15vh;
 }
 
@@ -43,8 +41,8 @@ body {
 }
 
 .ball {
-  /* --x: 50; */
-  /* --y: 50; */
+  --x: 50;
+  --y: 50;
 
   position: absolute;
   background-color: #ddd;
@@ -58,7 +56,7 @@ body {
 
 .score {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   font-weight: bold;
   font-size: 7vh;
   color: #ddd;
