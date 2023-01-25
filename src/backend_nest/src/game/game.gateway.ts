@@ -4,12 +4,13 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from
 import { hasSubscribers } from "diagnostics_channel";
 import { Server } from "socket.io";
 import { Interval } from "@nestjs/schedule";
-
+import {v4 as uuidv4 } from 'uuid';
 let rooms = {};
+let lastuuid:string = "";
 
 let player;
 //ball file
-const INITIAL_SPEED = 0.03;
+const INITIAL_SPEED = 0.05;
 const INCREASE_SPEED = 0.000001;
 
 class Ball {
@@ -215,8 +216,10 @@ class Game {
   gameFinished() {
     clearInterval(rooms[this.room].Interval);
     this.ball.io.to(this.room).emit("Won", this.leftScore > this.rightScore ? 0 : 1);
-    console.log("gameFinished: room ", this.room, " deleted");
-    delete rooms[this.room];
+    setTimeout(() => { 
+      delete rooms[this.room];
+      console.log("gameFinished: room ", this.room, " deleted");
+    }, 1500);
   }
 };
 //end 
@@ -247,7 +250,20 @@ export class GameGateway implements OnModuleInit {
           let login: string = data.login;
           // let login : string = socket.id;
           console.log("user ", login, ",join room ", room);
-          if (!room) return;
+          if (!room) {
+            console.log("join without room");
+            if (lastuuid === "") {
+              console.log("new room uuid")
+              lastuuid = uuidv4();
+              room = lastuuid;
+              console.log("lastuuid", lastuuid);
+            }
+            else {
+              room = lastuuid;
+              lastuuid = "";
+            }
+            console.log(">>> room", room);
+          };
           // if there is no room with that name in rooms, create one and initialize it by setting the first player and then make it join the room
           if (room in rooms === false) {
             player = "1";
@@ -295,6 +311,7 @@ export class GameGateway implements OnModuleInit {
               console.log("2nd player, game initiated: ");
               // console.log(rooms[room].game);
               this.server.to(room).emit("initGame", {
+                room: room,
                 map: rooms[room].map,
                 rounds: rooms[room].rounds,
                 avatars: {
@@ -316,15 +333,24 @@ export class GameGateway implements OnModuleInit {
               rooms[room].spectators.push(login);
               socket.emit("spectatorSide");
               this.server.to(room).emit("initGame", {
+                room: room,
                 map: rooms[room].map,
                 rounds: rooms[room].rounds,
+                avatars: {
+                  left: rooms[room].players[0].avatar,
+                  right: rooms[room].players[1].avatar
+                },
+                UNs: {
+                  left: rooms[room].players[0].UN,
+                  right: rooms[room].players[1].UN
+                }
               });
               this.server.to(room).emit("startGame", room);
             }
           }
         });
         socket.on("updateGame", ({ PressedKeysObj, room }) => {
-          rooms[room].game.PressedKeysObjGeneral = PressedKeysObj;
+            rooms[room].game.PressedKeysObjGeneral = PressedKeysObj;
         });
         socket.on("updateGameStart", (room) => {
           if (room in rooms) {
@@ -334,7 +360,7 @@ export class GameGateway implements OnModuleInit {
             }
           }
         });
-        socket.on("disconnect", (data) => {
+        socket.on("disconnecte", () => {
           // let login : string = socket.id;
           // let login : string = data.login;
           console.log(socket.id, "disconnected");
@@ -349,15 +375,19 @@ export class GameGateway implements OnModuleInit {
               clearInterval(rooms[room].Interval);
               this.server.to(room).emit("Won", 1);
               rooms[room].players[0] = null;
-              delete rooms[room];
-              console.log("room ", room, " deleted");
+              setTimeout(() => { 
+                delete rooms[room];
+                console.log("room ", room, " deleted");
+              }, 1500);
             }
             else if (rooms[room].players[1]?.socketId === socket.id) {
               clearInterval(rooms[room].Interval);
               this.server.to(room).emit("Won", 0);
               rooms[room].players[1] = null;
-              delete rooms[room];
-              console.log("room ", room, " deleted");
+              setTimeout(() => { 
+                delete rooms[room];
+                console.log("room ", room, " deleted");
+              }, 1500);
             }
           }
         });
@@ -366,6 +396,7 @@ export class GameGateway implements OnModuleInit {
       }
     });
   }
+
 
   @SubscribeMessage('message')
   onNewMessage(@MessageBody() body: any) {
