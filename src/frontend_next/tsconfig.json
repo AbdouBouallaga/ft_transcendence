@@ -15,6 +15,6 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/*/*.tsx", "pages/home/index.js", "static/gameLogic.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/*/*.tsx", "pages/game/[...param].js"],
   "exclude": ["node_modules"]
 }

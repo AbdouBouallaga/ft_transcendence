@@ -1,4 +1,79 @@
-src/frontend_next/node_modules
-src/backend_nest/node_modules
-src/backend_nest/.env
+
 storage/postgres_data/
+
+### NEXT IGNORES ###$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+# dependencies
+src/frontend_next/node_modules
+src/frontend_next/.pnp
+src/frontend_next/.pnp.js
+
+# testing
+src/frontend_next/coverage
+
+# next.js
+src/frontend_next/.next/
+src/frontend_next/out/
+
+# production
+src/frontend_next/build
+
+# misc
+src/frontend_next/.DS_Store
+src/frontend_next/*.pem
+
+# debug
+src/frontend_next/npm-debug.log*
+src/frontend_next/yarn-debug.log*
+src/frontend_next/yarn-error.log*
+src/frontend_next/.pnpm-debug.log*
+
+# local env files
+src/frontend_next/.env*.local
+
+# vercel
+src/frontend_next/.vercel
+
+# typescript
+src/frontend_next/*.tsbuildinfo
+src/frontend_next/next-env.d.ts
+
+###NEST IGNORES###$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+# compiled output
+src/backend_nest/dist
+src/backend_nest/node_modules
+
+# Logs
+src/backend_nest/logs
+src/backend_nest/*.log
+src/backend_nest/npm-debug.log*
+src/backend_nest/pnpm-debug.log*
+src/backend_nest/yarn-debug.log*
+src/backend_nest/yarn-error.log*
+src/backend_nest/lerna-debug.log*
+
+# OS
+src/backend_nest/.DS_Store
+
+# Tests
+src/backend_nest/coverage
+src/backend_nest/.nyc_output
+
+# IDEs and editors
+src/backend_nest/.idea
+src/backend_nest/.project
+src/backend_nest/.classpath
+src/backend_nest/.c9/
+src/backend_nest/*.launch
+src/backend_nest/.settings/
+src/backend_nest/*.sublime-workspace
+
+# IDE - VSCode
+src/backend_nest/.vscode/*
+src/backend_nest/!.vscode/settings.json
+src/backend_nest/!.vscode/tasks.json
+src/backend_nest/!.vscode/launch.json
+src/backend_nest/!.vscode/extensions.json
+
+# Environment variables
+src/backend_nest/.env

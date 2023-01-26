@@ -11,6 +11,6 @@ Prisma studio at <a>http://prisma.127.0.0.1.nip.io/</a></br>
 <h2>pgAdmin</h2>
 pgAdmin is available at <a>http://pgAdmin.127.0.0.1.nip.io/</a>
 <pre>
-email: user@email.com
-password: password
+email : user@email.com
+password : password
 </pre>
