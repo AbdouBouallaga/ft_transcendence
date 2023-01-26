@@ -219,7 +219,7 @@ class Game {
     setTimeout(() => { 
       delete rooms[this.room];
       console.log("gameFinished: room ", this.room, " deleted");
-    }, 1500);
+    }, 500);
   }
 };
 //end 
@@ -337,8 +337,8 @@ export class GameGateway implements OnModuleInit {
                 map: rooms[room].map,
                 rounds: rooms[room].rounds,
                 avatars: {
-                  left: rooms[room].players[0].avatar,
-                  right: rooms[room].players[1].avatar
+                  left: rooms[room].players[0]?.avatar,
+                  right: rooms[room].players[1]?.avatar
                 },
                 UNs: {
                   left: rooms[room].players[0].UN,
@@ -371,23 +371,17 @@ export class GameGateway implements OnModuleInit {
                 1
               );
             }
-            else if (rooms[room].players[0]?.socketId === socket.id) {
+            else {
               clearInterval(rooms[room].Interval);
-              this.server.to(room).emit("Won", 1);
+              if (rooms[room].players[1]?.socketId === socket.id)
+                this.server.to(room).emit("Won", 0);
+              else 
+                this.server.to(room).emit("Won", 1);
               rooms[room].players[0] = null;
               setTimeout(() => { 
                 delete rooms[room];
                 console.log("room ", room, " deleted");
-              }, 1500);
-            }
-            else if (rooms[room].players[1]?.socketId === socket.id) {
-              clearInterval(rooms[room].Interval);
-              this.server.to(room).emit("Won", 0);
-              rooms[room].players[1] = null;
-              setTimeout(() => { 
-                delete rooms[room];
-                console.log("room ", room, " deleted");
-              }, 1500);
+              }, 500);
             }
           }
         });

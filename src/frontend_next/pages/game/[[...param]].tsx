@@ -1,6 +1,6 @@
 
 import { Avatar, Badge, Button, Modal, Spinner, Tabs } from "flowbite-react";
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { LegacyRef, SetStateAction, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 
 
@@ -10,49 +10,51 @@ import io from "socket.io-client";
 const PADDLE_MOVE_DISTANCE = 0.8;
 
 
-const game = (props) => {
+const game = (props: any) => {
   const router = useRouter()
   // const { id } = router.query
   // console.log("id fgame ",id)
   let gameStarted = false;
-  let keyState = {}; // this object keeps track of the state of keys when they are held
+  let keyState: any = {}; // this object keeps track of the state of keys when they are held
   let mySide = "left"; // a string whether this client is left or right, It is set to Left by default unless receiving a rightSide event
 
   const [leftScore, setLeftScore] = useState<number>(0);
   const [rightScore, setRightScore] = useState<number>(0);
-  const ballRef = useRef();
-  const leftPaddleRef = useRef();
-  const rightPaddleRef = useRef();
-  const gameScreen = useRef();
-  const roomScreen = useRef();
-  const leftScoreRef = useRef();
-  const rightScoreRef = useRef();
-  const waitingForGame = useRef();
-  const roomId = useRef();
+  const ballRef = useRef<any>(null);
+  const leftPaddleRef = useRef<any>(null);
+  const rightPaddleRef = useRef<any>(null);
+  const gameScreen = useRef<any>(null);
+  const roomScreen = useRef<any>(null);
+  const leftScoreRef = useRef<any>(null);
+  const rightScoreRef = useRef<any>(null);
+  const waitingForGame = useRef<any>(null);
+  const roomId = useRef<any>(null);
   const map: string[] = ['Normal', 'Pool', 'Retro', 'Space']
   const [rounds, setRounds] = useState<number>(5);
   const [PlayersPics, setPlayersPics] = useState<string[]>([]);
   const [PlayersUNs, setPlayersUN] = useState<string[]>([]);
-  const [winner, setWinner] = useState<number>();
+  const [winner, setWinner] = useState<number>(5);
   const [mapsel, setMapsel] = useState<number>(0);
+  let mapSel = 0;
+  let Rounds = 5;
   const [winnerModal, setWinnerModal] = useState<boolean>(false);
-  const [room, setRoom] = useState<string>("")
+  const [roomFallback, setRoom] = useState<string>("")
+  const [mySideFallback, setMyside] = useState<string>("")
+  let room = "";
 
-  const [socket, setSocket] = useState<SocketIOClient.Socket>(null);
+  const [socket, setSocket] = useState<any>(null);
+
   const [init, setInit] = useState<boolean>(false);
 
-  function joinGame(q) { //// HERE IS THE PROBLEM
-    if (roomId.current.value !== "") {
-      setRoom(roomId.current.value);
-    }
-    if (q) {
-      setRoom(q)
-    }
-    let r = q ? q : roomId.current.value;
+  function joinGame(r = 0, l:number = mapsel, rds = rounds) { //// HERE IS THE PROBLEM
+    if (roomId.current?.value !== "")
+      room = roomId.current.value;
+    console.log("sss", l);
+    console.log("sssq ", mapsel);
     socket.emit("joinGame", {
       room,
-      rounds,
-      map: map[mapsel],
+      rounds: rds, // rounds
+      map: map[l],
       login: props.profile.login42,
       UN: props.profile.username,
       avatar: props.profile.avatar,
@@ -87,7 +89,7 @@ const game = (props) => {
 
   useEffect(() => {
     if (!socket) return;
-    socket.on("initGame", (data) => {
+    socket.on("initGame", (data: any) => {
       socket.off("initGame");
       console.log("on initGame event: ", data);
       gameScreen.current.style.display = "block";
@@ -95,6 +97,7 @@ const game = (props) => {
       // add count down
       let bgColor = "";
       let bgImage = "";
+      room = data.room;
       setRoom(data.room);
       setPlayersPics([data.avatars.left, data.avatars.right]);
       setPlayersUN([data.UNs.left, data.UNs.right]);
@@ -123,15 +126,20 @@ const game = (props) => {
 
     socket.on("spectatorSide", () => {
       mySide = "spectator";
+      setMyside("spectator");
       console.log("Changed my side to", mySide);
     });
 
-    socket.on("startGame", (s) => {
+    socket.on("startGame", (s: string) => {
       console.log("on startGame event: ", s);
       gameStarted = true;
       if (mySide !== "spectator") {
         socket.emit("updateGameStart", s);
       }
+      waitingForGame.current.style.display = "none";
+      setLeftScore(0);
+      setRightScore(0);
+      document.getElementById("Navbar")?.style.setProperty("--opacity", "0");
     });
 
     socket.on("updateRightScore", (rightS: any) => {
@@ -142,17 +150,19 @@ const game = (props) => {
       setLeftScore(leftS);
     });
 
-    socket.on("UB", (data) => { //update ball
-      ballRef?.current?.style?.setProperty("--x", data.x);
-      ballRef?.current?.style?.setProperty("--y", data.y);
-      window.requestAnimationFrame(HandleInput);
+    socket.on("UB", (data: any) => { //update ball HERE
+      if (ballRef.current) {
+        ballRef.current.style.setProperty("--x", data.x);
+        ballRef.current.style.setProperty("--y", data.y);
+        window.requestAnimationFrame(HandleInput);
+      }
     });
 
-    socket.on("setLeftPaddlePosition", (newPos) => {
+    socket.on("setLeftPaddlePosition", (newPos: number) => {
       leftPaddleRef.current.style.setProperty("--position", newPos);
     });
 
-    socket.on("setRightPaddlePosition", (newPos) => {
+    socket.on("setRightPaddlePosition", (newPos: number) => {
       rightPaddleRef.current.style.setProperty("--position", newPos);
     });
 
@@ -160,10 +170,11 @@ const game = (props) => {
       console.log("Connected with id: ", socket.id);
     });
 
-    socket.on("Won", (side) => {
+    socket.on("Won", (side: number) => {
       console.log("Won: ", side);
       setWinner(side);
       setWinnerModal(true);
+      // socket.close();
     });
 
     // add event listeners for key presses
@@ -176,15 +187,22 @@ const game = (props) => {
     console.log("router.query: ", router.query);
     if (router.query.param) {
       console.log("router.query.param: ", router.query.param);
-      setRoom(router.query.param[0]);
+      if (router.query.param[0])
+        room = router.query.param[0];
       if (router.query.param[1])
-        setMapsel(map.indexOf(router.query.param[1]));
+        mapSel = parseInt(router.query.param[1]);
+      else mapSel = mapsel;
       if (router.query.param[2])
-        setRounds(parseInt(router.query.param[2]));
-      console.log("joinGame with room: ", room, " map: ", map[mapsel], " rounds: ", rounds);
-      joinGame(router.query.param[0]);
+        Rounds = parseInt(router.query.param[2]);
+      else Rounds = rounds;
+      setRounds(parseInt(router.query.param[2]));
+      console.log("joinGame with room: ", room, " map: ", map[mapSel], " rounds: ", Rounds);
+      joinGame(0,mapSel, Rounds);
     }
     return () => {
+      document.body.style.setProperty("--bg-color", "#353535d1");
+      document.body.style.setProperty("--bg-image", "");
+      document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
       socket.emit("disconnecte");
       socket.close();
     }
@@ -198,6 +216,7 @@ const game = (props) => {
     }
     return () => {
       if (socket) {
+        console.log("disconnecting socket");
         socket.close();
       }
     }
@@ -273,26 +292,31 @@ const game = (props) => {
               </div>
             </div>
           </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={() => {
-              router.push("/game/" + room + "/" + map[mapsel] + "/" + rounds);
-            }}>
-              Re-match !
-            </Button>
-            <Button onClick={() => {
-              router.push("/game");
-            }}>
-              Play again !
-            </Button>
-            <Button
-              color="gray"
-              onClick={() => {
-                router.push("/");
-              }}
-            >
-              Quit
-            </Button>
-          </Modal.Footer>
+          {mySideFallback !== "spectator" &&
+            <Modal.Footer>
+              <div className="flex flex-row w-full place-content-between">
+                <Button onClick={() => {
+                  setWinnerModal(false);
+                  joinGame();
+                }}>
+                  Re-match !
+                </Button>
+                <Button onClick={() => {
+                  router.reload();
+                }}>
+                  Play again !
+                </Button>
+                <Button
+                  color="gray"
+                  onClick={() => {
+                    router.push("/");
+                  }}
+                >
+                  Quit
+                </Button>
+              </div>
+            </Modal.Footer>
+          }
         </Modal>
       </div>
     </>)
