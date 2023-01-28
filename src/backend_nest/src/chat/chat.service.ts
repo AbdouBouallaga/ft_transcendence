@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AdminOfChannel, Channel, ChannelType, Message, UserBannedFromChannel, UserBlockedUser } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BanUserDto, BlockUserDto, ChannelPasswordDto, CreateChannelDto, SendMessageDto, UpdateAdminDto } from './dto';
+import { BanUserDto, BlockUserDto, ChannelPasswordDto, CreateChannelDto, GetMessageDto, SendMessageDto, UpdateAdminDto } from './dto';
 import { UserPrismaService } from 'src/prisma/user.service';
 import { create } from 'domain';
 
@@ -189,7 +189,33 @@ export class ChatService {
         if (!channel.MemberOfChannel.find(element => element.userId === user.id)) {
             throw new UnauthorizedException();
         }
-        // check if banned or still muted
+        const userBansFromChannel = await this.prisma.userBannedFromChannel.findMany({
+            where: {
+                userId: user.id,
+                channelId: channel.id
+            }
+        });
+        if (userBansFromChannel.find(element => element.isBanned)
+            || userBansFromChannel.find(element => new Date(element.startedAt.getTime() + (element.duration * 60000)) >= new Date())) {
+            throw new UnauthorizedException();
+        }
+        if (channel.type === ChannelType.DIRECT) {
+            let otherUser = null;
+            if (channel.MemberOfChannel[0].userId !== user.id) {
+                otherUser = await this.userPrisma.findUserById(channel.MemberOfChannel[0].userId);
+            } else {
+                otherUser = await this.userPrisma.findUserById(channel.MemberOfChannel[1].userId);
+            }
+            const userBlockedByUser = await this.prisma.userBlockedUser.findMany({
+                where: {
+                    blockerId: otherUser.id,
+                    blockeeId: user.id
+                }
+            });
+            if (userBlockedByUser.length > 0) {
+                throw new UnauthorizedException();
+            }
+        }
         return await this.prisma.message.create({
             data: {
                 senderId: user.id,
@@ -197,6 +223,10 @@ export class ChatService {
                 content: data.content
             }
         });
+    }
+
+    async getMessagesFromChannel(data: GetMessageDto) : Promise<Message[]> {
+
     }
 
 }
