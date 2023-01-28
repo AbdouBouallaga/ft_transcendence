@@ -80,14 +80,17 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         <meta name="description" content="Ping Pong game." />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0"
+          content="initial-scale=1.0, maximum-scale=1.0,user-scalable=0"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar profile={profile} />}
-          <Component {...pageProps} profile={profile} />
+          {/* <div> */}
+            <Component {...pageProps} profile={profile} />
+          {/* </div> */}
+
         </div>
       )}
     </>
