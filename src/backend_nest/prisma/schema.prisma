@@ -30,12 +30,16 @@ model User {
   gamesCreated Game[] @relation("hasCreatedGame")
   gamesJoined  Game[] @relation("hasJoinedGame")
 
-  @@map("users")
-}
+  ownerOfChannels Channel[]        @relation("isOwnerOfChannel")
+  AdminOfChannel  AdminOfChannel[]
 
-enum Status {
-  OK
-  BLOCKED
+  blockerOf  UserBlockedUser[]       @relation("haveBlockedUsers")
+  blockedBy  UserBlockedUser[]       @relation("isBlockedByUsers")
+  bannedFrom UserBannedFromChannel[]
+
+  Message Message[]
+
+  @@map("users")
 }
 
 model Follows {
@@ -43,8 +47,6 @@ model Follows {
   followerId  Int
   following   User @relation("following", fields: [followingId], references: [id])
   followingId Int
-
-  status Status @default(OK)
 
   @@id([followerId, followingId])
   @@map("follows")
@@ -63,4 +65,76 @@ model Game {
   scorePlayer2 Int
 
   @@map(name: "games")
+}
+
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  DIRECT
+}
+
+model Channel {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  name        String
+  type        ChannelType
+  isProtected Boolean     @default(false)
+  password    String?
+
+  owner   User @relation("isOwnerOfChannel", fields: [ownerId], references: [id])
+  ownerId Int
+
+  AdminOfChannel        AdminOfChannel[]
+  UserBannedFromChannel UserBannedFromChannel[]
+  Message               Message[]
+
+  @@map(name: "channels")
+}
+
+model AdminOfChannel {
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+
+  admin   User @relation(fields: [adminId], references: [id])
+  adminId Int
+
+  @@id([channelId, adminId])
+}
+
+model UserBlockedUser {
+  blocker   User @relation("haveBlockedUsers", fields: [blockerId], references: [id])
+  blockerId Int
+
+  blockee   User @relation("isBlockedByUsers", fields: [blockeeId], references: [id])
+  blockeeId Int
+
+  @@id([blockerId, blockeeId])
+}
+
+model UserBannedFromChannel {
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  forLife   Boolean
+  duration  Int
+  startedAt DateTime @default(now())
+
+  @@id([channelId, userId])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  sender   User @relation(fields: [senderId], references: [id])
+  senderId Int
+
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+
+  @@map(name: "messages")
 }
