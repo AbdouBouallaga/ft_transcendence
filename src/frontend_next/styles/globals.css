@@ -32,13 +32,12 @@ body {
 }
 
 #appRootContainer {
-	/* height: 100vh;
+	height: 100vh;
 	background-color: #a4a4a47a;
 }
 
 #Navbar {
 	--opacity: 1;
-	display: block;
 	transition: 0.5s;
 	background-color: #a4a4a47a;
 	backdrop-filter: brightness(1.9);
