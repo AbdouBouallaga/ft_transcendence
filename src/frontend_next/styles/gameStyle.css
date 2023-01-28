@@ -1,0 +1,76 @@
+/* .gameDiv{
+  display: none;
+  z-index: -1;
+} fix nav drop*/
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+#game-screen {
+  display: none;
+}
+
+#room-screen {
+  display: flex;
+  align-items: center;
+}
+
+.paddle {
+  --position: 50;
+
+  position: absolute;
+  background-color: #ddd;
+  top: calc((var(--position) * 1vh));
+  width: 1vh;
+  transform: translateY(-50%);
+  height: 15vh;
+}
+
+#left-paddle {
+  left: 1vw;
+}
+
+#right-paddle {
+  right: 1vw;
+}
+
+.ball {
+  --x: 50;
+  --y: 50;
+
+  position: absolute;
+  background-color: #ddd;
+  left: calc((var(--x) * 1vw));
+  top: calc((var(--y) * 1vh));
+  transform: translate(-50%, -50%);
+  width: 2.5vh;
+  height: 2.5vh;
+  border-radius: 50%;
+}
+
+.score {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 7vh;
+  color: #ddd;
+  opacity: 50%;
+}
+
+#left-score {
+  border-right: 3px solid;
+  padding-right: 3vw;
+  margin-top: 2vw;
+}
+
+#right-score {
+  border-left: 3px solid;
+  padding-left: 3vw;
+  margin-top: 2vw;
+}

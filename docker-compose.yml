@@ -17,6 +17,7 @@ services:
       - 443:443
     volumes:
       - ./storage/nginx/conf.d:/etc/nginx/conf.d
+      - ./src/frontend_next/static:/usr/share/nginx/html/static
       # - ./storage/nginx/ssl:/etc/nginx/ssl
     networks:
       my-network:
@@ -31,7 +32,7 @@ services:
     # ports:
     #   - 80:3000
     working_dir: /usr/src/app
-    command: bash -c "npm install && npm run dev --force"
+    command: bash -c "npm install && npm run dev"
     extra_hosts:
       - "api.127.0.0.1.nip.io:10.0.0.3"
     networks:
@@ -57,7 +58,7 @@ services:
 
   postgres:
     image: postgres:latest
-    container_name: pg_database
+    container_name: postgres
     restart: always
     volumes:
       - ./storage/postgres_data:/var/lib/postgresql/data

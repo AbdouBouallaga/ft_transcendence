@@ -10,6 +10,7 @@ import Chat from "../icons/Chat";
 
 const Navbar = ({ profile }: any) => {
   return (
+
     <>
       <nav id="Navbar" className="h-[60px] flex items-center ">
         <div className=" container mx-auto flex items-center justify-betwee px-2">
@@ -55,6 +56,7 @@ const Navbar = ({ profile }: any) => {
                   }
                   inline={true}
                   arrowIcon={false}
+
                 >
                   <Dropdown.Header>
                     <span className="block text-sm">Signed in as</span>

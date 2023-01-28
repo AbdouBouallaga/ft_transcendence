@@ -3,7 +3,7 @@ export default function Login() {
     <>
      <div id='loginDiv' className='container min-h-screen mx-auto px-4 grid place-items-center '  >
 
-          <div  className='login bg-gray-50 w-[350px] rounded-lg  min-h-[300px] shadow-lg p-2 grid place-items-center ' >
+          <div  className='aero bg-gray-50 w-[350px] rounded-lg  min-h-[300px] shadow-lg p-2 grid place-items-center ' >
             <button onClick={()=>{ 
             window.location.href = "http://127.0.0.1.nip.io/api/auth/42";
           }} className='text-white bg-[#24292F] hover:bg-[#24292F]/90 focus:ring-4 focus:outline-none focus:ring-[#24292F]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500 dark:hover:bg-[#050708]/30 mr-2 mb-2'>
