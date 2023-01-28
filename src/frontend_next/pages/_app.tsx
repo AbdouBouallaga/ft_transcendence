@@ -1,3 +1,4 @@
+
 import '../styles/globals.css'
 import '../styles/gameStyle.css';
 
@@ -9,11 +10,13 @@ import Navbar from '../components/navbar';
 import axios from 'axios';
 import { waitForDebugger } from 'inspector';
 
+
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
+
 
   const [Nav_active, setNav_active] = useState(false)
   const [appReady, setappReady] = useState(false)
@@ -26,12 +29,14 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   )
 
   async function routeMo(uri: any, nav: boolean, app: boolean, isError: boolean = false) { //route and display content
+
     const apply = () => {
       setNav_active(nav);
       setappReady(app);
-    }
-    if (AppProps.router.route !== '/login' && !isError)
+    };
+    if (AppProps.router.route !== "/login" && !isError)
       uri = AppProps.router.route;
+
     console.log("uri", AppProps.router.route)
     if (AppProps.router.route === '/gameFull/[[...param]]') {
       nav = false;
@@ -84,3 +89,4 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       </>
     )
   }
+

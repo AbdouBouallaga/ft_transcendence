@@ -2,12 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* html , body{
-  background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
-  height: 100vh;
-} */
 
+@layer utilities {
+    @variants responsive {
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
 
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+    }
+  }
+html , body{
+  /* background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%); */
+  min-height: 100vh;
+}
 
 body {
 	--bg-color: #353535d1;
@@ -16,31 +29,11 @@ body {
 	background-size: 230% 200%;
 	background-image: var(--bg-image);
 	background-size: auto;
-	/* animation: gradient 10s ease infinite;
-	height: 100vh; */
-}
-
-/* @keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-} */
-
-.w-fit {
-	z-index: 100;
-	/*navbar dropdown*/
 }
 
 #appRootContainer {
-	height: 100vh;
+	/* height: 100vh;
 	background-color: #a4a4a47a;
-	backdrop-filter: blur(10px);
 }
 
 #Navbar {
@@ -61,6 +54,9 @@ body {
 }
 
 /* chat */
+
+
+
 
 /* profile */
 .card {
