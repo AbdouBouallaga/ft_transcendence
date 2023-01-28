@@ -52,7 +52,7 @@ const game = (props: any) => {
     console.log("sss", l);
     console.log("sssq ", mapsel);
     socket.emit("joinGame", {
-      room,
+      room: roomFallback,
       rounds: rds, // rounds
       map: map[l],
       login: props.profile.login42,
@@ -174,6 +174,8 @@ const game = (props: any) => {
       console.log("Won: ", side);
       setWinner(side);
       setWinnerModal(true);
+      if ((side === 0 && mySide === 'left') || (side === 1 && mySide === 'right'))
+        socket.emit("saveScoreToDB", room);
       // socket.close();
     });
 
@@ -200,11 +202,16 @@ const game = (props: any) => {
       joinGame(0,mapSel, Rounds);
     }
     return () => {
+      console.log("out");
       document.body.style.setProperty("--bg-color", "#353535d1");
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
       socket.emit("disconnecte");
-      socket.close();
+      setTimeout(() => {
+        socket.close();
+        console.log('socket closed');
+      }, 500);
+      
     }
   }, [socket]);
 
