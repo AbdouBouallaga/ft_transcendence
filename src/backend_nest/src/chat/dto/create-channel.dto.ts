@@ -1,17 +1,19 @@
 import { ChannelType } from '@prisma/client';
-import { isBoolean, isNotEmpty, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateChannelDto {
     @IsNotEmpty()
     name: string;
 
+    @IsNotEmpty()
     type: ChannelType;
 
-    @isBoolean()
+    @IsBoolean()
     isProtected: boolean;
 
+    @IsOptional()
     password: string;
 
-    @isNotEmpty()
+    @IsNotEmpty()
     login42: string;
 }

@@ -48,6 +48,14 @@ CREATE TABLE "channels" (
 );
 
 -- CreateTable
+CREATE TABLE "MemberOfChannel" (
+    "channelId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+
+    CONSTRAINT "MemberOfChannel_pkey" PRIMARY KEY ("channelId","userId")
+);
+
+-- CreateTable
 CREATE TABLE "AdminOfChannel" (
     "channelId" INTEGER NOT NULL,
     "adminId" INTEGER NOT NULL,
@@ -67,8 +75,8 @@ CREATE TABLE "UserBlockedUser" (
 CREATE TABLE "UserBannedFromChannel" (
     "channelId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
-    "forLife" BOOLEAN NOT NULL,
-    "duration" INTEGER NOT NULL,
+    "isBanned" BOOLEAN NOT NULL DEFAULT false,
+    "duration" INTEGER NOT NULL DEFAULT 15,
     "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "UserBannedFromChannel_pkey" PRIMARY KEY ("channelId","userId")
@@ -80,6 +88,7 @@ CREATE TABLE "messages" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "senderId" INTEGER NOT NULL,
     "channelId" INTEGER NOT NULL,
+    "content" TEXT NOT NULL,
 
     CONSTRAINT "messages_pkey" PRIMARY KEY ("id")
 );
@@ -104,6 +113,12 @@ ALTER TABLE "games" ADD CONSTRAINT "games_idPlayer2_fkey" FOREIGN KEY ("idPlayer
 
 -- AddForeignKey
 ALTER TABLE "channels" ADD CONSTRAINT "channels_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MemberOfChannel" ADD CONSTRAINT "MemberOfChannel_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "channels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MemberOfChannel" ADD CONSTRAINT "MemberOfChannel_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AdminOfChannel" ADD CONSTRAINT "AdminOfChannel_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "channels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
