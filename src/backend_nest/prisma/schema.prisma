@@ -37,7 +37,8 @@ model User {
   blockedBy  UserBlockedUser[]       @relation("isBlockedByUsers")
   bannedFrom UserBannedFromChannel[]
 
-  Message Message[]
+  Message         Message[]
+  MemberOfChannel MemberOfChannel[]
 
   @@map("users")
 }
@@ -88,8 +89,19 @@ model Channel {
   AdminOfChannel        AdminOfChannel[]
   UserBannedFromChannel UserBannedFromChannel[]
   Message               Message[]
+  MemberOfChannel       MemberOfChannel[]
 
   @@map(name: "channels")
+}
+
+model MemberOfChannel {
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@id([channelId, userId])
 }
 
 model AdminOfChannel {
@@ -119,8 +131,8 @@ model UserBannedFromChannel {
   user   User @relation(fields: [userId], references: [id])
   userId Int
 
-  forLife   Boolean
-  duration  Int
+  isBanned   Boolean @default(false)
+  duration  Int @default(15)
   startedAt DateTime @default(now())
 
   @@id([channelId, userId])
@@ -135,6 +147,8 @@ model Message {
 
   channel   Channel @relation(fields: [channelId], references: [id])
   channelId Int
+
+  content String
 
   @@map(name: "messages")
 }
