@@ -233,11 +233,13 @@ class Game {
         this.rightScore = 1337;
       }
     }
+    // console.log('STOP room', this.room,'interval ID: ', rooms[this.room].Interval);
     clearInterval(rooms[this.room].Interval);
     this.ball.io
       .to(this.room)
       .emit('Won', this.leftScore > this.rightScore ? 0 : 1);
     setTimeout(() => {
+      clearInterval(rooms[this.room].Interval);
       delete rooms[this.room];
       console.log('room ', this.room, ' deleted');
     }, 500);
@@ -247,7 +249,8 @@ class Game {
 
 function requestedUpdate(io, room, delta) {
   rooms[room].Interval = setInterval(() => {
-    if (room in rooms !== false) {
+    // console.log('update');
+    if (room in rooms !== false && rooms[room].game !== null) {
       rooms[room].game.update(
         io,
         delta,
@@ -255,11 +258,12 @@ function requestedUpdate(io, room, delta) {
       );
     }
   }, delta);
+  // console.log('room', room,'set interval ID: ', rooms[room].Interval);
 }
 
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnModuleInit {
-  constructor(private readonly gameService: GameService) {}
+  constructor(private readonly gameService: GameService) { }
 
   @WebSocketServer()
   server: Server;
@@ -273,6 +277,7 @@ export class GameGateway implements OnModuleInit {
           let rounds: number = data.rounds;
           let map: string = data.map;
           let login: string = data.login;
+          let player: number = data.player;
           // let login : string = socket.id;
           console.log('user ', login, ',join room ', room);
           if (room === '') {
@@ -288,90 +293,89 @@ export class GameGateway implements OnModuleInit {
             }
             console.log('>>> room', room);
           }
-          // if there is no room with that name in rooms, create one and initialize it by setting the first player and then make it join the room
+          // if there is no room with that name in rooms, create one and initialize it
           if (room in rooms === false) {
-            player = '1';
             socket.join(room);
             rooms[room] = {
               ready: 0,
               map: map,
               rounds: rounds,
-              numOfPlayers: 1,
-              players: [
-                {
-                  id: login,
-                  socketId: socket.id,
-                  avatar: data.avatar,
-                  UN: data.UN,
-                  paddle: new Paddle(this.server, room, 'Left'),
-                },
-              ],
+              numOfPlayers: 0,
+              players: [],
               spectators: [],
             };
-            console.log('1st player');
-          } else {
-            // if there is only 1 player, add the second player and make it join the room
-            if (
-              rooms[room].numOfPlayers === 1 &&
-              login !== rooms[room].players[0].id
-            ) {
-              player = '2';
-              socket.join(room);
-              rooms[room].players.push({
-                id: login,
-                socketId: socket.id,
-                avatar: data.avatar,
-                UN: data.UN,
-                paddle: new Paddle(this.server, room, 'Right'),
-              });
-              rooms[room].ball = new Ball(this.server, room);
+            console.log('init room ', room);
+          }
+          // else {
+          // if there is no player id specified, join as player
+          if (player === 100) {
+            console.log("player not specified: ");
+            player = rooms[room].numOfPlayers;
+          }
+          if (rooms[room].numOfPlayers !== 2) {
+            console.log("player ", player, " joining room ", room, " as player");
+            socket.join(room);
+            rooms[room].players[player] = ({
+              id: login,
+              socketId: socket.id,
+              avatar: data.avatar,
+              UN: data.UN,
+              paddle: new Paddle(this.server, room, player === 0 ? 'Left' : 'Right'),
+            });
+            if (player === 0)
+              socket.emit('leftSide');
+            else
               socket.emit('rightSide');
+            rooms[room].numOfPlayers += 1;
+            rooms[room].ready += 1;
+            console.log("player,", rooms[room].players[player].id, " joined");
+            if (rooms[room].ready === 2) {
+              console.log('room ', room, ' is ready');
+              rooms[room].ball = new Ball(this.server, room);
               rooms[room].game = new Game(
                 rooms[room].players,
                 rooms[room].ball,
                 room,
               );
-              rooms[room].numOfPlayers = 2;
-              console.log('2nd player, game initiated: ');
-              // console.log(rooms[room].game);
-              this.server.to(room).emit('initGame', {
-                room: room,
-                map: rooms[room].map,
-                rounds: rooms[room].rounds,
-                avatars: {
-                  left: rooms[room].players[0].avatar,
-                  right: rooms[room].players[1].avatar,
-                },
-                UNs: {
-                  left: rooms[room].players[0].UN,
-                  right: rooms[room].players[1].UN,
-                },
-              });
-              this.server.to(room).emit('startGame', room);
-            } else if (
-              login !== rooms[room]?.players[0]?.id &&
-              login !== rooms[room]?.players[1]?.id
-            ) {
-              // if 2 players are already in room add next joiner as spectator
-              socket.join(room);
-              rooms[room].spectators.push(login);
-              socket.emit('spectatorSide');
-              this.server.to(room).emit('initGame', {
-                room: room,
-                map: rooms[room].map,
-                rounds: rooms[room].rounds,
-                avatars: {
-                  left: rooms[room].players[0]?.avatar,
-                  right: rooms[room].players[1]?.avatar,
-                },
-                UNs: {
-                  left: rooms[room].players[0].UN,
-                  right: rooms[room].players[1].UN,
-                },
-              });
-              this.server.to(room).emit('startGame', room);
+              setTimeout(() => {
+                this.server.to(room).emit('initGame', {
+                  room: room,
+                  map: rooms[room].map,
+                  rounds: rooms[room].rounds,
+                  avatars: {
+                    left: rooms[room].players[0].avatar,
+                    right: rooms[room].players[1].avatar,
+                  },
+                  UNs: {
+                    left: rooms[room].players[0].UN,
+                    right: rooms[room].players[1].UN,
+                  },
+                });
+                this.server.to(room).emit('startGame', room);
+              }, 1000);
+
             }
+          } else {
+            // if 2 players are already in room add next joiner as spectator
+            socket.join(room);
+            rooms[room].spectators.push(login);
+            socket.emit('spectatorSide');
+            this.server.to(room).emit('initGame', {
+              room: room,
+              map: rooms[room].map,
+              rounds: rooms[room].rounds,
+              avatars: {
+                left: rooms[room].players[0]?.avatar,
+                right: rooms[room].players[1]?.avatar,
+              },
+              UNs: {
+                left: rooms[room].players[0].UN,
+                right: rooms[room].players[1].UN,
+              },
+            });
+            this.server.to(room).emit('startGame', room);
           }
+          // }
         });
         socket.on('updateGame', ({ PressedKeysObj, room }) => {
           if (room in rooms)
@@ -379,10 +383,9 @@ export class GameGateway implements OnModuleInit {
         });
         socket.on('updateGameStart', (room) => {
           if (room in rooms) {
-            rooms[room].ready += 1;
-            if (rooms[room].ready === 2) {
-              requestedUpdate(this.server, room, 1000 / 75);
-            }
+            // if (rooms[room].ready === 2) {
+            requestedUpdate(this.server, room, 1000 / 144);
+            // }
           }
         });
         socket.on('saveScoreToDB', (room) => {
@@ -393,11 +396,11 @@ export class GameGateway implements OnModuleInit {
             score2: rooms[room].game.rightScore,
           });
         });
-        socket.on('disconnecte', () => {
+        socket.on('disconnecte', (room:string) => {
           // let login : string = socket.id;
           // let login : string = data.login;
           console.log(socket.id, 'disconnected');
-          for (let room in rooms) {
+          // for (let room in rooms) {
             if (rooms[room]?.spectators?.includes(socket.id)) {
               rooms[room].spectators.splice(
                 rooms[room].spectators.indexOf(socket.id),
@@ -406,16 +409,16 @@ export class GameGateway implements OnModuleInit {
             } else {
               clearInterval(rooms[room].Interval);
               if (rooms[room].players[1]?.socketId === socket.id) {
-                rooms[room]?.game.gameFinished(0);
+                rooms[room]?.game?.gameFinished(0);
               } else {
-                rooms[room]?.game.gameFinished(1);
+                rooms[room]?.game?.gameFinished(1);
               }
               setTimeout(() => {
                 delete rooms[room];
                 console.log('room ', room, ' deleted');
               }, 500);
             }
-          }
+          // }
         });
       } catch (err) {
         console.log('ERROR CAUGHT: ', err);
@@ -426,5 +429,6 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('message')
   onNewMessage(@MessageBody() body: any) {
     console.log(body);
+ 
   }
 }

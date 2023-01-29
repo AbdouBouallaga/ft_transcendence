@@ -40,13 +40,14 @@ const game = (props: any) => {
   const [winnerModal, setWinnerModal] = useState<boolean>(false);
   const [roomFallback, setRoom] = useState<string>("")
   const [mySideFallback, setMyside] = useState<string>("")
+  const [playerFallback, setPlayer] = useState<number>(100)
   let room = "";
 
   const [socket, setSocket] = useState<any>(null);
 
   const [init, setInit] = useState<boolean>(false);
 
-  function joinGame(r = 0, l:number = mapsel, rds = rounds) { //// HERE IS THE PROBLEM
+  function joinGame(r = 0, l: number = mapsel, rds = rounds) { //// HERE IS THE PROBLEM
     if (roomId.current?.value !== "")
       room = roomId.current.value;
     console.log("sss", l);
@@ -58,6 +59,7 @@ const game = (props: any) => {
       login: props.profile.login42,
       UN: props.profile.username,
       avatar: props.profile.avatar,
+      player : playerFallback
     });
     roomScreen.current.style.display = "none";
     waitingForGame.current.style.display = "block";
@@ -119,8 +121,14 @@ const game = (props: any) => {
       }
     });
 
+    socket.on("leftSide", () => {
+      mySide = "left";
+      setPlayer(0);
+      console.log("Changed my side to", mySide);
+    });
     socket.on("rightSide", () => {
       mySide = "right";
+      setPlayer(1);
       console.log("Changed my side to", mySide);
     });
 
@@ -133,7 +141,7 @@ const game = (props: any) => {
     socket.on("startGame", (s: string) => {
       console.log("on startGame event: ", s);
       gameStarted = true;
-      if (mySide !== "spectator") {
+      if (mySide === "left") {
         socket.emit("updateGameStart", s);
       }
       waitingForGame.current.style.display = "none";
@@ -174,6 +182,7 @@ const game = (props: any) => {
       console.log("Won: ", side);
       setWinner(side);
       setWinnerModal(true);
+      console.log("mySide: ", mySide, "winner side: ", side);
       if ((side === 0 && mySide === 'left') || (side === 1 && mySide === 'right'))
         socket.emit("saveScoreToDB", room);
       // socket.close();
@@ -199,19 +208,19 @@ const game = (props: any) => {
       else Rounds = rounds;
       setRounds(parseInt(router.query.param[2]));
       console.log("joinGame with room: ", room, " map: ", map[mapSel], " rounds: ", Rounds);
-      joinGame(0,mapSel, Rounds);
+      joinGame(0, mapSel, Rounds);
     }
     return () => {
       console.log("out");
       document.body.style.setProperty("--bg-color", "#353535d1");
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
-      socket.emit("disconnecte");
+      socket.emit("disconnecte", room);
       setTimeout(() => {
         socket.close();
         console.log('socket closed');
       }, 500);
-      
+
     }
   }, [socket]);
 

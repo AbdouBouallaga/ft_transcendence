@@ -12,7 +12,7 @@ const Navbar = ({ profile }: any) => {
   return (
 
     <>
-      <nav id="Navbar" className="h-[60px] flex items-center ">
+      <nav id="Navbar" className="h-[60px] flex items-center min-w-fit">
         <div className=" container mx-auto flex items-center justify-betwee px-2">
           <Link href="/" className="flex items-center">
             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
@@ -20,7 +20,7 @@ const Navbar = ({ profile }: any) => {
             </span>
           </Link>
           <div className=" w-full flex justify-end">
-            <ul className="flex items-center  flex-row space-x-8  text-sm font-medium  ">
+            <ul className="flex items-center flex-row space-x-3 text-sm font-medium  ">
               <li>
                 <a
                   onClick={() => {
@@ -47,12 +47,13 @@ const Navbar = ({ profile }: any) => {
               </li>
               <li>
                 <Dropdown
-                  label={
+                  label={<div style={{width:40}}>
                     <Avatar
                       alt="Nav Drop settings"
                       img={profile?.avatar}
                       rounded={true}
                     />
+                  </div>
                   }
                   inline={true}
                   arrowIcon={false}

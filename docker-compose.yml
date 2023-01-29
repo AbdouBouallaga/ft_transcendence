@@ -34,7 +34,7 @@ services:
     working_dir: /usr/src/app
     command: bash -c "npm install && npm run dev"
     extra_hosts:
-      - "api.127.0.0.1.nip.io:10.0.0.3"
+      - "api.e2r2p1.1337.ma:10.0.0.3"
     networks:
       my-network:
         ipv4_address: 10.0.0.2
