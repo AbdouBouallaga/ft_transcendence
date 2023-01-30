@@ -12,10 +12,20 @@ export class BanUserDto {
 	@IsNotEmpty()
 	@IsString()
 	otherLogin42: string;
+}
 
-	@IsOptional()
-	@IsBoolean()
-	isBanned: boolean;
+export class MuteUserDto {
+	@IsNotEmpty()
+	@IsNumber()
+	channelId: number;
+
+	@IsNotEmpty()
+	@IsString()
+	login42: string;
+
+	@IsNotEmpty()
+	@IsString()
+	otherLogin42: string;
 
 	@IsNotEmpty()
 	@IsNumber()
