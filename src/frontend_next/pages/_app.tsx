@@ -43,7 +43,11 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       nav = false;
       uri = AppProps.router;
     }
-    Router.push(uri);
+    // Router.push(uri);
+    Router.push({
+      pathname: uri,
+      query: {...AppProps.router.query},
+    })
     Router.events.on("routeChangeComplete", apply); /// this is the key
   }
 

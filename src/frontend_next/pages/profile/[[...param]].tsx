@@ -15,7 +15,7 @@ var imageResize = new ImageResize({
 
 const Profile = () => {
   const router = useRouter();
-  const [user , setUser] = useState<string>("me");
+  const [user, setUser] = useState<string>("me");
   const [exite, setExited] = useState<number>(0);
   // State to store the user's profile data
   const [profile, setProfile] = useState({
@@ -172,15 +172,17 @@ const Profile = () => {
 
   // Fetch the user's profile data when the component mounts
   useEffect(() => {
-    // console.log("router.query: ", router.query);
-    // if (router.query.param) {
-    //   console.log("router.query.param: ", router.query.param);
-    //   if (router.query.param[0])
-    //     setUser(router.query.param[0]);
-    // }
+    let user = 'me';
+    console.log("router.query: ", router.query);
+    if (router.query.param) {
+      console.log("router.query.param: ", router.query.param);
+      if (router.query.param[0])
+        user = router.query.param[0];
+      // setUser(router.query.param[0]);
+    }
     async function fetchProfile() {
       axios
-        .get("/api/users/"+user+"/fullprofile")
+        .get("/api/users/" + user + "/fullprofile")
         .then((response) => {
           const { username, avatar, tfaEnabled } = response.data;
           console.log(username, avatar);
@@ -196,7 +198,7 @@ const Profile = () => {
         });
     }
     fetchProfile();
-  }, [enabled2fa, editReloadContent, user]);
+  }, [enabled2fa, editReloadContent]);
 
   // Function to toggle edit mode
 
@@ -363,11 +365,11 @@ const Profile = () => {
             <h1><b>Friends</b></h1>
             <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
               {[...Array(10)].map((e, i) =>
-                <div className="relative m-2" style={{ width: 80 }} onClick={()=>{
+                <div className="relative m-2" style={{ width: 80 }} onClick={() => {
                   // router.push(`/`)
                   // router.replace(`/profile/mmeski`)
                   setUser('mmeski')
-                  }}>
+                }}>
                   <Avatar
                     alt="Nav Drop settings"
                     img={profile?.avatar}
