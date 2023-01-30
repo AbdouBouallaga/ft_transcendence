@@ -13,11 +13,10 @@ var imageResize = new ImageResize({
   width: 160
 });
 
-const Profile = () => {
+const Profile = (props:any) => {
   const router = useRouter();
-  const [user , setUser] = useState<string>("me");
-  const [exite, setExited] = useState<number>(0);
   // State to store the user's profile data
+  let [itsme, setItsme] = useState(true);
   const [profile, setProfile] = useState({
     username: "",
     avatar: "",
@@ -172,18 +171,18 @@ const Profile = () => {
 
   // Fetch the user's profile data when the component mounts
   useEffect(() => {
-    // console.log("router.query: ", router.query);
-    // if (router.query.param) {
-    //   console.log("router.query.param: ", router.query.param);
-    //   if (router.query.param[0])
-    //     setUser(router.query.param[0]);
-    // }
+    let user = 'me';
+    setItsme(true);
+    if (router.query.param) {
+      if (router.query.param[0])
+        user = router.query.param[0];
+        setItsme(false);
+    }
     async function fetchProfile() {
       axios
         .get("/api/users/"+user+"/fullprofile")
         .then((response) => {
           const { username, avatar, tfaEnabled } = response.data;
-          console.log(username, avatar);
           setProfile({
             username,
             avatar,
@@ -196,7 +195,7 @@ const Profile = () => {
         });
     }
     fetchProfile();
-  }, [enabled2fa, editReloadContent, user]);
+  }, [enabled2fa, editReloadContent, router.query]);
 
   // Function to toggle edit mode
 
@@ -208,9 +207,8 @@ const Profile = () => {
           <img src={profile.avatar} alt={profile.username} />
         </div>
         <h1><b>{profile.username}</b></h1>
-
+        {itsme &&
         <>
-
           {/* EDIT button and modal*/}
           <React.Fragment>
             <Button className='m-2' onClick={toggleEditModal}>Edit</Button>
@@ -323,7 +321,7 @@ const Profile = () => {
               </Modal.Footer>
             </Modal>
           </React.Fragment>
-        </>
+        </>}
       </div>
       <div className="flex flex-col"> {/* part2 general div */}
         <div className="flex flex-row flex-wrap justify-center">
@@ -365,8 +363,8 @@ const Profile = () => {
               {[...Array(10)].map((e, i) =>
                 <div className="relative m-2" style={{ width: 80 }} onClick={()=>{
                   // router.push(`/`)
-                  // router.replace(`/profile/mmeski`)
-                  setUser('mmeski')
+                  router.replace(`/profile/mmeski`)
+                  // setUser('mmeski')
                   }}>
                   <Avatar
                     alt="Nav Drop settings"
