@@ -18,10 +18,13 @@ const Profile = (props:any) => {
   // State to store the user's profile data
   let [itsme, setItsme] = useState(true);
   const [profile, setProfile] = useState({
+    login42: "",
     username: "",
     avatar: "",
     auth: "",
     tfaEnabled: false,
+    friends: [],
+    games: [],
   });
   const [edit, setEdit] = useState(false);
 
@@ -182,11 +185,15 @@ const Profile = (props:any) => {
       axios
         .get("/api/users/"+user+"/fullprofile")
         .then((response) => {
-          const { username, avatar, tfaEnabled } = response.data;
+          console.log(">>>>>>>>> ",response.data);
+          const { login42, username, avatar, tfaEnabled, friends, games} = response.data;
           setProfile({
+            login42,
             username,
             avatar,
             tfaEnabled,
+            friends,
+            games,
           });
           set2faEnabled(tfaEnabled);
         })
@@ -207,7 +214,7 @@ const Profile = (props:any) => {
           <img src={profile.avatar} alt={profile.username} />
         </div>
         <h1><b>{profile.username}</b></h1>
-        {itsme &&
+        {profile.login42 === props.profile.login42 ?
         <>
           {/* EDIT button and modal*/}
           <React.Fragment>
@@ -321,24 +328,24 @@ const Profile = (props:any) => {
               </Modal.Footer>
             </Modal>
           </React.Fragment>
-        </>}
+        </> : <></>}
       </div>
       <div className="flex flex-col"> {/* part2 general div */}
         <div className="flex flex-row flex-wrap justify-center">
           <div className="flex-1 card m-2 min-w-[392px]">
             <h1><b>History</b></h1>
             <div className="overflow-auto max-h-[300px]">
-              {[...Array(10)].map((e, i) =>
+              {profile.games.map((e, i) =>
                 <Table>
                   <Table.Body className="divide-y bg-white">
                     <Table.Row className="hover:bg-gray-100">
                       <Table.Cell className="">
                         <div className="flex flex-row justify-between">
-                          <Avatar img={profile.avatar} />
-                          <h2 className="font-bold m-auto ml-1 text-sm">{profile.username}</h2>
-                          <h2 className="font-bold m-auto text-lg">15 - 15</h2>
-                          <h2 className="font-bold m-auto mr-1 text-sm">{profile.username}</h2>
-                          <Avatar img={profile.avatar} />
+                          <Avatar img={e.winner.avatar} />
+                          <h2 className="font-bold m-auto ml-1 text-sm">{e.winner.username}</h2>
+                          <h2 className="font-bold m-auto text-lg">{e.winnerScore +'-'+e.loserScore }</h2>
+                          <h2 className="font-bold m-auto mr-1 text-sm">{e.winner.username}</h2>
+                          <Avatar img={e.winner.avatar} />
                         </div>
                       </Table.Cell>
                     </Table.Row>
@@ -360,21 +367,21 @@ const Profile = (props:any) => {
           <div className="flex-1 card m-2">
             <h1><b>Friends</b></h1>
             <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-              {[...Array(10)].map((e, i) =>
+              {profile.friends.map((e, i) =>
                 <div className="relative m-2" style={{ width: 80 }} onClick={()=>{
                   // router.push(`/`)
-                  router.replace(`/profile/mmeski`)
+                  router.replace(`/profile/`+e.login42)
                   // setUser('mmeski')
                   }}>
                   <Avatar
                     alt="Nav Drop settings"
-                    img={profile?.avatar}
+                    img={e.avatar}
                     rounded={false}
                     size="lg"
                     status="online"
                   />
                   <div className="font-bold aero w-full" >
-                    {profile.username}
+                    {e.username}
                   </div>
                 </div>
               )}

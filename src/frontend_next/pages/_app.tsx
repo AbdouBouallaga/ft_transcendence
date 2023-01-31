@@ -7,11 +7,6 @@ import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
-import { waitForDebugger } from "inspector";
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   const [Nav_active, setNav_active] = useState(false);
@@ -30,20 +25,18 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     isError: boolean = false
   ) {
     //route and display content
-
     const apply = () => {
       setNav_active(nav);
       setappReady(app);
     };
     if (AppProps.router.route !== "/login" && !isError)
       uri = AppProps.router.route;
-
-    console.log("uri", AppProps.router.route);
-    if (AppProps.router.route === "/gameFull/[[...param]]") {
-      nav = false;
-      uri = AppProps.router;
-    }
-    Router.push(uri);
+    console.log("uri", uri);
+    console.log("query", Router.query);
+    Router.replace({
+      pathname: uri,
+      query: Router.query,
+    });
     Router.events.on("routeChangeComplete", apply); /// this is the key
   }
 
@@ -87,10 +80,9 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar profile={profile} />}
-          {/* <div> */}
+          {/* <div className=""> */}
             <Component {...pageProps} profile={profile} />
           {/* </div> */}
-
         </div>
       )}
     </>
