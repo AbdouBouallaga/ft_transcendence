@@ -344,7 +344,7 @@ const Profile = (props: any) => {
               <Button className='m-2 danger' onClick={() => {
                 axios({
                   method: 'POST',
-                  url: '/api/users/follow/' + profile.login42,
+                  url: '/api/users/unfollow/' + profile.login42,
                 })
                 router.reload()
               }}>UnFollow</Button>
@@ -362,11 +362,17 @@ const Profile = (props: any) => {
                     <Table.Row className="hover:bg-gray-100">
                       <Table.Cell className="">
                         <div className="flex flex-row justify-between">
-                          <Avatar img={e.winner.avatar} />
-                          <h2 className="font-bold m-auto ml-1 text-sm">{e.winner.username}</h2>
+                          <div className="flex flex-row" onClick={()=>{
+                            router.replace(`/profile/` + e.winner.login42)
+                            }}>
+                            <Avatar img={e.winner.avatar} />
+                            <h2 className="font-bold m-auto ml-1 text-sm">{e.winner.username}</h2>
+                          </div>
                           <h2 className="font-bold m-auto text-lg">{e.winnerScore + '-' + e.loserScore}</h2>
-                          <h2 className="font-bold m-auto mr-1 text-sm">{e.winner.username}</h2>
-                          <Avatar img={e.winner.avatar} />
+                          <div className="flex flex-row">
+                            <h2 className="font-bold m-auto mr-1 text-sm">{e.loser.username}</h2>
+                            <Avatar img={e.loser.avatar} />
+                          </div>
                         </div>
                       </Table.Cell>
                     </Table.Row>
