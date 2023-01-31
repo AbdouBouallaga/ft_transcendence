@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
-import { Game, User } from "@prisma/client";
+import { Game, User, Follows } from "@prisma/client";
 import { UpdateUser } from "src/users/dto";
 import { GameStats, UserFullGameStats, UserProfile } from "src/users/interfaces";
 
@@ -156,6 +156,22 @@ export class UserPrismaService {
             },
             data: {
                 tfaEnabled,
+            }
+        });
+    }
+
+    async followUser(login42: string, otherUsername: string) : Promise<Follows> {
+        // TODO: check if user wasn't blocked
+        const user = await this.findUserByLogin42(login42);
+        const otherUser = await this.prisma.user.findUnique({
+            where: {
+                username: otherUsername
+            }
+        });
+        return await this.prisma.follows.create({
+            data: {
+                followerId: user.id,
+                followingId: otherUser.id
             }
         });
     }
