@@ -205,6 +205,7 @@ const Profile = (props: any) => {
     fetchProfile();
   }, [enabled2fa, editReloadContent, router.query, c]);
 
+
   // Function to toggle edit mode
 
   // Render the profile data in a card
