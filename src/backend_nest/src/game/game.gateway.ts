@@ -407,8 +407,8 @@ export class GameGateway implements OnModuleInit {
                 1,
               );
             } else {
-              clearInterval(rooms[room].Interval);
-              if (rooms[room].players[1]?.socketId === socket.id) {
+              clearInterval(rooms[room]?.Interval);
+              if (rooms[room]?.players[1]?.socketId === socket.id) {
                 rooms[room]?.game?.gameFinished(0);
               } else {
                 rooms[room]?.game?.gameFinished(1);

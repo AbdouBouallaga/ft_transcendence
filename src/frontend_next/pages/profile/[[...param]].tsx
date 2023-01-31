@@ -13,21 +13,24 @@ var imageResize = new ImageResize({
   width: 160
 });
 
-const Profile = () => {
+const Profile = (props: any) => {
   const router = useRouter();
-  const [user, setUser] = useState<string>("me");
-  const [exite, setExited] = useState<number>(0);
   // State to store the user's profile data
+  let [itsme, setItsme] = useState(true);
+  let [c, setC] = useState(0);
   const [profile, setProfile] = useState({
+    login42: "",
     username: "",
     avatar: "",
     auth: "",
     tfaEnabled: false,
+    friends: [],
+    games: [],
   });
-  const [edit, setEdit] = useState(false);
+  // const [edit, setEdit] = useState(false);
 
-  // State to store the edit mode status
-  const [isEditing, setIsEditing] = useState(false);
+  // // State to store the edit mode status
+  // const [isEditing, setIsEditing] = useState(false);
 
   //2fa
   const [data2fa, set2fa] = useState({});
@@ -173,23 +176,25 @@ const Profile = () => {
   // Fetch the user's profile data when the component mounts
   useEffect(() => {
     let user = 'me';
-    console.log("router.query: ", router.query);
+    setItsme(true);
     if (router.query.param) {
-      console.log("router.query.param: ", router.query.param);
       if (router.query.param[0])
         user = router.query.param[0];
-      // setUser(router.query.param[0]);
+      setItsme(false);
     }
     async function fetchProfile() {
       axios
         .get("/api/users/" + user + "/fullprofile")
         .then((response) => {
-          const { username, avatar, tfaEnabled } = response.data;
-          console.log(username, avatar);
+          console.log(">>>>>>>>> ", response.data);
+          const { login42, username, avatar, tfaEnabled, friends, games } = response.data;
           setProfile({
+            login42,
             username,
             avatar,
             tfaEnabled,
+            friends,
+            games,
           });
           set2faEnabled(tfaEnabled);
         })
@@ -198,7 +203,8 @@ const Profile = () => {
         });
     }
     fetchProfile();
-  }, [enabled2fa, editReloadContent]);
+  }, [enabled2fa, editReloadContent, router.query, c]);
+
 
   // Function to toggle edit mode
 
@@ -210,139 +216,164 @@ const Profile = () => {
           <img src={profile.avatar} alt={profile.username} />
         </div>
         <h1><b>{profile.username}</b></h1>
-
-        <>
-
-          {/* EDIT button and modal*/}
-          <React.Fragment>
-            <Button className='m-2' onClick={toggleEditModal}>Edit</Button>
-            <Modal show={enableEditmodal}
-              onClose={toggleEditModal}
-              size="sm"
-            >
-              <Modal.Header>Edit Profile</Modal.Header>
-              <Modal.Body>
-                {editError ?? <Badge color="failure">Error editing profile</Badge>}
-                <div className="form-group">
-                  <label>Username</label>
-                  <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
-                </div>
-                <div className="form-group">
-                  <label>Avatar</label>
-                  <input type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
-                </div>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button onClick={ProcessEdits}>
-                  Save
-                </Button>
-                <Button color="failure" onClick={toggleEditModal}>
-                  Cancel
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          </React.Fragment>
-
-          {/* 2FA button and modal*/}
-          <React.Fragment>
-            {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={toggle2faModal} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
-            <Modal show={enable2famodal}
-              onClose={modal2faDefault}
-              size="sm"
-            >
-              <Modal.Header >Two-factor authentication</Modal.Header>
-              {!profile.tfaEnabled &&
+        {profile.login42 === props.profile.login42 ?
+          <>
+            {/* EDIT button and modal*/}
+            <React.Fragment>
+              <Button className='m-2' onClick={toggleEditModal}>Edit</Button>
+              <Modal show={enableEditmodal}
+                onClose={toggleEditModal}
+                size="sm"
+              >
+                <Modal.Header>Edit Profile</Modal.Header>
                 <Modal.Body>
-                  {qrnextButton &&
-                    <div id="2faQr">
-                      <p className='text-center'>Scan this QR code with your authenticator app</p>
-                      <img className='m-auto' src={data2fa.otpAuthURL} alt="qr" />
-                    </div>
-                  }
-                  {qrprevButton &&
-                    <div className='flex' id="2faConfirm">
-                      <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
-                      <Button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</Button>
-                    </div>
-                  }
-                  {qr2faCodeError &&
-                    <Badge color="failure" size="L">
-                      <strong >Wrong Code !!</strong>
-                    </Badge>
-                  }
-                  {qr2faConfirm && // roles inverted i know
-                    <Badge color="success" size="L">
-                      <strong >2fa disabled successfully</strong>
-                    </Badge>
-                  }
+                  {editError ?? <Badge color="failure">Error editing profile</Badge>}
+                  <div className="form-group">
+                    <label>Username</label>
+                    <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
+                  </div>
+                  <div className="form-group">
+                    <label>Avatar</label>
+                    <input type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
+                  </div>
                 </Modal.Body>
-              }
-              {profile.tfaEnabled &&
-                <Modal.Body>
-                  {!qr2faConfirm &&
-                    <>
-                      <p className='text-center'>Confirm your 2fa code to disable it</p>
+                <Modal.Footer>
+                  <Button onClick={ProcessEdits}>
+                    Save
+                  </Button>
+                  <Button color="failure" onClick={toggleEditModal}>
+                    Cancel
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+            </React.Fragment>
+
+            {/* 2FA button and modal*/}
+            <React.Fragment>
+              {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={toggle2faModal} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
+              <Modal show={enable2famodal}
+                onClose={modal2faDefault}
+                size="sm"
+              >
+                <Modal.Header >Two-factor authentication</Modal.Header>
+                {!profile.tfaEnabled &&
+                  <Modal.Body>
+                    {qrnextButton &&
+                      <div id="2faQr">
+                        <p className='text-center'>Scan this QR code with your authenticator app</p>
+                        <img className='m-auto' src={data2fa.otpAuthURL} alt="qr" />
+                      </div>
+                    }
+                    {qrprevButton &&
                       <div className='flex' id="2faConfirm">
                         <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
-                        <Button className='btn btn btn-primary' onClick={disable2fa}>Confirm</Button>
+                        <Button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</Button>
                       </div>
-                    </>
-                  }
-                  {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
-                    <Badge color="success" size="L">
-                      <strong >2fa enabled successfully</strong>
-                    </Badge>
-                  }
-                  {qr2faCodeError &&
-                    <Badge color="failure" size="L">
-                      <strong >Wrong Code !!</strong>
-                    </Badge>
-                  }
-                </Modal.Body>
-              }
-              <Modal.Footer>
-                {qrnextButton && !profile.tfaEnabled &&
-                  <Button id='qrnextButton' className=' btn btn-primary' onClick={() => {
-                    set2faCodeError(false);
-                    setqrnextButton(!qrnextButton)
-                    setqrprevButton(!qrprevButton)
-                  }}>
-                    Next
-                  </Button>
+                    }
+                    {qr2faCodeError &&
+                      <Badge color="failure" size="L">
+                        <strong >Wrong Code !!</strong>
+                      </Badge>
+                    }
+                    {qr2faConfirm && // roles inverted i know
+                      <Badge color="success" size="L">
+                        <strong >2fa disabled successfully</strong>
+                      </Badge>
+                    }
+                  </Modal.Body>
                 }
-                {qrprevButton &&
-                  <Button id='qrprevButton' className=' btn btn-primary' onClick={() => {
-                    set2faCodeError(false);
-                    setqrprevButton(!qrprevButton)
-                    setqrnextButton(!qrnextButton)
-                  }}>
-                    Previous
-                  </Button>
+                {profile.tfaEnabled &&
+                  <Modal.Body>
+                    {!qr2faConfirm &&
+                      <>
+                        <p className='text-center'>Confirm your 2fa code to disable it</p>
+                        <div className='flex' id="2faConfirm">
+                          <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
+                          <Button className='btn btn btn-primary' onClick={disable2fa}>Confirm</Button>
+                        </div>
+                      </>
+                    }
+                    {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
+                      <Badge color="success" size="L">
+                        <strong >2fa enabled successfully</strong>
+                      </Badge>
+                    }
+                    {qr2faCodeError &&
+                      <Badge color="failure" size="L">
+                        <strong >Wrong Code !!</strong>
+                      </Badge>
+                    }
+                  </Modal.Body>
                 }
-                <Button className='btn btn-danger' onClick={modal2faDefault}>
-                  Cancel
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          </React.Fragment>
-        </>
+                <Modal.Footer>
+                  {qrnextButton && !profile.tfaEnabled &&
+                    <Button id='qrnextButton' className=' btn btn-primary' onClick={() => {
+                      set2faCodeError(false);
+                      setqrnextButton(!qrnextButton)
+                      setqrprevButton(!qrprevButton)
+                    }}>
+                      Next
+                    </Button>
+                  }
+                  {qrprevButton &&
+                    <Button id='qrprevButton' className=' btn btn-primary' onClick={() => {
+                      set2faCodeError(false);
+                      setqrprevButton(!qrprevButton)
+                      setqrnextButton(!qrnextButton)
+                    }}>
+                      Previous
+                    </Button>
+                  }
+                  <Button className='btn btn-danger' onClick={modal2faDefault}>
+                    Cancel
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+            </React.Fragment>
+          </> :
+          <>
+            {console.log("hallo", props.profile.friends?.findIndex(x => x.login42 === profile.login42))}
+            {(props.profile.friends?.findIndex(x => x.login42 === profile.login42) === -1) ?
+              <Button className='m-2' onClick={() => {
+                axios({
+                  method: 'POST',
+                  url: '/api/users/follow/' + profile.login42,
+                })
+                router.reload()
+              }}>Follow</Button>
+              :
+              <Button className='m-2 danger' onClick={() => {
+                axios({
+                  method: 'POST',
+                  url: '/api/users/unfollow/' + profile.login42,
+                })
+                router.reload()
+              }}>UnFollow</Button>
+            }
+          </>}
       </div>
       <div className="flex flex-col"> {/* part2 general div */}
         <div className="flex flex-row flex-wrap justify-center">
           <div className="flex-1 card m-2 min-w-[392px]">
             <h1><b>History</b></h1>
             <div className="overflow-auto max-h-[300px]">
-              {[...Array(10)].map((e, i) =>
+              {profile.games.map((e, i) =>
                 <Table>
                   <Table.Body className="divide-y bg-white">
                     <Table.Row className="hover:bg-gray-100">
                       <Table.Cell className="">
                         <div className="flex flex-row justify-between">
-                          <Avatar img={profile.avatar} />
-                          <h2 className="font-bold m-auto ml-1 text-sm">{profile.username}</h2>
-                          <h2 className="font-bold m-auto text-lg">15 - 15</h2>
-                          <h2 className="font-bold m-auto mr-1 text-sm">{profile.username}</h2>
-                          <Avatar img={profile.avatar} />
+                          <div className="flex flex-row" onClick={()=>{
+                            router.replace(`/profile/` + e.winner.login42)
+                            }}>
+                            <Avatar img={e.winner.avatar} />
+                            <h2 className="font-bold m-auto ml-1 text-sm">{e.winner.username}</h2>
+                          </div>
+                          <h2 className="font-bold m-auto text-lg">{e.winnerScore + '-' + e.loserScore}</h2>
+                          <div className="flex flex-row">
+                            <h2 className="font-bold m-auto mr-1 text-sm">{e.loser.username}</h2>
+                            <Avatar img={e.loser.avatar} />
+                          </div>
                         </div>
                       </Table.Cell>
                     </Table.Row>
@@ -364,21 +395,21 @@ const Profile = () => {
           <div className="flex-1 card m-2">
             <h1><b>Friends</b></h1>
             <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-              {[...Array(10)].map((e, i) =>
+              {profile.friends.map((e, i) =>
                 <div className="relative m-2" style={{ width: 80 }} onClick={() => {
                   // router.push(`/`)
-                  // router.replace(`/profile/mmeski`)
-                  setUser('mmeski')
+                  router.replace(`/profile/` + e.login42)
+                  // setUser('mmeski')
                 }}>
                   <Avatar
                     alt="Nav Drop settings"
-                    img={profile?.avatar}
+                    img={e.avatar}
                     rounded={false}
                     size="lg"
                     status="online"
                   />
                   <div className="font-bold aero w-full" >
-                    {profile.username}
+                    {e.username}
                   </div>
                 </div>
               )}

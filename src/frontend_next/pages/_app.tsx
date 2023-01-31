@@ -7,20 +7,19 @@ import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
-import { waitForDebugger } from "inspector";
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   const [Nav_active, setNav_active] = useState(false);
   const [appReady, setappReady] = useState(false);
   const [data, setData] = useState({});
   const [profile, setProfile] = useState({
-    login42: 0,
+    login42: "",
     username: "",
     avatar: "",
+    auth: "",
+    tfaEnabled: false,
+    friends: [],
+    games: [],
   });
 
   async function routeMo(
@@ -30,24 +29,18 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     isError: boolean = false
   ) {
     //route and display content
-
     const apply = () => {
       setNav_active(nav);
       setappReady(app);
     };
     if (AppProps.router.route !== "/login" && !isError)
       uri = AppProps.router.route;
-
-    console.log("uri", AppProps.router.route);
-    if (AppProps.router.route === "/gameFull/[[...param]]") {
-      nav = false;
-      uri = AppProps.router;
-    }
-    // Router.push(uri);
-    Router.push({
+    console.log("uri", uri);
+    console.log("query", Router.query);
+    Router.replace({
       pathname: uri,
-      query: {...AppProps.router.query},
-    })
+      query: Router.query,
+    });
     Router.events.on("routeChangeComplete", apply); /// this is the key
   }
 
@@ -58,12 +51,18 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       const fetchData = async () => {
         // let appRootContainer = document.getElementById('appRootContainer');
         axios
-          .get("/api/users/me")
+          .get("/api/users/me/fullprofile")
           .then((response) => {
             // console.log(response);
             console.log(response.data);
-            const { login42, username, avatar } = response.data;
-            setProfile({ login42, username, avatar });
+            const { login42, username, avatar, tfaEnabled, friends } = response.data;
+            setProfile({
+              login42,
+              username,
+              avatar,
+              tfaEnabled,
+              friends,
+            });
             setData(response.data);
             if (response.data.login42) {
               routeMo("/", true, true);
@@ -91,10 +90,9 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar profile={profile} />}
-          {/* <div> */}
-            <Component {...pageProps} profile={profile} />
+          {/* <div className=""> */}
+          <Component {...pageProps} profile={profile} />
           {/* </div> */}
-
         </div>
       )}
     </>

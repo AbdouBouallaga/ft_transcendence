@@ -51,4 +51,12 @@ export class UsersService {
     async updateUsername(oldUsername: string, updateUser: UpdateUser) : Promise<UserProfile> {
         return new UserProfile(await this.userPrisma.updateUsername(oldUsername, updateUser));
     }
+
+    async followUser(login42: string, otherLogin42: string) {
+        return await this.userPrisma.followUser(login42, otherLogin42); 
+    }
+
+    async unfollowUser(login42: string, otherLogin42: string) {
+        return await this.userPrisma.unfollowUser(login42, otherLogin42); 
+    }
 }
