@@ -13,9 +13,13 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   const [appReady, setappReady] = useState(false);
   const [data, setData] = useState({});
   const [profile, setProfile] = useState({
-    login42: 0,
+    login42: "",
     username: "",
     avatar: "",
+    auth: "",
+    tfaEnabled: false,
+    friends: [],
+    games: [],
   });
 
   async function routeMo(
@@ -47,12 +51,18 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       const fetchData = async () => {
         // let appRootContainer = document.getElementById('appRootContainer');
         axios
-          .get("/api/users/me")
+          .get("/api/users/me/fullprofile")
           .then((response) => {
             // console.log(response);
             console.log(response.data);
-            const { login42, username, avatar } = response.data;
-            setProfile({ login42, username, avatar });
+            const { login42, username, avatar, tfaEnabled, friends } = response.data;
+            setProfile({
+              login42,
+              username,
+              avatar,
+              tfaEnabled,
+              friends,
+            });
             setData(response.data);
             if (response.data.login42) {
               routeMo("/", true, true);
@@ -81,7 +91,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar profile={profile} />}
           {/* <div className=""> */}
-            <Component {...pageProps} profile={profile} />
+          <Component {...pageProps} profile={profile} />
           {/* </div> */}
         </div>
       )}
