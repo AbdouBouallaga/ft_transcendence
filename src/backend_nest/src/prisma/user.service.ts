@@ -175,4 +175,21 @@ export class UserPrismaService {
             }
         });
     }
+
+    async unfollowUser(login42: string, otherUsername: string) : Promise<any> {
+        const user = await this.findUserByLogin42(login42);
+        const otherUser = await this.prisma.user.findUnique({
+            where: {
+                username: otherUsername
+            }
+        });
+        return await this.prisma.follows.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: user.id,
+                    followingId: otherUser.id
+                }
+            }
+        });
+    }
 }

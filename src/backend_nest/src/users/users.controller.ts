@@ -74,4 +74,10 @@ export class UsersController {
     async followUser(@Param('username') username: string, @Req() req: any) : Promise<any> {
         return await this.usersService.followUser(req.user.login42, username);
     }
+
+    @Post('unfollow/:username')
+    @UseGuards(JwtAuthGuard)
+    async unfollowUser(@Param('username') username: string, @Req() req: any) : Promise<any> {
+        return await this.usersService.unfollowUser(req.user.login42, username);
+    }
 }
