@@ -26,7 +26,7 @@ const Navbar = ({ profile }: any) => {
   }, [c]);
   return (
     <>
-      <nav id="Navbar" className="h-[60px] flex items-center min-w-fit sticky w-screen">
+      <nav id="Navbar" className="h-[60px] flex items-center min-w-fit sticky">
         <div className=" container mx-auto flex items-center justify-betwee px-2">
             <button onClick={() => {Router.push("/");}} className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
               PingPong

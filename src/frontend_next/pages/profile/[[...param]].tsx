@@ -3,13 +3,11 @@ import Router, { useRouter } from 'next/router';
 import axios from "axios";
 import { Modal, Button, TextInput, Badge, Table, Dropdown, Avatar } from "flowbite-react";
 import ImageResize from 'image-resize';
-import { clear } from "console";
-import { TableBody } from "flowbite-react/lib/esm/components/Table/TableBody";
-import { TableCell } from "flowbite-react/lib/esm/components/Table/TableCell";
-import { TableRow } from "flowbite-react/lib/esm/components/Table/TableRow";
+import { v4 as uuidv4 } from 'uuid';
 
 var imageResize = new ImageResize({
   format: 'png',
+  height: 160,
   width: 160
 });
 
@@ -17,7 +15,7 @@ const Profile = (props: any) => {
   const router = useRouter();
   // State to store the user's profile data
   let [itsme, setItsme] = useState(true);
-  let [c, setC] = useState(0);
+  let [r, setR] = useState(0);
   const [profile, setProfile] = useState({
     login42: "",
     username: "",
@@ -59,7 +57,6 @@ const Profile = (props: any) => {
   async function enable2fa() {
     axios.get('api/auth/tfa/generate')
       .then((response) => {
-        console.log(response.data);
         set2fa(response.data);
         toggle2faModal();
       })
@@ -69,7 +66,6 @@ const Profile = (props: any) => {
   }
   async function disable2fa() {
     const TextInput = document.getElementById('2faCodeInput') as HTMLInputElement;
-    console.log(TextInput.value);
     if (TextInput.value) {
       set2faCodeError(false);
       axios({
@@ -127,7 +123,6 @@ const Profile = (props: any) => {
   async function PushEdits(Username: string, imgInput: string) {
     var imgResized = imageResize.play(imgInput)
       .then((resizedImage) => {
-        console.log(resizedImage);
         axios({
           method: 'POST',
           url: '/api/users/me',
@@ -139,9 +134,12 @@ const Profile = (props: any) => {
           .then((response) => {
             if (response.data.login42) {
               setEditModal(false);
-              setEdit(false);
+              setR(r + 1)
               toggleEditModal();
-              Router.reload(); // reload l7za9 kaml
+              // Router.reload(); // reload l7za9 kaml
+              setTimeout(() => {
+                props.setR(props.r + 1)
+              }, 250);
               // setReloadContent(editReloadContent + 1); // this reload the profile but not the navbar
             }
           })
@@ -162,8 +160,6 @@ const Profile = (props: any) => {
     } else {
       inputSize = maxSize + 1;
     }
-    console.log(maxSize);
-    console.log(inputSize);
     var imgInput: File = profile.avatar;
     if (FileInput.files && FileInput.files[0] && maxSize > inputSize) {
       imgInput = FileInput.files[0];
@@ -187,6 +183,7 @@ const Profile = (props: any) => {
         .get("/api/users/" + user + "/fullprofile")
         .then((response) => {
           console.log(">>>>>>>>> ", response.data);
+          console.log("APP ", props.profile);
           const { login42, username, avatar, tfaEnabled, friends, games } = response.data;
           setProfile({
             login42,
@@ -203,7 +200,7 @@ const Profile = (props: any) => {
         });
     }
     fetchProfile();
-  }, [enabled2fa, editReloadContent, router.query, c]);
+  }, [enabled2fa, editReloadContent, router.query, r]);
 
 
   // Function to toggle edit mode
@@ -216,6 +213,7 @@ const Profile = (props: any) => {
           <img src={profile.avatar} alt={profile.username} />
         </div>
         <h1><b>{profile.username}</b></h1>
+        <div className="flex">
         {profile.login42 === props.profile.login42 ?
           <>
             {/* EDIT button and modal*/}
@@ -332,14 +330,19 @@ const Profile = (props: any) => {
             </React.Fragment>
           </> :
           <>
-            {console.log("hallo", props.profile.friends?.findIndex(x => x.login42 === profile.login42))}
             {(props.profile.friends?.findIndex(x => x.login42 === profile.login42) === -1) ?
               <Button className='m-2' onClick={() => {
                 axios({
                   method: 'POST',
                   url: '/api/users/follow/' + profile.login42,
                 })
-                router.reload()
+                // router.reload()
+                setTimeout(() => {
+                  props.setR(props.r + 1)
+                  setTimeout(() => {
+                    setR(r + 1)
+                  }, 250);
+                }, 250);
               }}>Follow</Button>
               :
               <Button className='m-2 danger' onClick={() => {
@@ -347,10 +350,22 @@ const Profile = (props: any) => {
                   method: 'POST',
                   url: '/api/users/unfollow/' + profile.login42,
                 })
-                router.reload()
+                // router.reload()
+                setTimeout(() => {
+                  props.setR(props.r + 1)
+                  setTimeout(() => {
+                    setR(r + 1)
+                  }, 250);
+                }, 250);
               }}>UnFollow</Button>
             }
+            <Button className='m-2' onClick={()=>{router.push("/chat/"+profile.username)}}>Direct message</Button>
+            <Button className='m-2' onClick={()=>{
+              let room = uuidv4();
+              router.push("/game/"+room)
+              }}>Invite to play</Button>
           </>}
+        </div>
       </div>
       <div className="flex flex-col"> {/* part2 general div */}
         <div className="flex flex-row flex-wrap justify-center">
@@ -363,9 +378,9 @@ const Profile = (props: any) => {
                     <Table.Row className="hover:bg-gray-100">
                       <Table.Cell className="">
                         <div className="flex flex-row justify-between">
-                          <div className="flex flex-row" onClick={()=>{
+                          <div className="flex flex-row" onClick={() => {
                             router.replace(`/profile/` + e.winner.login42)
-                            }}>
+                          }}>
                             <Avatar img={e.winner.avatar} />
                             <h2 className="font-bold m-auto ml-1 text-sm">{e.winner.username}</h2>
                           </div>

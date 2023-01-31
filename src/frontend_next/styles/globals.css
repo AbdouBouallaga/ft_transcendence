@@ -28,7 +28,8 @@ body {
 }
 
 body {
-	--bg-color: #353535d1;
+	--Default-color: #62B6B7;
+	--bg-color: #252A34;
 	--bg-image: "";
 	background: var(--bg-color);
 	background-size: 230% 200%;
@@ -49,8 +50,8 @@ body {
 #Navbar {
 	top: 0px;
 	--opacity: 1;
-	transition: 0.5s;
-	background-color: #a4a4a47a;
+	/* transition: 0.5s; */
+	background-color: #EAEAEA;
 	backdrop-filter: brightness(1.9);
 	opacity: var(--opacity);
 }
@@ -60,7 +61,7 @@ body {
 }
 
 .aero {
-	background-color: #a4a4a47a;
+	background-color: #EAEAEA;
 	backdrop-filter: brightness(1.9);
 }
 

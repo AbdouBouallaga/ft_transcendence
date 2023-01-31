@@ -326,6 +326,7 @@ export class GameGateway implements OnModuleInit {
               socket.emit('leftSide');
             else
               socket.emit('rightSide');
+            socket.emit('setRoomId', room);
             rooms[room].numOfPlayers += 1;
             rooms[room].ready += 1;
             console.log("player,", rooms[room].players[player].id, " joined");

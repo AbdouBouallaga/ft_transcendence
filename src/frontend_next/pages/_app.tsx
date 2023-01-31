@@ -9,10 +9,11 @@ import Navbar from "../components/navbar";
 import axios from "axios";
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
-  const [Nav_active, setNav_active] = useState(false);
-  const [appReady, setappReady] = useState(false);
-  const [data, setData] = useState({});
-  const [profile, setProfile] = useState({
+  const [reloadApp, setReloadApp] = useState<number>(0);
+  const [Nav_active, setNav_active] = useState<boolean>(false);
+  const [appReady, setappReady] = useState<boolean>(false);
+  const [data, setData] = useState<any>({});
+  const [profile, setProfile] = useState<any>({
     login42: "",
     username: "",
     avatar: "",
@@ -45,6 +46,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }
 
   useEffect(() => {
+    console.log("app useEffect")
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
     } else {
@@ -75,7 +77,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       };
       fetchData();
     }
-  }, []);
+  }, [reloadApp]);
   return (
     <>
       <Head>
@@ -90,9 +92,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar profile={profile} />}
-          {/* <div className=""> */}
-          <Component {...pageProps} profile={profile} />
-          {/* </div> */}
+          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp}/>
         </div>
       )}
     </>
