@@ -47,6 +47,7 @@ body {
 }
 
 #Navbar {
+	top: 0px;
 	--opacity: 1;
 	transition: 0.5s;
 	background-color: #a4a4a47a;
@@ -70,7 +71,7 @@ body {
 
 /* profile */
 .card {
-	background-color: rgba(255, 255, 255, 0.445);
+	background-color: rgba(255, 255, 255, 0.218);
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 	border-radius: 6px;
 	padding: 20px;

@@ -11,43 +11,50 @@ import Chat from "../icons/Chat";
 const Navbar = ({ profile }: any) => {
   const [searchModal, setSearchModal] = useState(false);
   const [c, setC] = useState(0)
+  const [results, setResults] = useState([])
   const searchRef = React.useRef(null);
   useEffect(() => {
     console.log(searchRef?.current?.value);
+    if (searchRef?.current?.value)
+    axios.get(`/api/users/find/`+searchRef?.current?.value)
+      .then((response) => {
+        setResults(response.data)
+        console.log(response);
+      })
+    else
+      setResults([])
   }, [c]);
   return (
     <>
-      <nav id="Navbar" className="h-[60px] flex items-center min-w-fit">
+      <nav id="Navbar" className="h-[60px] flex items-center min-w-fit sticky w-screen">
         <div className=" container mx-auto flex items-center justify-betwee px-2">
-          <Link href="/" className="flex items-center">
-            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+            <button onClick={() => {Router.push("/");}} className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
               PingPong
-            </span>
-          </Link>
+            </button>
           <div className=" w-full flex justify-end">
             <ul className="flex items-center flex-row space-x-3 text-sm font-medium  ">
               <li>
-                <a>
+                <button className="m-1">
                   <svg onClick={() => { setSearchModal(!searchModal) }} aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </a>
+                </button>
               </li>
               <li>
-                <a
+                <button
                   onClick={() => {
                     Router.push("/game");
                   }}
-                  href="#"
+                  // href="#"
                   className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                 >
                   Game
-                </a>
+                </button>
               </li>
               <li>
                 <Cast />
               </li>
               <li>
                 <a
-                  href="#"
+                  // href="#"
                   onClick={() => {
                     Router.push("/chat");
                   }}
@@ -100,6 +107,7 @@ const Navbar = ({ profile }: any) => {
           size="xl"
           onClose={() => {
             setSearchModal(!searchModal);
+            setResults([]);
             if (searchRef.current) {
               searchRef.current.value = "";
             }
@@ -120,22 +128,23 @@ const Navbar = ({ profile }: any) => {
             </form>
             <div className="flex-1 m-2">
               <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-                {[...Array(10)].map((e, i) =>
+                {results.map((e, i) =>
                   <div className="relative m-2" style={{ width: 80 }} onClick={() => {
                     setSearchModal(!searchModal);
+                    setResults([]);
                     if (searchRef.current !== null)
                       searchRef.current.value = "";
-                    Router.replace(`/profile/mmeski`)
+                    Router.replace(`/profile/`+e?.login42)
                   }}>
                     <Avatar
                       alt="Nav Drop settings"
-                      img={profile?.avatar}
+                      img={e?.avatar}
                       rounded={false}
                       size="lg"
                       status="online"
                     />
                     <div className="font-bold aero w-full" >
-                      {profile.username}
+                      {e.username}
                     </div>
                   </div>
                 )}
