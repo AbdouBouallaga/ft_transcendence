@@ -36,6 +36,8 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     };
     if (AppProps.router.route !== "/login" && !isError)
       uri = AppProps.router.route;
+    if (AppProps.router.route === "/welcome")
+      nav = false;
     console.log("uri", uri);
     console.log("query", Router.query);
     Router.replace({
