@@ -1,4 +1,4 @@
-import { OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
   MessageBody,
   SubscribeMessage,
@@ -10,9 +10,10 @@ import { Server } from 'socket.io';
 import { Interval } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
 import { GameService } from './game.service';
+import { last } from 'rxjs';
 
-let rooms = {};
-let lastuuid: string = '';
+let rooms = [];
+let lastuuid: any = [];
 
 let player;
 //ball file
@@ -239,10 +240,10 @@ class Game {
       .to(this.room)
       .emit('Won', this.leftScore > this.rightScore ? 0 : 1);
     setTimeout(() => {
-      clearInterval(rooms[this.room].Interval);
+      clearInterval(rooms[this.room]?.Interval);
       delete rooms[this.room];
       console.log('room ', this.room, ' deleted');
-    }, 500);
+    }, 300);
   }
 }
 //end
@@ -261,6 +262,7 @@ function requestedUpdate(io, room, delta) {
   // console.log('room', room,'set interval ID: ', rooms[room].Interval);
 }
 
+@Injectable()
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnModuleInit {
   constructor(private readonly gameService: GameService) { }
@@ -273,6 +275,7 @@ export class GameGateway implements OnModuleInit {
       console.log(socket.id);
       try {
         socket.on('joinGame', (data) => {
+          let found = false;
           let room: string = data.room;
           let rounds: number = data.rounds;
           let map: string = data.map;
@@ -282,21 +285,43 @@ export class GameGateway implements OnModuleInit {
           console.log('user ', login, ',join room ', room);
           if (room === '') {
             console.log('join without room');
-            if (lastuuid === '') {
-              console.log('new room uuid');
-              lastuuid = uuidv4();
-              room = lastuuid;
-              console.log('lastuuid', lastuuid);
-            } else {
-              room = lastuuid;
-              lastuuid = '';
+            console.log('lastuuid', lastuuid);
+            console.log('lastuuid length', lastuuid.length);
+
+            if (lastuuid.length) {
+              for (let i = 0; i < lastuuid.length; i++) {
+                if (lastuuid[i].map === map && lastuuid[i].rounds === rounds) {
+                  console.log('match found');
+                  found = true;
+                  room = lastuuid[i].id;
+                  lastuuid.splice(i, 1);
+                  break;
+                }
+              }
             }
+            if (!found) {
+              console.log('new room uuid');
+              lastuuid.push({
+                id: uuidv4(),
+                map: map,
+                rounds: rounds,
+              });
+              console.log('lastuuid', lastuuid);
+              console.log('lastuuid length', lastuuid.length);
+              room = lastuuid[lastuuid.length - 1].id;
+              console.log('lastuuid', lastuuid.length);
+            }
+            // else {
+            //   room = lastuuid[lastuuid.length-1].id;
+            //   lastuuid[lastuuid.length - 1].delete();
+            // }
             console.log('>>> room', room);
           }
           // if there is no room with that name in rooms, create one and initialize it
           if (room in rooms === false) {
             socket.join(room);
             rooms[room] = {
+              id: room,
               ready: 0,
               map: map,
               rounds: rounds,
@@ -339,21 +364,23 @@ export class GameGateway implements OnModuleInit {
                 room,
               );
               setTimeout(() => {
-                this.server.to(room).emit('initGame', {
-                  room: room,
-                  map: rooms[room].map,
-                  rounds: rooms[room].rounds,
-                  avatars: {
-                    left: rooms[room].players[0].avatar,
-                    right: rooms[room].players[1].avatar,
-                  },
-                  UNs: {
-                    left: rooms[room].players[0].UN,
-                    right: rooms[room].players[1].UN,
-                  },
-                });
-                this.server.to(room).emit('startGame', room);
-              }, 1000);
+                if (room in rooms) {
+                  this.server.to(room).emit('initGame', {
+                    room: room,
+                    map: rooms[room].map,
+                    rounds: rooms[room].rounds,
+                    avatars: {
+                      left: rooms[room].players[0].avatar,
+                      right: rooms[room].players[1].avatar,
+                    },
+                    UNs: {
+                      left: rooms[room].players[0].UN,
+                      right: rooms[room].players[1].UN,
+                    },
+                  });
+                  this.server.to(room).emit('startGame', room);
+                }
+              }, 1500);
 
             }
           } else {
@@ -397,30 +424,61 @@ export class GameGateway implements OnModuleInit {
             score2: rooms[room].game.rightScore,
           });
         });
-        socket.on('disconnecte', (room:string) => {
-          // let login : string = socket.id;
-          // let login : string = data.login;
+        socket.on('disconnect', () => {
           console.log(socket.id, 'disconnected');
-          // for (let room in rooms) {
+          for (let room in rooms) {
             if (rooms[room]?.spectators?.includes(socket.id)) {
               rooms[room].spectators.splice(
                 rooms[room].spectators.indexOf(socket.id),
                 1,
               );
-            } else {
+            } else if (rooms[room]?.players[1]?.socketId === socket.id || rooms[room]?.players[0]?.socketId === socket.id) {
               clearInterval(rooms[room]?.Interval);
               if (rooms[room]?.players[1]?.socketId === socket.id) {
                 rooms[room]?.game?.gameFinished(0);
               } else {
                 rooms[room]?.game?.gameFinished(1);
               }
-              setTimeout(() => {
-                delete rooms[room];
-                console.log('room ', room, ' deleted');
-              }, 500);
             }
-          // }
+          }
         });
+        socket.on('getRooms', () => {
+          let r:string[] = [];
+          for (let room in rooms) {
+            r.push(room);
+            console.log(room);
+            };
+          socket.emit('rooms', {rooms : r});
+          });
+        socket.on('getRoominfo', (room) => {
+          console.log("getRoominfo",room);
+          socket.emit('roomInfo', {id: rooms[room].id, players: {a: rooms[room].players[0].id, b: rooms[room].players[1].id}});
+          });
+          // socket.emit('rooms', {rooms : r});
+        // socket.on('disconnecte', (room: string) => {
+        //   // let login : string = socket.id;
+        //   // let login : string = data.login;
+        //   console.log(socket.id, 'disconnected');
+        //   // for (let room in rooms) {
+        //   if (rooms[room]?.spectators?.includes(socket.id)) {
+        //     rooms[room].spectators.splice(
+        //       rooms[room].spectators.indexOf(socket.id),
+        //       1,
+        //     );
+        //   } else {
+        //     clearInterval(rooms[room]?.Interval);
+        //     if (rooms[room]?.players[1]?.socketId === socket.id) {
+        //       rooms[room]?.game?.gameFinished(0);
+        //     } else {
+        //       rooms[room]?.game?.gameFinished(1);
+        //     }
+        //     // setTimeout(() => {
+        //     //   delete rooms[room];
+        //     //   console.log('room ', room, ' deleted');
+        //     // }, 300);
+        //   }
+        //   // }
+        // });
       } catch (err) {
         console.log('ERROR CAUGHT: ', err);
       }
@@ -430,6 +488,6 @@ export class GameGateway implements OnModuleInit {
   @SubscribeMessage('message')
   onNewMessage(@MessageBody() body: any) {
     console.log(body);
- 
+
   }
 }

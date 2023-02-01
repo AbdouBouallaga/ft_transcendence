@@ -7,8 +7,11 @@ import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
+import { io } from "Socket.io-client";
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
+  const [gameSocket, setGameSocket] = useState<any>(null);
+  let initsocket:number = 0;
   const [reloadApp, setReloadApp] = useState<number>(0);
   const [Nav_active, setNav_active] = useState<boolean>(false);
   const [appReady, setappReady] = useState<boolean>(false);
@@ -48,6 +51,10 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }
 
   useEffect(() => {
+    if (!initsocket){
+      setGameSocket(io("/game"));
+      initsocket = 1;
+    }
     console.log("app useEffect")
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
@@ -94,7 +101,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar profile={profile} />}
-          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp}/>
+          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket}/>
         </div>
       )}
     </>

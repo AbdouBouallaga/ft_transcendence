@@ -59,7 +59,7 @@ const game = (props: any) => {
       login: props.profile.login42,
       UN: props.profile.username,
       avatar: props.profile.avatar,
-      player : playerFallback
+      player: playerFallback
     });
     roomScreen.current.style.display = "none";
     waitingForGame.current.style.display = "block";
@@ -183,12 +183,17 @@ const game = (props: any) => {
     });
 
     socket.on("Won", (side: number) => {
-      console.log("Won: ", side);
-      setWinner(side);
-      setWinnerModal(true);
-      console.log("mySide: ", mySide, "winner side: ", side);
-      if ((side === 0 && mySide === 'left') || (side === 1 && mySide === 'right'))
-        socket.emit("saveScoreToDB", room);
+      if (gameStarted) {
+        console.log("Won: ", side);
+        setWinner(side);
+        setWinnerModal(true);
+        console.log("mySide: ", mySide, "winner side: ", side);
+        if ((side === 0 && mySide === 'left') || (side === 1 && mySide === 'right'))
+          socket.emit("saveScoreToDB", room);
+      }
+      else {
+        joinGame();
+      }
       // socket.close();
     });
 
@@ -215,16 +220,17 @@ const game = (props: any) => {
       joinGame(0, mapSel, Rounds);
     }
     return () => {
+      socket.off("Won");
       console.log("out", room);
       document.body.style.setProperty("--bg-color", document.body.style.getPropertyValue("--Default-color"));
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
       document.body.style.overflow = "";
-      socket.emit("disconnecte", room);
+      // socket.emit("disconnect");
       setTimeout(() => {
         socket.close();
         console.log('socket closed');
-      }, 500);
+      }, 100);
 
     }
   }, [socket]);
@@ -289,7 +295,8 @@ const game = (props: any) => {
         </div>
         <div ref={waitingForGame} className="aero content-center p-6 rounded-lg shadow-lg bg-gray-50" style={{ display: "none" }}>
           <div className="text-center">
-            <h1>Waiting for another player...</h1>
+            <h1 className="font-bold">Waiting for your opponent...</h1>
+            <p>Move paddle: key up and down </p>
             {/* <p>Share this room ID with your friend: <span ref={roomIdspan}></span></p> */}
             <Spinner
               aria-label="loading"

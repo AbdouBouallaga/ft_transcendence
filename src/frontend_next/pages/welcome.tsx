@@ -76,17 +76,18 @@ export default function welcome(props) {
     }
     return (
         <>
-            <div id='verify2faloginDiv' className='container min-h-screen mx-auto px-4 grid place-items-center max-w-fit'  >
-                <div className='aero login w-[350px] rounded-lg  min-h-[300px] shadow-lg p-2 grid place-items-center ' >
+            <div id='verify2faloginDiv' className='container min-h-screen mx-auto px-4 grid place-items-center min-w-fit'  >
+                <div className='aero login w-auto rounded-lg  min-h-[300px] shadow-lg m-2 p-2 grid place-items-center ' >
                     <h1 className='text-2xl font-bold text-center'>Welcome {profile.username}</h1>
                     <p className='text-center'>You can change your username and avatar here</p>
-                    <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} />
-                    <div className="form-group">
+                    {/* <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} /> */}
+                    <Avatar img={img} size="xl"/>
+                    <div className="form-group  space-y-1 flex flex-col">
                         <label className="font-bold">Username</label>
                         <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
                     </div>
-                    <div className="form-group">
-                        <label className="font-bold text-al">Avatar</label>
+                    <div className="form-group space-y-1 flex flex-col justify-center">
+                        <label className="font-bold text-al m-1">Avatar</label>
                         <input onChange={preview} type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
                     </div>
                     <Button onClick={ProcessEdits} className='m-2 btn btn-primary'>Save</Button>

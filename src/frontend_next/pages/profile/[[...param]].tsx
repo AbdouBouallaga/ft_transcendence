@@ -209,9 +209,10 @@ const Profile = (props: any) => {
     <>
       <div className="card m-2">
         <div className="avatar">
-          <img src={profile.avatar} alt={profile.username} />
+
+          <Avatar img={profile.avatar} size="xl"/>
         </div>
-        <h1><b>{profile.username}</b></h1>
+        <h1><b> {profile.username}</b></h1>
         <div className="flex">
           {profile.login42 === props.profile.login42 ?
             <>
@@ -226,8 +227,8 @@ const Profile = (props: any) => {
                   <Modal.Body>
                     {editError ?? <Badge color="failure">Error editing profile</Badge>}
                     <div className="form-group flex flex-col place-items-center">
-                      <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} />
-
+                      {/* <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} /> */}
+                      <Avatar img={img} size="xl"/>
                       <label>Username</label>
                       <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
                     </div>
