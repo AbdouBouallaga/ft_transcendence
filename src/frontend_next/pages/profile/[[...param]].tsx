@@ -65,32 +65,19 @@ const Profile = (props: any) => {
       })
   }
   async function disable2fa() {
-    const TextInput = document.getElementById('2faCodeInput') as HTMLInputElement;
-    if (TextInput.value) {
-      set2faCodeError(false);
       axios({
         method: 'POST',
         url: '/api/auth/tfa/disable',
-        data: {
-          tfaCode: TextInput?.value
-        },
       })
         .then((response) => {
           if (response.data.success) {
-            set2faConfirm(true);
-            set2faCodeError(false);
             set2faEnabled(false);
           }
-          setqrnextButton(false);
-          setqrprevButton(false);
+
         })
         .catch((error) => {
           set2faCodeError(true);
         })
-    }
-    else {
-      set2faCodeError(true);
-    }
   }
   async function confirm2fa() {
     const TextInput = document.getElementById('2faCodeInput') as HTMLInputElement;
@@ -248,7 +235,7 @@ const Profile = (props: any) => {
 
             {/* 2FA button and modal*/}
             <React.Fragment>
-              {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={toggle2faModal} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
+              {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={disable2fa} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
               <Modal show={enable2famodal}
                 onClose={modal2faDefault}
                 size="sm"
