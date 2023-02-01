@@ -12,6 +12,7 @@ var imageResize = new ImageResize({
 });
 
 export default function welcome(props) {
+    let [img, setImg] = useState(props.profile.avatar);
     let profile = props.profile;
     async function PushEdits(Username: string, imgInput: string) {
         var imgResized = imageResize.play(imgInput)
@@ -28,7 +29,10 @@ export default function welcome(props) {
                     .then((response) => {
                         if (response.data.login42) {
                             // Router.reload(); // reload l7za9 kaml
-                            props.setR(props.r + 1)
+                            Router.replace("/");
+                            setTimeout(() => {
+                                props.setR(props.r + 1)
+                            }, 250);
                             // setReloadContent(editReloadContent + 1); // this reload the profile but not the navbar
                         }
                     })
@@ -36,6 +40,19 @@ export default function welcome(props) {
                     })
             }
             )
+    }
+
+
+    function preview() {
+        const FileInput = document.getElementById('avatar') as HTMLInputElement;
+        if (FileInput.files) {
+            let imgInput = FileInput.files[0];
+            var imgResized = imageResize.play(imgInput)
+                .then((resizedImage) => {
+                    setImg(resizedImage);
+                }
+                )
+        }
     }
 
     async function ProcessEdits() {
@@ -63,14 +80,14 @@ export default function welcome(props) {
                 <div className='aero login w-[350px] rounded-lg  min-h-[300px] shadow-lg p-2 grid place-items-center ' >
                     <h1 className='text-2xl font-bold text-center'>Welcome {profile.username}</h1>
                     <p className='text-center'>You can change your username and avatar here</p>
-                    <img className="rounded-full" src={profile.avatar} alt={profile.username} />
+                    <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} />
                     <div className="form-group">
                         <label className="font-bold">Username</label>
                         <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
                     </div>
                     <div className="form-group">
                         <label className="font-bold text-al">Avatar</label>
-                        <input type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
+                        <input onChange={preview} type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
                     </div>
                     <Button onClick={ProcessEdits} className='m-2 btn btn-primary'>Save</Button>
                 </div>
