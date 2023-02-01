@@ -249,7 +249,7 @@ const Profile = (props: any) => {
 
               {/* 2FA button and modal*/}
               <React.Fragment>
-                {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={toggle2faModal} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
+                {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={disable2fa} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
                 <Modal show={enable2famodal}
                   onClose={modal2faDefault}
                   size="sm"
@@ -274,32 +274,13 @@ const Profile = (props: any) => {
                           <strong >Wrong Code !!</strong>
                         </Badge>
                       }
-                      {qr2faConfirm && // roles inverted i know
-                        <Badge color="success" size="L">
-                          <strong >2fa disabled successfully</strong>
-                        </Badge>
-                      }
                     </Modal.Body>
                   }
                   {profile.tfaEnabled &&
                     <Modal.Body>
-                      {!qr2faConfirm &&
-                        <>
-                          <p className='text-center'>Confirm your 2fa code to disable it</p>
-                          <div className='flex' id="2faConfirm">
-                            <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
-                            <Button className='btn btn btn-primary' onClick={disable2fa}>Confirm</Button>
-                          </div>
-                        </>
-                      }
                       {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
                         <Badge color="success" size="L">
                           <strong >2fa enabled successfully</strong>
-                        </Badge>
-                      }
-                      {qr2faCodeError &&
-                        <Badge color="failure" size="L">
-                          <strong >Wrong Code !!</strong>
                         </Badge>
                       }
                     </Modal.Body>
