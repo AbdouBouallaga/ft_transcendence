@@ -39,6 +39,8 @@ const Profile = (props: any) => {
   const [enabled2fa, set2faEnabled] = useState(false);
   const [editError, setEditError] = useState(false);
   const [editReloadContent, setReloadContent] = useState(1);
+  let [img, setImg] = useState(props.profile.avatar);
+
 
   function modal2faDefault() {
     toggle2faModal();
@@ -119,7 +121,17 @@ const Profile = (props: any) => {
       set2faCodeError(true);
     }
   }
-
+  function preview() {
+    const FileInput = document.getElementById('avatar') as HTMLInputElement;
+    if (FileInput.files) {
+      let imgInput = FileInput.files[0];
+      var imgResized = imageResize.play(imgInput)
+        .then((resizedImage) => {
+          setImg(resizedImage);
+        }
+        )
+    }
+  }
   async function PushEdits(Username: string, imgInput: string) {
     var imgResized = imageResize.play(imgInput)
       .then((resizedImage) => {
@@ -214,157 +226,159 @@ const Profile = (props: any) => {
         </div>
         <h1><b>{profile.username}</b></h1>
         <div className="flex">
-        {profile.login42 === props.profile.login42 ?
-          <>
-            {/* EDIT button and modal*/}
-            <React.Fragment>
-              <Button className='m-2' onClick={toggleEditModal}>Edit</Button>
-              <Modal show={enableEditmodal}
-                onClose={toggleEditModal}
-                size="sm"
-              >
-                <Modal.Header>Edit Profile</Modal.Header>
-                <Modal.Body>
-                  {editError ?? <Badge color="failure">Error editing profile</Badge>}
-                  <div className="form-group">
-                    <label>Username</label>
-                    <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
-                  </div>
-                  <div className="form-group">
-                    <label>Avatar</label>
-                    <input type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
-                  </div>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button onClick={ProcessEdits}>
-                    Save
-                  </Button>
-                  <Button color="failure" onClick={toggleEditModal}>
-                    Cancel
-                  </Button>
-                </Modal.Footer>
-              </Modal>
-            </React.Fragment>
+          {profile.login42 === props.profile.login42 ?
+            <>
+              {/* EDIT button and modal*/}
+              <React.Fragment>
+                <Button className='m-2' onClick={toggleEditModal}>Edit</Button>
+                <Modal show={enableEditmodal}
+                  onClose={toggleEditModal}
+                  size="sm"
+                >
+                  <Modal.Header>Edit Profile</Modal.Header>
+                  <Modal.Body>
+                    {editError ?? <Badge color="failure">Error editing profile</Badge>}
+                    <div className="form-group flex flex-col place-items-center">
+                      <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} />
 
-            {/* 2FA button and modal*/}
-            <React.Fragment>
-              {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={toggle2faModal} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
-              <Modal show={enable2famodal}
-                onClose={modal2faDefault}
-                size="sm"
-              >
-                <Modal.Header >Two-factor authentication</Modal.Header>
-                {!profile.tfaEnabled &&
-                  <Modal.Body>
-                    {qrnextButton &&
-                      <div id="2faQr">
-                        <p className='text-center'>Scan this QR code with your authenticator app</p>
-                        <img className='m-auto' src={data2fa.otpAuthURL} alt="qr" />
-                      </div>
-                    }
-                    {qrprevButton &&
-                      <div className='flex' id="2faConfirm">
-                        <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
-                        <Button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</Button>
-                      </div>
-                    }
-                    {qr2faCodeError &&
-                      <Badge color="failure" size="L">
-                        <strong >Wrong Code !!</strong>
-                      </Badge>
-                    }
-                    {qr2faConfirm && // roles inverted i know
-                      <Badge color="success" size="L">
-                        <strong >2fa disabled successfully</strong>
-                      </Badge>
-                    }
+                      <label>Username</label>
+                      <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
+                    </div>
+                    <div className="form-group">
+                      <label>Avatar</label>
+                      <input onChange={preview} type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
+                    </div>
                   </Modal.Body>
-                }
-                {profile.tfaEnabled &&
-                  <Modal.Body>
-                    {!qr2faConfirm &&
-                      <>
-                        <p className='text-center'>Confirm your 2fa code to disable it</p>
+                  <Modal.Footer>
+                    <Button onClick={ProcessEdits}>
+                      Save
+                    </Button>
+                    <Button color="failure" onClick={toggleEditModal}>
+                      Cancel
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+              </React.Fragment>
+
+              {/* 2FA button and modal*/}
+              <React.Fragment>
+                {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={toggle2faModal} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
+                <Modal show={enable2famodal}
+                  onClose={modal2faDefault}
+                  size="sm"
+                >
+                  <Modal.Header >Two-factor authentication</Modal.Header>
+                  {!profile.tfaEnabled &&
+                    <Modal.Body>
+                      {qrnextButton &&
+                        <div id="2faQr">
+                          <p className='text-center'>Scan this QR code with your authenticator app</p>
+                          <img className='m-auto' src={data2fa.otpAuthURL} alt="qr" />
+                        </div>
+                      }
+                      {qrprevButton &&
                         <div className='flex' id="2faConfirm">
                           <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
-                          <Button className='btn btn btn-primary' onClick={disable2fa}>Confirm</Button>
+                          <Button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</Button>
                         </div>
-                      </>
-                    }
-                    {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
-                      <Badge color="success" size="L">
-                        <strong >2fa enabled successfully</strong>
-                      </Badge>
-                    }
-                    {qr2faCodeError &&
-                      <Badge color="failure" size="L">
-                        <strong >Wrong Code !!</strong>
-                      </Badge>
-                    }
-                  </Modal.Body>
-                }
-                <Modal.Footer>
-                  {qrnextButton && !profile.tfaEnabled &&
-                    <Button id='qrnextButton' className=' btn btn-primary' onClick={() => {
-                      set2faCodeError(false);
-                      setqrnextButton(!qrnextButton)
-                      setqrprevButton(!qrprevButton)
-                    }}>
-                      Next
-                    </Button>
+                      }
+                      {qr2faCodeError &&
+                        <Badge color="failure" size="L">
+                          <strong >Wrong Code !!</strong>
+                        </Badge>
+                      }
+                      {qr2faConfirm && // roles inverted i know
+                        <Badge color="success" size="L">
+                          <strong >2fa disabled successfully</strong>
+                        </Badge>
+                      }
+                    </Modal.Body>
                   }
-                  {qrprevButton &&
-                    <Button id='qrprevButton' className=' btn btn-primary' onClick={() => {
-                      set2faCodeError(false);
-                      setqrprevButton(!qrprevButton)
-                      setqrnextButton(!qrnextButton)
-                    }}>
-                      Previous
-                    </Button>
+                  {profile.tfaEnabled &&
+                    <Modal.Body>
+                      {!qr2faConfirm &&
+                        <>
+                          <p className='text-center'>Confirm your 2fa code to disable it</p>
+                          <div className='flex' id="2faConfirm">
+                            <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
+                            <Button className='btn btn btn-primary' onClick={disable2fa}>Confirm</Button>
+                          </div>
+                        </>
+                      }
+                      {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
+                        <Badge color="success" size="L">
+                          <strong >2fa enabled successfully</strong>
+                        </Badge>
+                      }
+                      {qr2faCodeError &&
+                        <Badge color="failure" size="L">
+                          <strong >Wrong Code !!</strong>
+                        </Badge>
+                      }
+                    </Modal.Body>
                   }
-                  <Button className='btn btn-danger' onClick={modal2faDefault}>
-                    Cancel
-                  </Button>
-                </Modal.Footer>
-              </Modal>
-            </React.Fragment>
-          </> :
-          <>
-            {(props.profile.friends?.findIndex(x => x.login42 === profile.login42) === -1) ?
+                  <Modal.Footer>
+                    {qrnextButton && !profile.tfaEnabled &&
+                      <Button id='qrnextButton' className=' btn btn-primary' onClick={() => {
+                        set2faCodeError(false);
+                        setqrnextButton(!qrnextButton)
+                        setqrprevButton(!qrprevButton)
+                      }}>
+                        Next
+                      </Button>
+                    }
+                    {qrprevButton &&
+                      <Button id='qrprevButton' className=' btn btn-primary' onClick={() => {
+                        set2faCodeError(false);
+                        setqrprevButton(!qrprevButton)
+                        setqrnextButton(!qrnextButton)
+                      }}>
+                        Previous
+                      </Button>
+                    }
+                    <Button className='btn btn-danger' onClick={modal2faDefault}>
+                      Cancel
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+              </React.Fragment>
+            </> :
+            <>
+              {(props.profile.friends?.findIndex(x => x.login42 === profile.login42) === -1) ?
+                <Button className='m-2' onClick={() => {
+                  axios({
+                    method: 'POST',
+                    url: '/api/users/follow/' + profile.login42,
+                  })
+                  // router.reload()
+                  setTimeout(() => {
+                    props.setR(props.r + 1)
+                    setTimeout(() => {
+                      setR(r + 1)
+                    }, 250);
+                  }, 250);
+                }}>Follow</Button>
+                :
+                <Button className='m-2 danger' onClick={() => {
+                  axios({
+                    method: 'POST',
+                    url: '/api/users/unfollow/' + profile.login42,
+                  })
+                  // router.reload()
+                  setTimeout(() => {
+                    props.setR(props.r + 1)
+                    setTimeout(() => {
+                      setR(r + 1)
+                    }, 250);
+                  }, 250);
+                }}>UnFollow</Button>
+              }
+              <Button className='m-2' onClick={() => { router.push("/chat/" + profile.username) }}>Direct message</Button>
               <Button className='m-2' onClick={() => {
-                axios({
-                  method: 'POST',
-                  url: '/api/users/follow/' + profile.login42,
-                })
-                // router.reload()
-                setTimeout(() => {
-                  props.setR(props.r + 1)
-                  setTimeout(() => {
-                    setR(r + 1)
-                  }, 250);
-                }, 250);
-              }}>Follow</Button>
-              :
-              <Button className='m-2 danger' onClick={() => {
-                axios({
-                  method: 'POST',
-                  url: '/api/users/unfollow/' + profile.login42,
-                })
-                // router.reload()
-                setTimeout(() => {
-                  props.setR(props.r + 1)
-                  setTimeout(() => {
-                    setR(r + 1)
-                  }, 250);
-                }, 250);
-              }}>UnFollow</Button>
-            }
-            <Button className='m-2' onClick={()=>{router.push("/chat/"+profile.username)}}>Direct message</Button>
-            <Button className='m-2' onClick={()=>{
-              let room = uuidv4();
-              router.push("/game/"+room)
+                let room = uuidv4();
+                router.push("/game/" + room)
               }}>Invite to play</Button>
-          </>}
+            </>}
         </div>
       </div>
       <div className="flex flex-col"> {/* part2 general div */}

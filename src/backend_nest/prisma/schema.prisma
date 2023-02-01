@@ -22,6 +22,8 @@ model User {
   tfaSecret  String?
   tfaEnabled Boolean @default(false)
 
+  isNewUser Boolean @default(true)
+
   followedBy Follows[] @relation("following")
   following  Follows[] @relation("follower")
 

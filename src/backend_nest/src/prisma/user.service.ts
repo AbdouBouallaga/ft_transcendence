@@ -133,6 +133,7 @@ export class UserPrismaService {
                 username: oldUsername,
             },
             data: {
+                isNewUser: false,
                 ...updateUser,
             }
         });

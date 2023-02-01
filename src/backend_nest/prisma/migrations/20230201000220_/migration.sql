@@ -10,6 +10,7 @@ CREATE TABLE "users" (
     "avatar" TEXT NOT NULL,
     "tfaSecret" TEXT,
     "tfaEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "isNewUser" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
