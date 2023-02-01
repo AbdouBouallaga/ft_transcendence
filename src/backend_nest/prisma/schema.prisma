@@ -32,13 +32,13 @@ model User {
 
   ownerOfChannels Channel[]        @relation("isOwnerOfChannel")
   AdminOfChannel  AdminOfChannel[]
+  MemberOfChannel MemberOfChannel[]
 
   blockerOf  UserBlockedUser[]       @relation("haveBlockedUsers")
   blockedBy  UserBlockedUser[]       @relation("isBlockedByUsers")
   bannedFrom UserBannedFromChannel[]
 
   Message         Message[]
-  MemberOfChannel MemberOfChannel[]
 
   @@map("users")
 }
@@ -78,7 +78,7 @@ model Channel {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 
-  name        String
+  name        String @unique
   type        ChannelType
   isProtected Boolean     @default(false)
   password    String?
@@ -86,9 +86,9 @@ model Channel {
   owner   User @relation("isOwnerOfChannel", fields: [ownerId], references: [id])
   ownerId Int
 
-  AdminOfChannel        AdminOfChannel[]
   UserBannedFromChannel UserBannedFromChannel[]
   Message               Message[]
+  AdminOfChannel        AdminOfChannel[]
   MemberOfChannel       MemberOfChannel[]
 
   @@map(name: "channels")

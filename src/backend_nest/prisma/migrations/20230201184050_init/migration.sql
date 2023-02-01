@@ -100,6 +100,9 @@ CREATE UNIQUE INDEX "users_login42_key" ON "users"("login42");
 -- CreateIndex
 CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "channels_name_key" ON "channels"("name");
+
 -- AddForeignKey
 ALTER TABLE "follows" ADD CONSTRAINT "follows_followerId_fkey" FOREIGN KEY ("followerId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

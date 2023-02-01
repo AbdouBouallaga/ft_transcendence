@@ -1,5 +1,5 @@
 import { ChannelType } from '@prisma/client';
-import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateChannelDto {
     @IsNotEmpty()
@@ -16,4 +16,14 @@ export class CreateChannelDto {
 
     @IsNotEmpty()
     login42: string;
+}
+
+export class CreateDmDto {
+    @IsNotEmpty()
+	@IsString()
+	login42: string;
+
+    @IsNotEmpty()
+	@IsString()
+	otherLogin42: string;
 }
