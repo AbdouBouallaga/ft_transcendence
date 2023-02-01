@@ -20,7 +20,11 @@ export class AuthController {
         else if (!req.user.tfaEnabled) {
             const { access_token, login42 } = this.authService.login42(req);
             res.cookie('access_token', access_token);
-            res.redirect(process.env.HOME_URL);
+            if (req.user.isNewUser) {
+                res.redirect(process.env.WELCOME_URL);
+            } else {
+                res.redirect(process.env.HOME_URL);
+            }
         }
         else {
             res.cookie('key', req.user.login42);
