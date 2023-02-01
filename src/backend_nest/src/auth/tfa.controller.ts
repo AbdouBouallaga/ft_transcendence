@@ -2,10 +2,12 @@ import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common
 import { TwoFactorAuthService } from "./tfa.service";
 import { JwtAuthGuard } from "./guards";
 import { Response } from "express";
+import { JwtService } from "@nestjs/jwt";
 
 @Controller('auth/tfa')
 export class TwoFactorAuthController {
-    constructor(private readonly twoFactorAuthService: TwoFactorAuthService) {}
+    constructor(private readonly twoFactorAuthService: TwoFactorAuthService,
+                private readonly jwtService: JwtService) {}
 
     @Get('generate')
     @UseGuards(JwtAuthGuard)
@@ -18,8 +20,11 @@ export class TwoFactorAuthController {
     @UseGuards(JwtAuthGuard)
     async disableTwoFactorAuth(@Req() req: any, @Res({ passthrough: true }) res: Response, @Body('tfaCode') tfaCode: string) : Promise<{ success: boolean }> {
         const login42 = req.user.login42;
-        const { access_token } = await this.twoFactorAuthService.verifyTwoFactorAuthCode(login42, tfaCode);
         await this.twoFactorAuthService.setTwoFactorAuthEnabled(login42, false);
+        const access_token = this.jwtService.sign({
+            sub: req.user.id,
+            login42: req.user.login42
+        });
         res.cookie('access_token', access_token);
         return {
             success: true,

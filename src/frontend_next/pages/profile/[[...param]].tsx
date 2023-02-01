@@ -67,32 +67,19 @@ const Profile = (props: any) => {
       })
   }
   async function disable2fa() {
-    const TextInput = document.getElementById('2faCodeInput') as HTMLInputElement;
-    if (TextInput.value) {
-      set2faCodeError(false);
       axios({
         method: 'POST',
         url: '/api/auth/tfa/disable',
-        data: {
-          tfaCode: TextInput?.value
-        },
       })
         .then((response) => {
           if (response.data.success) {
-            set2faConfirm(true);
-            set2faCodeError(false);
             set2faEnabled(false);
           }
-          setqrnextButton(false);
-          setqrprevButton(false);
+
         })
         .catch((error) => {
           set2faCodeError(true);
         })
-    }
-    else {
-      set2faCodeError(true);
-    }
   }
   async function confirm2fa() {
     const TextInput = document.getElementById('2faCodeInput') as HTMLInputElement;
