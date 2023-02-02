@@ -19,6 +19,8 @@ export class ChatService {
         });
         if (room.length > 0)
             return room[0];
+        if (!data.password)
+            data.password = "";
         const hash = await argon.hash(data.password);
         const channel = await this.prisma.channel.create({
             data: {

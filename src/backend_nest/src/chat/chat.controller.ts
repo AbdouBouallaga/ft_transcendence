@@ -3,6 +3,7 @@ import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateChannelDto, CreateDmDto, UserJoinChannelDto } from './dto';
 import { Channel } from '@prisma/client';
+import { ChannelInfo } from './interfaces';
 
 @Controller('chat')
 export class ChatController {
@@ -37,7 +38,10 @@ export class ChatController {
 
 	@Get('me')
 	@UseGuards(JwtAuthGuard)
-	async getMyChannels(@Req() req: any) : Promise<Channel[]> {
-		return await this.chatService.getMyChannels(req.user.id);
+	async getMyChannels(@Req() req: any) : Promise<ChannelInfo[]> {
+		const channels = await this.chatService.getMyChannels(req.user.id);
+		return channels.map(channel => {
+			return new ChannelInfo(channel);
+		})
 	}
 }
