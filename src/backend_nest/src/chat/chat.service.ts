@@ -1,9 +1,11 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AdminOfChannel, Channel, ChannelType, MemberOfChannel, Message, User, UserBannedFromChannel, UserBlockedUser } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BanUserDto, BlockUserDto, ChannelPasswordDto, CreateChannelDto, CreateDmDto, GetMessageDto, InviteUserToChannelDto, MuteUserDto, SendMessageDto, UpdateAdminDto, UserJoinChannelDto } from './dto';
+import { BanUserDto, BlockUserDto, ChannelPasswordDto, CreateChannelDto, CreateDmDto, InviteUserToChannelDto, MuteUserDto, SendMessageDto, UpdateAdminDto, UserJoinChannelDto } from './dto';
 import { UserPrismaService } from 'src/prisma/user.service';
 import * as argon from 'argon2';
+import { Conversation, ConversationMessage } from './interfaces';
+import { UserProfile } from 'src/users/interfaces';
 
 @Injectable()
 export class ChatService {
@@ -59,7 +61,6 @@ export class ChatService {
         });
         if (dm.length > 0)
             return dm[0];
-        console.log("creating channel");
         const channel = await this.prisma.channel.create({
             data: {
                 name: user.login42 + "_" + otherUser.login42,
@@ -101,10 +102,8 @@ export class ChatService {
                 }
             });
         }
-        console.log({ isProtected: channel.isProtected });
         if (channel.isProtected) {
             const verified = await argon.verify(channel.password, data.password);
-            console.log(verified);
             if (!verified) {
                 throw new UnauthorizedException();
             }
@@ -274,9 +273,54 @@ export class ChatService {
         });
     }
 
-    // async getMessagesFromChannel(data: GetMessageDto) : Promise<Message[]> {
-
-    // }
+    async getFullChannelInfo(channelId: number, userId: number) : Promise<Conversation> {
+        const channel = await this.prisma.channel.findUnique({
+            where: {
+                id: channelId
+            }
+        });
+        if (!(await this.isMemberOfChannel({ userId, channelId })))
+            throw new UnauthorizedException();
+        const admins = (await this.prisma.adminOfChannel.findMany({
+            where: {
+                channelId,
+            },
+            select: {
+                admin: true
+            }
+        })).map(admin => {
+            return new UserProfile(admin.admin);
+        });
+        const members = (await this.prisma.memberOfChannel.findMany({
+            where: {
+                channelId
+            },
+            select: {
+                user: true
+            }
+        })).map(member => {
+            return new UserProfile(member.user);
+        });
+        const messages = (await this.prisma.message.findMany({
+            where: {
+                channelId: channelId
+            },
+            select: {
+                content: true,
+                createdAt: true,
+                sender: true
+            }
+        })).map(message => {
+            return new ConversationMessage(message);
+        });
+        return {
+            id: channelId,
+            owner: new UserProfile(await this.userPrisma.findUserById(channel.ownerId)),
+            admins,
+            members,
+            messages
+        }; 
+    }
 
     async getPublicChannels() : Promise<Channel[]> {
         return await this.prisma.channel.findMany({

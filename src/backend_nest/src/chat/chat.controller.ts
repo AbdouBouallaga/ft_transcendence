@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateChannelDto, CreateDmDto, UserJoinChannelDto } from './dto';
 import { Channel } from '@prisma/client';
-import { ChannelInfo } from './interfaces';
+import { ChannelInfo, Conversation } from './interfaces';
 
 @Controller('chat')
 export class ChatController {
@@ -43,5 +43,11 @@ export class ChatController {
 		return channels.map(channel => {
 			return new ChannelInfo(channel);
 		})
+	}
+
+	@Get(':channelId')
+	@UseGuards(JwtAuthGuard)
+	async getConversation(@Req() req: any, @Param('channelId', new ParseIntPipe()) channelId: number) : Promise<Conversation> {
+		return await this.chatService.getFullChannelInfo(channelId, req.user.id);
 	}
 }
