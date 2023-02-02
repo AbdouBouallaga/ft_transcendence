@@ -119,8 +119,12 @@ const game = (props: any) => {
         document.body.style.setProperty("--bg-color", bgColor);
         document.body.style.setProperty("--bg-image", bgImage);
       }
+      document.body.style.overflow = "hidden";
     });
-
+    socket.on("setRoomId", (data: string) => {
+      room = data;
+      console.log("on setRoomId event: ", room);
+    });
     socket.on("leftSide", () => {
       mySide = "left";
       setPlayer(0);
@@ -211,10 +215,11 @@ const game = (props: any) => {
       joinGame(0, mapSel, Rounds);
     }
     return () => {
-      console.log("out");
-      document.body.style.setProperty("--bg-color", "#353535d1");
+      console.log("out", room);
+      document.body.style.setProperty("--bg-color", document.body.style.getPropertyValue("--Default-color"));
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
+      document.body.style.overflow = "";
       socket.emit("disconnecte", room);
       setTimeout(() => {
         socket.close();

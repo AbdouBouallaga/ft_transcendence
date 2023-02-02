@@ -326,6 +326,7 @@ export class GameGateway implements OnModuleInit {
               socket.emit('leftSide');
             else
               socket.emit('rightSide');
+            socket.emit('setRoomId', room);
             rooms[room].numOfPlayers += 1;
             rooms[room].ready += 1;
             console.log("player,", rooms[room].players[player].id, " joined");
@@ -407,8 +408,8 @@ export class GameGateway implements OnModuleInit {
                 1,
               );
             } else {
-              clearInterval(rooms[room].Interval);
-              if (rooms[room].players[1]?.socketId === socket.id) {
+              clearInterval(rooms[room]?.Interval);
+              if (rooms[room]?.players[1]?.socketId === socket.id) {
                 rooms[room]?.game?.gameFinished(0);
               } else {
                 rooms[room]?.game?.gameFinished(1);

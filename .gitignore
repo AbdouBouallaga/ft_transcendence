@@ -5,8 +5,11 @@ storage/postgres_data/
 
 # dependencies
 src/frontend_next/node_modules
+src/backend_next/node_modules
 src/frontend_next/.pnp
 src/frontend_next/.pnp.js
+src/frontend_next/package-lock.json
+src/backend_next/package-lock.json
 
 # testing
 src/frontend_next/coverage

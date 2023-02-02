@@ -68,4 +68,16 @@ export class UsersController {
     async findUsers(@Param('username') username: string) : Promise<UserProfile[]> {
         return await this.usersService.findUsersContains(username);
     }
+
+    @Post('follow/:username')
+    @UseGuards(JwtAuthGuard)
+    async followUser(@Param('username') username: string, @Req() req: any) : Promise<any> {
+        return await this.usersService.followUser(req.user.login42, username);
+    }
+
+    @Post('unfollow/:username')
+    @UseGuards(JwtAuthGuard)
+    async unfollowUser(@Param('username') username: string, @Req() req: any) : Promise<any> {
+        return await this.usersService.unfollowUser(req.user.login42, username);
+    }
 }
