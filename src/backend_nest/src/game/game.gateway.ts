@@ -225,6 +225,7 @@ class Game {
   }
 
   gameFinished(winner: number = 100) {
+    // console.log('game finished');
     if (winner !== 100) {
       if (winner === 0) {
         this.leftScore = 1337;
@@ -234,7 +235,7 @@ class Game {
         this.rightScore = 1337;
       }
     }
-    // console.log('STOP room', this.room,'interval ID: ', rooms[this.room].Interval);
+    // // console.log('STOP room', this.room,'interval ID: ', rooms[this.room].Interval);
     clearInterval(rooms[this.room].Interval);
     this.ball.io
       .to(this.room)
@@ -242,7 +243,7 @@ class Game {
     setTimeout(() => {
       clearInterval(rooms[this.room]?.Interval);
       delete rooms[this.room];
-      console.log('room ', this.room, ' deleted');
+      // console.log('room ', this.room, ' deleted');
     }, 300);
   }
 }
@@ -250,16 +251,16 @@ class Game {
 
 function requestedUpdate(io, room, delta) {
   rooms[room].Interval = setInterval(() => {
-    // console.log('update');
+    // // console.log('update');
     if (room in rooms !== false && rooms[room].game !== null) {
-      rooms[room].game.update(
+      rooms[room]?.game.update(
         io,
         delta,
         rooms[room].game.PressedKeysObjGeneral,
       );
     }
   }, delta);
-  // console.log('room', room,'set interval ID: ', rooms[room].Interval);
+  // // console.log('room', room,'set interval ID: ', rooms[room].Interval);
 }
 
 @Injectable()
@@ -272,7 +273,7 @@ export class GameGateway implements OnModuleInit {
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log(socket.id);
+      // console.log(socket.id);
       try {
         socket.on('joinGame', (data) => {
           let found = false;
@@ -282,16 +283,16 @@ export class GameGateway implements OnModuleInit {
           let login: string = data.login;
           let player: number = data.player;
           // let login : string = socket.id;
-          console.log('user ', login, ',join room ', room);
+          // console.log('user ', login, ',join room ', room);
           if (room === '') {
-            console.log('join without room');
-            console.log('lastuuid', lastuuid);
-            console.log('lastuuid length', lastuuid.length);
+            // console.log('join without room');
+            // console.log('lastuuid', lastuuid);
+            // console.log('lastuuid length', lastuuid.length);
 
             if (lastuuid.length) {
               for (let i = 0; i < lastuuid.length; i++) {
                 if (lastuuid[i].map === map && lastuuid[i].rounds === rounds) {
-                  console.log('match found');
+                  // console.log('match found');
                   found = true;
                   room = lastuuid[i].id;
                   lastuuid.splice(i, 1);
@@ -300,22 +301,22 @@ export class GameGateway implements OnModuleInit {
               }
             }
             if (!found) {
-              console.log('new room uuid');
+              // console.log('new room uuid');
               lastuuid.push({
                 id: uuidv4(),
                 map: map,
                 rounds: rounds,
               });
-              console.log('lastuuid', lastuuid);
-              console.log('lastuuid length', lastuuid.length);
+              // console.log('lastuuid', lastuuid);
+              // console.log('lastuuid length', lastuuid.length);
               room = lastuuid[lastuuid.length - 1].id;
-              console.log('lastuuid', lastuuid.length);
+              // console.log('lastuuid', lastuuid.length);
             }
             // else {
             //   room = lastuuid[lastuuid.length-1].id;
             //   lastuuid[lastuuid.length - 1].delete();
             // }
-            console.log('>>> room', room);
+            // console.log('>>> room', room);
           }
           // if there is no room with that name in rooms, create one and initialize it
           if (room in rooms === false) {
@@ -329,16 +330,16 @@ export class GameGateway implements OnModuleInit {
               players: [],
               spectators: [],
             };
-            console.log('init room ', room);
+            // console.log('init room ', room);
           }
           // else {
           // if there is no player id specified, join as player
           if (player === 100) {
-            console.log("player not specified: ");
+            // console.log("player not specified: ");
             player = rooms[room].numOfPlayers;
           }
           if (rooms[room].numOfPlayers !== 2) {
-            console.log("player ", player, " joining room ", room, " as player");
+            // console.log("player ", player, " joining room ", room, " as player");
             socket.join(room);
             rooms[room].players[player] = ({
               id: login,
@@ -347,7 +348,7 @@ export class GameGateway implements OnModuleInit {
               UN: data.UN,
               paddle: new Paddle(this.server, room, player === 0 ? 'Left' : 'Right'),
             });
-            console.log("DEBUG ", rooms[room].players[player].socketId, "ID", socket.id);
+            // console.log("DEBUG ", rooms[room].players[player].socketId, "ID", socket.id);
             if (player === 0)
               socket.emit('leftSide');
             else
@@ -355,9 +356,9 @@ export class GameGateway implements OnModuleInit {
             socket.emit('setRoomId', room);
             rooms[room].numOfPlayers += 1;
             rooms[room].ready += 1;
-            console.log("player,", rooms[room].players[player].id, " joined");
+            // console.log("player,", rooms[room].players[player].id, " joined");
             if (rooms[room].ready === 2) {
-              console.log('room ', room, ' is ready');
+              // console.log('room ', room, ' is ready');
               rooms[room].ball = new Ball(this.server, room);
               rooms[room].game = new Game(
                 rooms[room].players,
@@ -413,38 +414,44 @@ export class GameGateway implements OnModuleInit {
         socket.on('updateGameStart', (room) => {
           if (room in rooms) {
             // if (rooms[room].ready === 2) {
-            requestedUpdate(this.server, room, 1000 / 144);
+            requestedUpdate(this.server, room, 1000 / 90);
             // }
           }
         });
         socket.on('saveScoreToDB', (room) => {
           this.gameService.recordGameResults({
-            login42_1: rooms[room].players[0].id,
-            login42_2: rooms[room].players[1].id,
-            score1: rooms[room].game.leftScore,
-            score2: rooms[room].game.rightScore,
+            login42_1: rooms[room]?.players[0].id,
+            login42_2: rooms[room]?.players[1].id,
+            score1: rooms[room]?.game.leftScore,
+            score2: rooms[room]?.game.rightScore,
           });
         });
         socket.on('disconnect', () => {
           let sid = socket.id;
-          console.log(socket.id, 'disconnected');
-          rooms.map((room) => {
-            if (rooms[room]?.spectators?.includes(socket.id)) {
-              console.log("spectator ", sid, " left room ", room);
-              rooms[room].spectators.splice(
-                rooms[room].spectators.indexOf(socket.id),
+          // console.log(socket.id, 'disconnected');
+          // // console.log("rooms >", rooms)
+          for (let r in rooms) {
+            if (rooms[r]?.spectators?.includes(socket.id)) {
+              // console.log("spectator ", sid, " left room ", r);
+              rooms[r].spectators.splice(
+                rooms[r].spectators.indexOf(socket.id),
                 1,
               );
-            } else if (rooms[room]?.players[0]?.socketId === sid) {
-              console.log("player ", rooms[room].players[0].id, rooms[room].players[0].id.socketId, " left room ", room);
-              clearInterval(rooms[room]?.Interval);
-              // rooms[room]?.game?.gameFinished(1);
-            } else if (rooms[room]?.players[1]?.socketId === sid) {
-              console.log("player ", rooms[room].players[1].id, rooms[room].players[1].id.socketId," left room ", room);
-              clearInterval(rooms[room]?.Interval);
-              // rooms[room]?.game?.gameFinished(0);
+            } else if (rooms[r]?.players[0]?.socketId === sid) {
+              // console.log("player ", rooms[r].players[0].id, rooms[r].players[0].socketId, " left room ", r);
+              if (rooms[r]?.players[1]) {
+                clearInterval(rooms[r]?.Interval);
+                rooms[r]?.game?.gameFinished(1); //if no game yet the next line will delete the room
+              }
+              delete rooms[r];
+            } else if (rooms[r]?.players[1]?.socketId === sid) {
+              // console.log("player ", rooms[r].players[1].id, rooms[r].players[1].socketId, " left room ", r);
+              clearInterval(rooms[r]?.Interval);
+              rooms[r]?.game?.gameFinished(0); //if no game yet the next line will delete the room
+              delete rooms[r];
             }
-          });
+          }
+          // // console.log("rooms >", rooms)
         });
         socket.on('getRooms', () => {
           let r: any[] = [];
@@ -456,14 +463,13 @@ export class GameGateway implements OnModuleInit {
           socket.emit('rooms', { rooms: r });
         });
       } catch (err) {
-        console.log('ERROR CAUGHT: ', err);
+        // console.log('ERROR CAUGHT: ', err);
       }
     });
   }
 
   @SubscribeMessage('message')
   onNewMessage(@MessageBody() body: any) {
-    console.log(body);
-
+    // console.log(body);
   }
 }

@@ -11,11 +11,14 @@ const index = (props: any) => {
         props.gameSocket.emit("getRooms");
     }
     useEffect(() => {
+        props.gameSocket.on("Won", () => {
+            fetschRooms();
+        });
         props.gameSocket.on("rooms", (data: any) => {
             console.log(data);
             setRooms(data.rooms);
         });
-        // fetschRooms();
+        fetschRooms();
         interval = setInterval(() => {
             fetschRooms();
         }, 2000);
@@ -27,6 +30,7 @@ const index = (props: any) => {
             console.log("unmount");
             props.gameSocket.off("rooms");
             clearInterval(interval);
+            document.removeEventListener("keydown", (e) => { });
         }
     }, []);
     return (
@@ -46,8 +50,8 @@ const index = (props: any) => {
                                         }
                                             className='aero login w-auto rounded-lg  min-h-[300px] shadow-lg m-2 p-2 grid place-items-center ' >
                                             <h1 className='text-2xl font-bold text-center'>Rooms</h1>
-                                            <p className='text-center' key={i}>id {e.id}</p>
-                                            <p className='text-center' key={i}>{e.players.a} VS {e.players.b}</p>
+                                            <p className='text-center'>id {e.id}</p>
+                                            <p className='text-center'>{e.players.a} VS {e.players.b}</p>
                                             {/* </div> */}
                                         </div>
                                     </>

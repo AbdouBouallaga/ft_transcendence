@@ -144,10 +144,10 @@ const game = (props: any) => {
 
     socket.on("startGame", (s: string) => {
       console.log("on startGame event: ", s);
-      gameStarted = true;
-      if (mySide === "left") {
+      if (mySide === "left" && !gameStarted) {
         socket.emit("updateGameStart", s);
       }
+      gameStarted = true;
       waitingForGame.current.style.display = "none";
       setLeftScore(0);
       setRightScore(0);
@@ -194,6 +194,7 @@ const game = (props: any) => {
       else {
         joinGame();
       }
+      gameStarted = false;
       // socket.close();
     });
 
@@ -226,6 +227,8 @@ const game = (props: any) => {
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
       document.body.style.overflow = "";
+      document.removeEventListener("keydown", (e) => {});
+      document.removeEventListener("keyup", (e) => {});
       // socket.emit("disconnect");
       setTimeout(() => {
         socket.close();
@@ -318,31 +321,33 @@ const game = (props: any) => {
               </div>
             </div>
           </Modal.Body>
-          {mySideFallback !== "spectator" &&
-            <Modal.Footer>
-              <div className="flex flex-row w-full place-content-between">
-                <Button onClick={() => {
-                  setWinnerModal(false);
-                  joinGame();
-                }}>
-                  Re-match !
-                </Button>
-                <Button onClick={() => {
-                  router.reload();
-                }}>
-                  Play again !
-                </Button>
-                <Button
-                  color="gray"
-                  onClick={() => {
-                    router.push("/");
-                  }}
-                >
-                  Quit
-                </Button>
-              </div>
-            </Modal.Footer>
-          }
+          <Modal.Footer>
+            <div className="flex flex-row w-full place-content-between">
+              {mySideFallback !== "spectator" &&
+                <>
+                  <Button onClick={() => {
+                    setWinnerModal(false);
+                    joinGame();
+                  }}>
+                    Re-match !
+                  </Button>
+                  <Button onClick={() => {
+                    router.reload();
+                  }}>
+                    Play again !
+                  </Button>
+                </>
+              }
+              <Button
+                color="gray"
+                onClick={() => {
+                  router.push("/");
+                }}
+              >
+                Quit
+              </Button>
+            </div>
+          </Modal.Footer>
         </Modal>
       </div>
     </>)

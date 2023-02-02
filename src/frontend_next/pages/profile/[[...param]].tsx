@@ -16,7 +16,7 @@ const Profile = (props: any) => {
   // State to store the user's profile data
   let [itsme, setItsme] = useState(true);
   let [r, setR] = useState(0);
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<any>({
     login42: "",
     username: "",
     avatar: "",
@@ -31,14 +31,13 @@ const Profile = (props: any) => {
   // const [isEditing, setIsEditing] = useState(false);
 
   //2fa
-  const [data2fa, set2fa] = useState({});
-  const [qrnextButton, setqrnextButton] = useState(true);
-  const [qrprevButton, setqrprevButton] = useState(false);
-  const [qr2faConfirm, set2faConfirm] = useState(false);
-  const [qr2faCodeError, set2faCodeError] = useState(false);
-  const [enabled2fa, set2faEnabled] = useState(false);
-  const [editError, setEditError] = useState(false);
-  const [editReloadContent, setReloadContent] = useState(1);
+  const [data2fa, set2fa] = useState<any>({});
+  const [qrnextButton, setqrnextButton] = useState<boolean>(true);
+  const [qrprevButton, setqrprevButton] = useState<boolean>(false);
+  const [qr2faConfirm, set2faConfirm] = useState<boolean>(false);
+  const [qr2faCodeError, set2faCodeError] = useState<boolean>(false);
+  const [enabled2fa, set2faEnabled] = useState<Boolean>(false);
+  const [editError, setEditError] = useState<boolean>(false);
   let [img, setImg] = useState(props.profile.avatar);
 
 
@@ -119,7 +118,7 @@ const Profile = (props: any) => {
         )
     }
   }
-  async function PushEdits(Username: string, imgInput: string) {
+  async function PushEdits(Username: string, imgInput: File) {
     var imgResized = imageResize.play(imgInput)
       .then((resizedImage) => {
         axios({
@@ -139,7 +138,6 @@ const Profile = (props: any) => {
               setTimeout(() => {
                 props.setR(props.r + 1)
               }, 250);
-              // setReloadContent(editReloadContent + 1); // this reload the profile but not the navbar
             }
           })
           .catch((error) => {
@@ -199,7 +197,7 @@ const Profile = (props: any) => {
         });
     }
     fetchProfile();
-  }, [enabled2fa, editReloadContent, router.query, r]);
+  }, [enabled2fa, router.query, r]);
 
 
   // Function to toggle edit mode
@@ -261,12 +259,12 @@ const Profile = (props: any) => {
                       {qrnextButton &&
                         <div id="2faQr">
                           <p className='text-center'>Scan this QR code with your authenticator app</p>
-                          <img className='m-auto' src={data2fa.otpAuthURL} alt="qr" />
+                          <img className='m-auto' src={data2fa['otpAuthURL']} alt="qr" />
                         </div>
                       }
                       {qrprevButton &&
                         <div className='flex' id="2faConfirm">
-                          <TextInput id="2faCodeValidForm" className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
+                          <TextInput className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
                           <Button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</Button>
                         </div>
                       }
@@ -313,7 +311,7 @@ const Profile = (props: any) => {
               </React.Fragment>
             </> :
             <>
-              {(props.profile.friends?.findIndex(x => x.login42 === profile.login42) === -1) ?
+              {(props['profile']['friends'].findIndex((x:any) => x['login42'] === profile['login42']) === -1) ?
                 <Button className='m-2' onClick={() => {
                   axios({
                     method: 'POST',
@@ -355,22 +353,22 @@ const Profile = (props: any) => {
           <div className="flex-1 card m-2 min-w-[392px]">
             <h1><b>History</b></h1>
             <div className="overflow-auto max-h-[300px]">
-              {profile.games.map((e, i) =>
+              {profile.games.map((e:any) =>
                 <Table>
                   <Table.Body className="divide-y bg-white">
                     <Table.Row className="hover:bg-gray-100">
                       <Table.Cell className="">
                         <div className="flex flex-row justify-between">
                           <div className="flex flex-row" onClick={() => {
-                            router.replace(`/profile/` + e.winner.login42)
+                            router.replace(`/profile/` + e['winner']['login42'])
                           }}>
-                            <Avatar img={e.winner.avatar} />
-                            <h2 className="font-bold m-auto ml-1 text-sm">{e.winner.username}</h2>
+                            <Avatar img={e['winner']['avatar']} />
+                            <h2 className="font-bold m-auto ml-1 text-sm">{e['winner']['username']}</h2>
                           </div>
-                          <h2 className="font-bold m-auto text-lg">{e.winnerScore + '-' + e.loserScore}</h2>
+                          <h2 className="font-bold m-auto text-lg">{e['winnerScore'] + '-' + e['loserScore']}</h2>
                           <div className="flex flex-row">
-                            <h2 className="font-bold m-auto mr-1 text-sm">{e.loser.username}</h2>
-                            <Avatar img={e.loser.avatar} />
+                            <h2 className="font-bold m-auto mr-1 text-sm">{e['loser']['username']}</h2>
+                            <Avatar img={e['loser']['avatar']} />
                           </div>
                         </div>
                       </Table.Cell>
@@ -393,21 +391,19 @@ const Profile = (props: any) => {
           <div className="flex-1 card m-2">
             <h1><b>Friends</b></h1>
             <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-              {profile.friends.map((e, i) =>
+              {profile.friends.map((e:any) =>
                 <div className="relative m-2" style={{ width: 80 }} onClick={() => {
-                  // router.push(`/`)
-                  router.replace(`/profile/` + e.login42)
-                  // setUser('mmeski')
+                  router.push(`/profile/` + e['login42'])
                 }}>
                   <Avatar
                     alt="Nav Drop settings"
-                    img={e.avatar}
+                    img={e['avatar']}
                     rounded={false}
                     size="lg"
                     status="online"
                   />
                   <div className="font-bold aero w-full" >
-                    {e.username}
+                    {e['username']}
                   </div>
                 </div>
               )}
