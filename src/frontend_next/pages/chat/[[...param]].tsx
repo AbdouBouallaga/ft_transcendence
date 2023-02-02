@@ -6,6 +6,7 @@ import {
   TextInput,
   Label,
   Select,
+  ToggleSwitch,
 } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
@@ -13,6 +14,9 @@ import Games from "../../components/icons/Games";
 import Menu from "../../components/icons/Menu";
 import { useRouter } from "next/router";
 import Add from "../../components/icons/Add";
+import axios from "axios";
+import ListFriends from "../../components/chat/ListFriends";
+
 const Chat = () => {
   const router = useRouter();
   const [drawer, setDrawer] = useState(true);
@@ -134,6 +138,7 @@ const friendsExample = [
 //     </div>
 //   );
 // };
+
 // const examleRoom = {
 //   isRoom: true,
 //   typeOfRoom: "private",
@@ -288,39 +293,6 @@ const Drawer = ({ drawer, setDrawer }) => {
   );
 };
 // list of all friends
-const ListFriends = () => {
-  const [createRoom, setCreateRoom] = useState(false);
-
-  return (
-    <div className="w-full border-r p-3 max-w-[310px] flex flex-col">
-      <h1 className="font-bold text-left text-2xl">Message</h1>
-      <div
-        onClick={() => setCreateRoom(true)}
-        className="flex gap-1 cursor-pointer "
-        role="button"
-      >
-        <Add />
-        <span>Create Room</span>{" "}
-      </div>
-      <div className=" overflow-y-auto  h-[100%]">
-        {friendsExample.map((friend, index) => (
-          <FriendCard key={index} friend={friend} />
-        ))}
-      </div>
-      <Modal
-        show={createRoom}
-        size="md"
-        popup={true}
-        onClose={() => setCreateRoom(false)}
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <CreateRoom />
-        </Modal.Body>
-      </Modal>
-    </div>
-  );
-};
 
 const FriendCard = ({ friend }: any) => {
   const router = useRouter();
@@ -409,49 +381,6 @@ const ChatSection = () => {
     <div className="grow m-2 flex flex-col ">
       <HeaderOfChat />
       <BodyOfChat />
-    </div>
-  );
-};
-
-const CreateRoom = () => {
-  const [acess, setAcess] = useState("public");
-  return (
-    <div className="space-y-6 px-6 pb-4 sm:pb-6 lg:px-8 xl:pb-8">
-      <h3 className="text-xl font-medium text-gray-900 ">Create a Room</h3>
-      <div>
-        <div className="mb-2 block">
-          <Label htmlFor="name" value="Name" />
-        </div>
-        <TextInput id="name" placeholder="Name of the room" required={true} />
-      </div>
-      <div>
-        <div className="mb-2 block">
-          <Label color="failure" htmlFor="access" value="Access" />
-        </div>
-        <Select
-          id="access"
-          value={acess}
-          onChange={(e) => setAcess(e.target.value)}
-          color="failure"
-          // className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        >
-          <option value="public">Public</option>
-          <option value="private">Private</option>
-          <option value="protected">Protected</option>
-        </Select>
-      </div>
-      {acess === "protected" ? (
-        <div>
-          <div className="mb-2 block">
-            <Label htmlFor="password" value="Your password" />
-          </div>
-          <TextInput id="password" type="password" required={true} />
-        </div>
-      ) : null}
-
-      <div className="w-full">
-        <Button>Create</Button>
-      </div>
     </div>
   );
 };
