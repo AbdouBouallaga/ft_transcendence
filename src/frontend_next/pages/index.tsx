@@ -11,7 +11,8 @@ const Index = (props: any) => {
 
 export default Index;
 
-const Test = () => {
+const Test = (props:any) => {
+  
   return (
     <div className="flex">
       <div className="m-1 flex-1 container">

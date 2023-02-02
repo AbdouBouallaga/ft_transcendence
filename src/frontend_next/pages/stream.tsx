@@ -7,6 +7,10 @@ const index = (props: any) => {
     let init = false;
     let interval: any;
 
+    const te = () => {
+        props.gameSocket.emit("connectchat", props.profile);
+      }
+
     const fetschRooms = () => {
         props.gameSocket.emit("getRooms");
     }
@@ -67,7 +71,7 @@ const index = (props: any) => {
                     </div>
                 }
             </div>
-            {/* <Button onClick={fetschRooms} className='m-2 btn btn-primary'>test</Button> */}
+            <Button onClick={te} className='m-2 btn btn-primary'>test</Button>
         </>
     )
 }

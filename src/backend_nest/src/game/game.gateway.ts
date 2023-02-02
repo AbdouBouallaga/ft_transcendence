@@ -275,6 +275,9 @@ export class GameGateway implements OnModuleInit {
     this.server.on('connection', (socket) => {
       // console.log(socket.id);
       try {
+        socket.on('connectchat', (data) => {
+          console.log(data);
+        });
         socket.on('joinGame', (data) => {
           let found = false;
           let room: string = data.room;
