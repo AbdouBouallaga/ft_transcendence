@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AdminOfChannel, Channel, ChannelType, MemberOfChannel, Message, User, UserBannedFromChannel, UserBlockedUser } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BanUserDto, BlockUserDto, ChannelPasswordDto, CreateChannelDto, CreateDmDto, GetMessageDto, InviteUserToChannelDto, MuteUserDto, SendMessageDto, UpdateAdminDto, UserJoinChannelDto } from './dto';
@@ -18,7 +18,9 @@ export class ChatService {
             }
         });
         if (room.length > 0)
-            return room[0];
+            throw new BadRequestException();
+        if (!data.password)
+            data.password = "";
         const hash = await argon.hash(data.password);
         const channel = await this.prisma.channel.create({
             data: {
