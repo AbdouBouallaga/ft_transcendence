@@ -347,6 +347,7 @@ export class GameGateway implements OnModuleInit {
               UN: data.UN,
               paddle: new Paddle(this.server, room, player === 0 ? 'Left' : 'Right'),
             });
+            console.log("DEBUG ", rooms[room].players[player].socketId, "ID", socket.id);
             if (player === 0)
               socket.emit('leftSide');
             else
@@ -425,60 +426,35 @@ export class GameGateway implements OnModuleInit {
           });
         });
         socket.on('disconnect', () => {
+          let sid = socket.id;
           console.log(socket.id, 'disconnected');
-          for (let room in rooms) {
+          rooms.map((room) => {
             if (rooms[room]?.spectators?.includes(socket.id)) {
+              console.log("spectator ", sid, " left room ", room);
               rooms[room].spectators.splice(
                 rooms[room].spectators.indexOf(socket.id),
                 1,
               );
-            } else if (rooms[room]?.players[1]?.socketId === socket.id || rooms[room]?.players[0]?.socketId === socket.id) {
+            } else if (rooms[room]?.players[0]?.socketId === sid) {
+              console.log("player ", rooms[room].players[0].id, rooms[room].players[0].id.socketId, " left room ", room);
               clearInterval(rooms[room]?.Interval);
-              if (rooms[room]?.players[1]?.socketId === socket.id) {
-                rooms[room]?.game?.gameFinished(0);
-              } else {
-                rooms[room]?.game?.gameFinished(1);
-              }
+              // rooms[room]?.game?.gameFinished(1);
+            } else if (rooms[room]?.players[1]?.socketId === sid) {
+              console.log("player ", rooms[room].players[1].id, rooms[room].players[1].id.socketId," left room ", room);
+              clearInterval(rooms[room]?.Interval);
+              // rooms[room]?.game?.gameFinished(0);
             }
-          }
+          });
         });
         socket.on('getRooms', () => {
-          let r:string[] = [];
+          let r: any[] = [];
+          let tR: any = rooms;
           for (let room in rooms) {
-            r.push(room);
-            console.log(room);
-            };
-          socket.emit('rooms', {rooms : r});
-          });
-        socket.on('getRoominfo', (room) => {
-          console.log("getRoominfo",room);
-          socket.emit('roomInfo', {id: rooms[room].id, players: {a: rooms[room].players[0].id, b: rooms[room].players[1].id}});
-          });
-          // socket.emit('rooms', {rooms : r});
-        // socket.on('disconnecte', (room: string) => {
-        //   // let login : string = socket.id;
-        //   // let login : string = data.login;
-        //   console.log(socket.id, 'disconnected');
-        //   // for (let room in rooms) {
-        //   if (rooms[room]?.spectators?.includes(socket.id)) {
-        //     rooms[room].spectators.splice(
-        //       rooms[room].spectators.indexOf(socket.id),
-        //       1,
-        //     );
-        //   } else {
-        //     clearInterval(rooms[room]?.Interval);
-        //     if (rooms[room]?.players[1]?.socketId === socket.id) {
-        //       rooms[room]?.game?.gameFinished(0);
-        //     } else {
-        //       rooms[room]?.game?.gameFinished(1);
-        //     }
-        //     // setTimeout(() => {
-        //     //   delete rooms[room];
-        //     //   console.log('room ', room, ' deleted');
-        //     // }, 300);
-        //   }
-        //   // }
-        // });
+            if (rooms[room].ready === 2)
+              r.push({ id: tR[room].id, players: { a: tR[room].players[0].id, b: tR[room].players[1].id } });
+          };
+          socket.emit('rooms', { rooms: r });
+        });
       } catch (err) {
         console.log('ERROR CAUGHT: ', err);
       }

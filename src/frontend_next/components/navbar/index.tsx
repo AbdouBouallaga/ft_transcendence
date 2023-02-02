@@ -16,11 +16,11 @@ const Navbar = ({ profile }: any) => {
   useEffect(() => {
     console.log(searchRef?.current?.value);
     if (searchRef?.current?.value)
-    axios.get(`/api/users/find/`+searchRef?.current?.value)
-      .then((response) => {
-        setResults(response.data)
-        console.log(response);
-      })
+      axios.get(`/api/users/find/` + searchRef?.current?.value)
+        .then((response) => {
+          setResults(response.data)
+          console.log(response);
+        })
     else
       setResults([])
   }, [c]);
@@ -28,9 +28,9 @@ const Navbar = ({ profile }: any) => {
     <>
       <nav id="Navbar" className="h-[60px] flex items-center min-w-fit sticky">
         <div className=" container mx-auto flex items-center justify-betwee px-2">
-            <button onClick={() => {Router.push("/");}} className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              PingPong
-            </button>
+          <button onClick={() => { Router.push("/"); }} className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+            PingPong
+          </button>
           <div className=" w-full flex justify-end">
             <ul className="flex items-center flex-row space-x-3 text-sm font-medium  ">
               <li>
@@ -50,7 +50,9 @@ const Navbar = ({ profile }: any) => {
                 </button>
               </li>
               <li>
-                <Cast />
+                <button className="m-1" onClick={()=>{Router.push("/stream")}}>
+                  <Cast />
+                </button>
               </li>
               <li>
                 <a
@@ -134,7 +136,7 @@ const Navbar = ({ profile }: any) => {
                     setResults([]);
                     if (searchRef.current !== null)
                       searchRef.current.value = "";
-                    Router.replace(`/profile/`+e?.login42)
+                    Router.replace(`/profile/` + e?.login42)
                   }}>
                     <Avatar
                       alt="Nav Drop settings"

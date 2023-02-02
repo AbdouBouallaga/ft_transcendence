@@ -7,7 +7,7 @@ import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
-import { io } from "Socket.io-client";
+import { io } from "socket.io-client";
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   const [gameSocket, setGameSocket] = useState<any>(null);

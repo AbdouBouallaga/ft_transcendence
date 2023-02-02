@@ -53,7 +53,7 @@ const game = (props: any) => {
     console.log("sss", l);
     console.log("sssq ", mapsel);
     socket.emit("joinGame", {
-      room: roomFallback,
+      room: room, //was roomFallback
       rounds: rds, // rounds
       map: map[l],
       login: props.profile.login42,
@@ -249,9 +249,7 @@ const game = (props: any) => {
     }
   }
     , [init]);
-  function reload() {
-    router.reload();
-  }
+
 
   return (
     <>

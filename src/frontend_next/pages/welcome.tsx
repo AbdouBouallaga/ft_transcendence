@@ -76,7 +76,7 @@ export default function welcome(props) {
     }
     return (
         <>
-            <div id='verify2faloginDiv' className='container min-h-screen mx-auto px-4 grid place-items-center min-w-fit'  >
+            <div className='container min-h-screen mx-auto px-4 grid place-items-center min-w-fit'  >
                 <div className='aero login w-auto rounded-lg  min-h-[300px] shadow-lg m-2 p-2 grid place-items-center ' >
                     <h1 className='text-2xl font-bold text-center'>Welcome {profile.username}</h1>
                     <p className='text-center'>You can change your username and avatar here</p>

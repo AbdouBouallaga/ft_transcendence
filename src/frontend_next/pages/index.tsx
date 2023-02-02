@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import Router from 'next/router';
-import Navbar from '../components/Navbar';
-import { Button } from 'flowbite-react';
+import { Stream } from 'stream';
 
-const testcontent = () => {
+const Index = (props: any) => {
+  return (
+    <>
+      <Test />
+    </>
+  )
+};
+
+export default Index;
+
+const Test = () => {
   return (
     <div className="flex">
       <div className="m-1 flex-1 container">
@@ -15,54 +23,3 @@ const testcontent = () => {
     </div>
   )
 }
-
-const index = (props: any) => {
-  const [rooms, setRooms] = useState([]);
-  let roomsTemp:any = [];
-  let init = false;
-
-  const fetschRooms = () => {
-    props.gameSocket.emit("getRooms");
-  }
-  useEffect(() => {
-    if (!init) {
-      init = true;
-      props.gameSocket.on("rooms", (data) => {
-        console.log(data);
-        for (let r in data.rooms) {
-          console.log(data.rooms[r]);
-          props.gameSocket.emit("getRoominfo", data.rooms[r]);
-        }
-      });
-      props.gameSocket.on("roomInfo", (date: any) => {
-        roomsTemp.push(data);
-        console.log(roomsTemp);
-        setRooms(roomsTemp);
-      });
-    }
-  }, []);
-return (
-  <>
-    <div className='container min-h-screen mx-auto px-4 grid place-items-center min-w-fit'  >
-      <div className='aero login w-auto rounded-lg  min-h-[300px] shadow-lg m-2 p-2 grid place-items-center ' >
-        <h1 className='text-2xl font-bold text-center'>TEST</h1>
-        {/* {
-          rooms.map((e, i) => {
-            return (
-              <>
-                <p className='text-center' key={i}>id {e.id}</p>
-                <p className='text-center' key={i}>map {e.map}</p>
-                <p className='text-center' key={i}>rounds {e.rounds}</p>
-                <p className='text-center' key={i}>players num {e.numOfPlayers}</p>
-              </>
-            )
-          })
-        } */}
-        <Button onClick={fetschRooms} className='m-2 btn btn-primary'>test</Button>
-      </div>
-    </div>
-  </>
-)
-}
-
-export default index
