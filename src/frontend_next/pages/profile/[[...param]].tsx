@@ -343,7 +343,10 @@ const Profile = (props: any) => {
               <Button className='m-2' onClick={() => { router.push("/chat/" + profile.username) }}>Direct message</Button>
               <Button className='m-2' onClick={() => {
                 let room = uuidv4();
-                router.push("/game/" + room)
+                setTimeout(() => {
+                  props.gameSocket.emit('sendInviteToPlay', { 'from': props.profile.login42, 'to': profile.login42, 'room': room })
+                  router.push("/game/" + room)
+                }, 250);
               }}>Invite to play</Button>
             </>}
         </div>

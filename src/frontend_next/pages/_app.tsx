@@ -8,10 +8,11 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { Socket } from "dgram";
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   const [gameSocket, setGameSocket] = useState<any>(null);
-  let initsocket:number = 0;
+  let initsocket: number = 0;
   const [reloadApp, setReloadApp] = useState<number>(0);
   const [Nav_active, setNav_active] = useState<boolean>(false);
   const [appReady, setappReady] = useState<boolean>(false);
@@ -49,9 +50,17 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     });
     Router.events.on("routeChangeComplete", apply); /// this is the key
   }
-
+  let initUsersocket: boolean = false;
   useEffect(() => {
-    if (!initsocket){
+    if (profile.login42 && !initUsersocket) {
+      initUsersocket = true;
+      setTimeout(() => {
+        gameSocket.emit('initUser', profile.login42);
+      }, 1000);
+    }
+  }, [profile]);
+  useEffect(() => {
+    if (!initsocket) {
       setGameSocket(io("/game"));
       initsocket = 1;
     }
@@ -100,8 +109,8 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       </Head>
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
-          {Nav_active && <Navbar profile={profile} />}
-          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket}/>
+          {Nav_active && <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />}
+          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket} />
         </div>
       )}
     </>

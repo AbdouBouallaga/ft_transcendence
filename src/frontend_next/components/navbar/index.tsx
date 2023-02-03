@@ -4,16 +4,28 @@ import Router, { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
-import { Dropdown, Avatar, Modal, Button, TextInput } from "flowbite-react";
+import { Dropdown, Avatar, Modal, Button, TextInput, Alert } from "flowbite-react";
 import Cast from "../icons/Cast";
 import Chat from "../icons/Chat";
 
-const Navbar = ({ profile }: any) => {
+const Navbar = (props: any) => {
+  let profile = props.profile;
   const [searchModal, setSearchModal] = useState(false);
   const [c, setC] = useState(0)
   const [results, setResults] = useState([])
   const searchRef = React.useRef(null);
+  const [inviteinfo, setInviteinfo] = useState<{ to: string, room: string }>({ to: "", room: "" })
+  const [inviteAlert, setInviteAlert] = useState(false)
+  let init: boolean = false;
   useEffect(() => {
+    if (!init) {
+      props.gameSocket.on("inviteToPlay", (data: any) => {
+        console.log(data);
+        setInviteinfo(data)
+        setInviteAlert(true)
+      });
+      init = true;
+    }
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (searchRef.current) {
@@ -34,7 +46,7 @@ const Navbar = ({ profile }: any) => {
   }, [c]);
   return (
     <>
-      <nav id="Navbar" className="h-[60px] flex items-center min-w-fit sticky">
+      <nav id="Navbar" className="z-50 h-[60px] flex items-center min-w-fit sticky">
         <div className=" container mx-auto flex items-center justify-betwee px-2">
           <button onClick={() => { Router.push("/"); }} className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
             PingPong
@@ -168,6 +180,29 @@ const Navbar = ({ profile }: any) => {
             </div>
           </Modal.Body>
         </Modal>
+        {inviteAlert &&
+          <Alert
+            className="z-50 w-auto h-[73px] fixed bottom-0 right-0 m-1 top-20"
+            color="success"
+            onDismiss={() => {
+              setInviteinfo({ to: "", room: "" });
+              setInviteAlert(false);
+            }}
+          >
+            <span className="flex">
+              <span className="font-medium font-bold m-2">
+                {inviteinfo.to} invited you to a game
+              </span>
+              <span className="block text-sm text-gray-500">
+                <Button onClick={() => {
+                  Router.push("/game/" + inviteinfo.room);
+                  setInviteinfo({ to: "", room: "" });
+                  setInviteAlert(false);
+                }} className="ml-2" color="success">Join</Button>
+              </span>
+            </span>
+          </Alert>
+        }
       </nav>
     </>
   );

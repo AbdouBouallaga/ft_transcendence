@@ -270,13 +270,25 @@ export class GameGateway implements OnModuleInit {
 
   @WebSocketServer()
   server: Server;
+  private users: {login42:string, socketId:string}[] = [];
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
       // console.log(socket.id);
       try {
-        socket.on('connectchat', (data) => {
+        socket.on('initUser', (data) => {
+          console.log('initUser', data);
+          this.users[data] = {login42 : data, socketId : socket.id};
+        });
+        socket.on("sendInviteToPlay", (data:any) => {
           console.log(data);
+          let from:string = data.from;
+          let to:string = data.to;
+          let onRoom:string = data.Room;
+          console.log("sendInviteToPlay", from, to, onRoom);
+          console.log("sendInviteToPlay", this.users);
+          if (this.users[to])
+            this.server.to(this.users[to].socketId).emit("inviteToPlay", data);
         });
         socket.on('joinGame', (data) => {
           let found = false;
