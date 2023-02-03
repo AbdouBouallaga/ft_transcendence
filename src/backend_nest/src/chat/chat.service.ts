@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { BanUserDto, BlockUserDto, ChannelPasswordDto, CreateChannelDto, CreateDmDto, InviteUserToChannelDto, MuteUserDto, SendMessageDto, UpdateAdminDto, UserJoinChannelDto } from './dto';
 import { UserPrismaService } from 'src/prisma/user.service';
 import * as argon from 'argon2';
-import { Conversation, ConversationMessage } from './interfaces';
+import { ChannelInfo, Conversation, ConversationMessage } from './interfaces';
 import { UserProfile } from 'src/users/interfaces';
 
 @Injectable()
@@ -21,9 +21,9 @@ export class ChatService {
         });
         if (room.length > 0)
             throw new BadRequestException();
-        if (!data.password)
-            data.password = "";
-        const hash = await argon.hash(data.password);
+        let hash = null;
+        if (data.password)
+            hash = await argon.hash(data.password);
         const channel = await this.prisma.channel.create({
             data: {
                 name: data.name,
@@ -102,6 +102,8 @@ export class ChatService {
                 }
             });
         }
+        if (await this.isBannedFromChannel({ userId: user.id, channelId: channel.id }))
+            throw new UnauthorizedException();
         if (channel.isProtected) {
             const verified = await argon.verify(channel.password, data.password);
             if (!verified) {
@@ -120,7 +122,8 @@ export class ChatService {
         const user = await this.userPrisma.findUserByLogin42(data.login42);
         const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
         const channel = await this.findChannelById(data.channelId);
-        if (!this.isAdminOfChannel({ userId: user.id, channelId: channel.id })) {
+        if (!( await this.isAdminOfChannel({ userId: user.id, channelId: channel.id }))
+            || (await this.isBannedFromChannel({ userId: user.id, channelId: channel.id }))) {
             throw new UnauthorizedException();
         }
         return await this.prisma.memberOfChannel.create({
@@ -166,7 +169,7 @@ export class ChatService {
         if (channel.ownerId !== user.id) {
             throw new UnauthorizedException();
         }
-        if (!this.isMemberOfChannel({ userId: otherUser.id, channelId: channel.id })) {
+        if (!( await this.isMemberOfChannel({ userId: otherUser.id, channelId: channel.id }))) {
             throw new UnauthorizedException();
         }
         return await this.prisma.adminOfChannel.create({
@@ -202,8 +205,8 @@ export class ChatService {
         const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
         const channel = await this.findChannelById(data.channelId);
         if (otherUser.id === channel.ownerId
-            || !this.isAdminOfChannel({ userId: user.id, channelId: channel.id })
-            || !this.isMemberOfChannel({ userId: otherUser.id, channelId: channel.id })) {
+            || !(await this.isAdminOfChannel({ userId: user.id, channelId: channel.id }))
+            || !(await this.isMemberOfChannel({ userId: otherUser.id, channelId: channel.id }))) {
             throw new UnauthorizedException();
         }
         return await this.prisma.userBannedFromChannel.create({
@@ -220,8 +223,8 @@ export class ChatService {
         const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
         const channel = await this.findChannelById(data.channelId);
         if (otherUser.id === channel.ownerId
-            || !this.isAdminOfChannel({ userId: user.id, channelId: channel.id })
-            || !this.isMemberOfChannel({ userId: otherUser.id, channelId: channel.id })) {
+            || !(await this.isAdminOfChannel({ userId: user.id, channelId: channel.id }))
+            || !(await this.isMemberOfChannel({ userId: otherUser.id, channelId: channel.id }))) {
             throw new UnauthorizedException();
         }
         const userBannedFromChannel = await this.prisma.userBannedFromChannel.create({
@@ -238,8 +241,9 @@ export class ChatService {
     async sendMessageToChannel(data: SendMessageDto) : Promise<Message> {
         const user = await this.userPrisma.findUserByLogin42(data.login42);
         const channel = await this.findChannelById(data.channelId);
-        if (!this.isMemberOfChannel({ userId: user.id, channelId: channel.id })
-            || this.isMutedFromChannel({ userId: user.id, channelId: channel.id })) {
+        if (!(await this.isMemberOfChannel({ userId: user.id, channelId: channel.id }))
+            || (await this.isMutedFromChannel({ userId: user.id, channelId: channel.id }))
+            || (await this.isBannedFromChannel({ userId: user.id, channelId: channel.id }))) {
             throw new UnauthorizedException();
         }
         if (channel.type === ChannelType.DIRECT) {
@@ -322,11 +326,21 @@ export class ChatService {
         }; 
     }
 
-    async getPublicChannels() : Promise<Channel[]> {
-        return await this.prisma.channel.findMany({
+    async getPublicChannels(userId: number) : Promise<ChannelInfo[]> {
+        return (await this.prisma.userBannedFromChannel.findMany({
             where: {
-                type: ChannelType.PUBLIC
+                NOT: {
+                    userId
+                },
+                channel: {
+                    type: ChannelType.PUBLIC
+                }
+            },
+            select: {
+                channel: true
             }
+        })).map(element => {
+            return new ChannelInfo(element.channel);
         });
     }
 
@@ -467,9 +481,9 @@ export class ChatService {
                 channelId: data.channelId
             }
         });
-        return typeof userBannedFromChannel.find(element => {
+        return userBannedFromChannel.filter(element => {
             return element.isBanned;
-        }) !== 'undefined';
+        }).length > 0;
     }
 
     async isMutedFromChannel(data: { userId: number, channelId: number }) : Promise<boolean> {
@@ -479,8 +493,8 @@ export class ChatService {
                 channelId: data.channelId
             }
         });
-        return typeof userBannedFromChannel.find(element => {
+        return userBannedFromChannel.filter(element => {
             return new Date(element.startedAt.getTime() + (element.duration * 60000)) >= new Date();
-        }) !== 'undefined';
+        }).length > 0;
     }
 }

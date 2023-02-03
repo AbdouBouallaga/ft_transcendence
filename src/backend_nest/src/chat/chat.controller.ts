@@ -35,8 +35,8 @@ export class ChatController {
 
   @Get('publicChannels')
   @UseGuards(JwtAuthGuard)
-  async getPublicChannels(): Promise<Channel[]> {
-    return await this.chatService.getPublicChannels();
+  async getPublicChannels(@Req() req: any): Promise<ChannelInfo[]> {
+    return await this.chatService.getPublicChannels(req.user.id);
   }
 
   @Get('me')
