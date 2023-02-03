@@ -4,6 +4,7 @@ import axios from "axios";
 import { Modal, Button, TextInput, Badge, Table, Dropdown, Avatar } from "flowbite-react";
 import ImageResize from 'image-resize';
 import { v4 as uuidv4 } from 'uuid';
+import { Heart, Win_3, Win_5 } from "../../components/icons/achievement";
 
 var imageResize = new ImageResize({
   format: 'png',
@@ -66,19 +67,19 @@ const Profile = (props: any) => {
       })
   }
   async function disable2fa() {
-      axios({
-        method: 'POST',
-        url: '/api/auth/tfa/disable',
-      })
-        .then((response) => {
-          if (response.data.success) {
-            set2faEnabled(false);
-          }
+    axios({
+      method: 'POST',
+      url: '/api/auth/tfa/disable',
+    })
+      .then((response) => {
+        if (response.data.success) {
+          set2faEnabled(false);
+        }
 
-        })
-        .catch((error) => {
-          set2faCodeError(true);
-        })
+      })
+      .catch((error) => {
+        set2faCodeError(true);
+      })
   }
   async function confirm2fa() {
     const TextInput = document.getElementById('2faCodeInput') as HTMLInputElement;
@@ -207,7 +208,7 @@ const Profile = (props: any) => {
       <div className="card m-2">
         <div className="avatar">
 
-          <Avatar img={profile.avatar} size="xl"/>
+          <Avatar img={profile.avatar} size="xl" />
         </div>
         <h1><b> {profile.username}</b></h1>
         <div className="flex">
@@ -225,7 +226,7 @@ const Profile = (props: any) => {
                     {editError ?? <Badge color="failure">Error editing profile</Badge>}
                     <div className="form-group flex flex-col place-items-center">
                       {/* <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} /> */}
-                      <Avatar img={img} size="xl"/>
+                      <Avatar img={img} size="xl" />
                       <label>Username</label>
                       <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
                     </div>
@@ -310,7 +311,7 @@ const Profile = (props: any) => {
               </React.Fragment>
             </> :
             <>
-              {(props['profile']['friends'].findIndex((x:any) => x['login42'] === profile['login42']) === -1) ?
+              {(props['profile']['friends'].findIndex((x: any) => x['login42'] === profile['login42']) === -1) ?
                 <Button className='m-2' onClick={() => {
                   axios({
                     method: 'POST',
@@ -352,7 +353,7 @@ const Profile = (props: any) => {
           <div className="flex-1 card m-2 min-w-[392px]">
             <h1><b>History</b></h1>
             <div className="overflow-auto max-h-[300px]">
-              {profile.games.map((e:any) =>
+              {profile.games.map((e: any) =>
                 <Table>
                   <Table.Body className="divide-y bg-white">
                     <Table.Row className="hover:bg-gray-100">
@@ -380,18 +381,23 @@ const Profile = (props: any) => {
           <div className="flex-2 card m-2 min-w-[240px]">
             <h1><b>Achivements</b></h1>
             <div className="flex overflow-auto flex-row  max-h-[300px] max-w-[609px]">
-              <div className="flex space-x-0 flex-wrap justify-center">
-                
-                <svg className="w-20 h-20 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 14l9-5-9-5-9 5 9 5z"></path><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
-                <svg className="w-20 h-20 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                <svg className="w-20 h-20 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+              <div className="flex space-x-0 flex-wrap justify-center p-1">
+                {profile.games.length > 0 &&
+                  <Heart />
+                }
+                {profile.games.length > 2 &&
+                  <Win_3 />
+                }
+                {profile.games.length > 4 &&
+                  <Win_5 />
+                }
               </div>
             </div>
           </div>
           <div className="flex-1 card m-2">
             <h1><b>Friends</b></h1>
             <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-              {profile.friends.map((e:any) =>
+              {profile.friends.map((e: any) =>
                 <div className="relative m-2" style={{ width: 80 }} onClick={() => {
                   router.push(`/profile/` + e['login42'])
                 }}>
