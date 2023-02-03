@@ -38,8 +38,8 @@ export class ChatService {
     private readonly userPrisma: UserPrismaService,
   ) {}
 
-  async createRoom(data: CreateChannelDto, req: any): Promise<Channel> {
-    const user = await this.userPrisma.findUserByLogin42(req.user.login42);
+  async createRoom(data: CreateChannelDto, login42: string): Promise<Channel> {
+    const user = await this.userPrisma.findUserByLogin42(login42);
     const room = await this.prisma.channel.findMany({
       where: {
         name: data.name,
