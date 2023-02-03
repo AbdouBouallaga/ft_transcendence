@@ -1,43 +1,44 @@
-import { User } from "@prisma/client";
+import { User } from '@prisma/client';
 
 export enum ConversationRole {
-	MEMBER,
-	ADMIN,
-	OWNER
+  MEMBER,
+  ADMIN,
+  OWNER,
 }
 
 export class ConversationUser {
-	username: string;
-    login42: string;
-    avatar: string;
-	role: ConversationRole
+  username: string;
+  login42: string;
+  avatar: string;
+  role: ConversationRole;
 
-	constructor(user: User, role: ConversationRole) {
-		this.username = user.username;
-		this.login42 = user.login42;
-		this.avatar = user.avatar;
-		this.role = role;
-	}
+  constructor(user: User, role: ConversationRole) {
+    this.username = user.username;
+    this.login42 = user.login42;
+    this.avatar = user.avatar;
+    this.role = role;
+  }
 }
 
 export class ConversationMessage {
-	login42: string;
-	username: string;
-	date: Date;
-	message: string;
+  login42: string;
+  username: string;
+  date: Date;
+  message: string;
 
-	constructor(message: any) {
-		console.log("message", message);
-		this.login42 = message.sender.login42;
-		this.username = message.sender.username;
-		this.date = message.createdAt;
-		this.message = message.content;
-	}
+  constructor(message: any) {
+    console.log('message', message);
+    this.login42 = message.sender.login42;
+    this.username = message.sender.username;
+    this.date = message.createdAt;
+    this.message = message.content;
+  }
 }
 
 export class Conversation {
-	id: number;
-	isDM: boolean;
-	members: ConversationUser[];
-	messages: ConversationMessage[];
+  id: number;
+  name: string;
+  isDM: boolean;
+  members: ConversationUser[];
+  messages: ConversationMessage[];
 }

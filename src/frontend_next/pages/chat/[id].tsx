@@ -19,14 +19,14 @@ import axios from "axios";
 import ListFriends from "../../components/chat/ListFriends";
 import ChatSection from "../../components/chat/ChatSection";
 
-const Chat = () => {
+const Chat = ({ profile }) => {
   const [drawer, setDrawer] = useState(false);
 
   return (
     <>
       <div className="flex w-full h-[calc(100vh-60px)]  ">
         <ListFriends />
-        <ChatSection />
+        <ChatSection profile={profile} />
         <Drawer drawer={drawer} setDrawer={setDrawer} />
       </div>
     </>

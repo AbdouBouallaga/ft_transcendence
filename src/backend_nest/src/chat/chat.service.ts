@@ -28,7 +28,13 @@ import {
 } from './dto';
 import { UserPrismaService } from 'src/prisma/user.service';
 import * as argon from 'argon2';
-import { ChannelInfo, Conversation, ConversationMessage, ConversationRole, ConversationUser } from './interfaces';
+import {
+  ChannelInfo,
+  Conversation,
+  ConversationMessage,
+  ConversationRole,
+  ConversationUser,
+} from './interfaces';
 import { UserProfile } from 'src/users/interfaces';
 
 @Injectable()
@@ -408,20 +414,22 @@ export class ChatService {
     ).map((member) => {
       return new ConversationUser(member.user, ConversationRole.MEMBER);
     });
-    members.forEach(member => {
-      if (admins.filter(admin => {
-        return admin.login42 === member.login42;
-      }).length > 0) {
+    members.forEach((member) => {
+      if (
+        admins.filter((admin) => {
+          return admin.login42 === member.login42;
+        }).length > 0
+      ) {
         member.role = ConversationRole.ADMIN;
       }
     });
     const owner = await this.userPrisma.findUserById(channel.ownerId);
-    members.find(member => {
+    members.find((member) => {
       if (member.login42 === owner.login42) {
         member.role = ConversationRole.OWNER;
       }
       return member;
-    })
+    });
     const messages = (
       await this.prisma.message.findMany({
         where: {
@@ -438,6 +446,7 @@ export class ChatService {
     });
     return {
       id: channelId,
+      name: channel.name,
       isDM: channel.type === ChannelType.DIRECT,
       members,
       messages,

@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   Avatar,
   Button,
@@ -10,78 +11,96 @@ import {
   Alert,
 } from "flowbite-react";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Games from "../../components/icons/Games";
 import Menu from "../../components/icons/Menu";
 
-const ChatSection = () => {
-  const router = useRouter();
-  console.log(router.query.id);
+const ChatSection = ({ profile }) => {
+  const [messages, setMessages] = useState([]);
 
+  const router = useRouter();
+  const { id } = router.query;
+
+  useEffect(() => {
+    id && fetchChat(id as string);
+  }, [id]);
+
+  const fetchChat = async (id: string) => {
+    setMessages([]);
+    const res = await axios.get(`/api/chat/${id}`);
+    const {
+      status,
+      data: { isDm, members, messages },
+    } = res;
+    status === 200 && setMessages(messages);
+    console.log(res.data);
+  };
   return (
     <div className="grow m-2 flex flex-col ">
       <HeaderOfChat />
-      <BodyOfChat />
+      <BodyOfChat messages={messages} profile={profile} />
     </div>
   );
 };
 
 export default ChatSection;
-const Msg = () => {
+const Msg = ({ date, message, username }) => {
   return (
     <div className="mb-4 flex max-w-[80%]  m-1">
-      <Avatar className="mr-2 min-w-[50px] " img="/with.webp" rounded={true} />
+      {/* <Avatar className="mr-2 min-w-[50px] " img="/with.webp" rounded={true} /> */}
       <div>
         <div>
-          <span className="text-black font-medium ">Aberdai &nbsp;</span>
+          <span className="text-black font-medium ">{username} &nbsp;</span>
           <span className="text-slate-300 text-xs">13:35 Am</span>
         </div>
         <div className="rounded-r-lg  rounded-b-lg bg-green-100 p-2">
-          msg lorem hioasdhkahs jkhaskjhdkjashdk Lorem ipsum dolor sit amet
-          consectetur, adipisicing elit. Accusamus ducimus consequuntur
-          explicabo doloribus, ex debitis adipisci quos laboriosam maxime,
-          laudantium optio accusantium, et ab est dolores id architecto? Eos,
-          voluptate!
+          {message}
         </div>
       </div>
     </div>
   );
 };
 
-const MyMsg = () => {
+const MyMsg = ({ date, message, username }) => {
   return (
     <div
       className="mb-4 max-w-[80%]
         m-1 flex flex-col items-end self-end"
     >
       <div className="">
-        <span className="text-black font-medium ">Mouras &nbsp;</span>
+        <span className="text-black font-medium ">{username} &nbsp;</span>
         <span className="text-slate-300 text-xs">13:37 Am</span>
       </div>
       <div className="rounded-l-lg  rounded-b-lg bg-yellow-100 p-2">
-        msg lorem hioasdhkahs jkhaskjhdkjashdk Lorem ipsum dolor sit amet
-        consectetur, adipisicing elit. Accusamus ducimus consequuntur explicabo
-        doloribus, ex debitis adipisci quos laboriosam maxime, laudantium optio
-        accusantium, et ab est dolores id architecto? Eos, voluptate!
+        {message}
       </div>
     </div>
   );
 };
 
-const BodyOfChat = () => {
+const BodyOfChat = ({ messages, profile }) => {
+  const { avatar, username: myUserName } = profile;
+  console.log("the message", messages);
   return (
     <div className="h-full flex flex-col overflow-hidden justify-between ">
       <div className="border-gray-2 p-2 w-full h-full  rounded flex flex-col align-start overflow-y-scroll no-scrollbar">
-        <Msg />
-        <Msg />
-        <MyMsg />
-        <Msg />
-        <MyMsg />
-        <MyMsg />
-        <Msg />
-        <MyMsg />
-        <Msg />
-        <MyMsg />
+        {messages.map((msg, i) => {
+          const { username, date, message } = msg;
+          if (username === myUserName) {
+            return (
+              <MyMsg
+                key={i}
+                date={date}
+                message={message}
+                username={username}
+              />
+            );
+          } else {
+            return (
+              <Msg key={i} date={date} message={message} username={username} />
+            );
+          }
+        })}
       </div>
       <SendMsg />
     </div>
