@@ -1,14 +1,21 @@
-import { Button, TextInput, Label, Select, ToggleSwitch } from "flowbite-react";
+import {
+  Button,
+  TextInput,
+  Label,
+  Select,
+  ToggleSwitch,
+  Alert,
+  Toast,
+} from "flowbite-react";
 import React, { useState } from "react";
 import axios from "axios";
 
-const CreateRoom = () => {
+const CreateRoom = ({ setCreateRoom }) => {
   const [data, setData] = useState({
     name: "",
     type: "PUBLIC",
     isProtected: false,
     password: "",
-    login42: "mmeski",
   });
 
   const [error, setError] = useState(false);
@@ -19,13 +26,27 @@ const CreateRoom = () => {
     e.preventDefault();
     console.log("data", data);
     const send = async () => {
-      let res = await axios.post("/api/chat/createRoom", data);
-
-      console.log("***********************res**********************", res);
+      try {
+        let res = await axios.post("/api/chat/createRoom", data);
+        const { status } = res;
+        status === 201 &&
+          (setCreateRoom(false),
+          setData({
+            name: "",
+            type: "PUBLIC",
+            isProtected: false,
+            password: "",
+          }));
+      } catch (e) {
+        setError(true);
+      }
     };
     send();
+  };
 
-    //  need to add error handling unique name and other stuff
+  const handleChangeName = (e: any) => {
+    setData((old) => ({ ...old, name: e.target.value }));
+    setError(false);
   };
   return (
     <form
@@ -42,7 +63,7 @@ const CreateRoom = () => {
           />
         </div>
         <TextInput
-          onChange={(e) => setData((old) => ({ ...old, name: e.target.value }))}
+          onChange={handleChangeName}
           value={name}
           id="name"
           placeholder="Name of the room"
@@ -66,8 +87,6 @@ const CreateRoom = () => {
           id="access"
           value={type}
           onChange={(e) => setData((old) => ({ ...old, type: e.target.value }))}
-          // color="failure"
-          // className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         >
           <option value="PUBLIC">Public</option>
           <option value="PRIVATE">Private</option>

@@ -8,73 +8,17 @@ import FriendCard from "./friendCard";
 
 const ListFriends = () => {
   const [createRoom, setCreateRoom] = useState(false);
+  const [friends, setFriends] = useState([]);
 
   const fetchFriends = async () => {
-    const res = await axios.get("/api/chat/publicChannels");
-    console.log(res.data);
+    const res = await axios.get("/api/chat/me");
+    const { status, data } = res;
+    status === 200 && setFriends(data);
   };
   useEffect(() => {
     fetchFriends();
-  }, []);
+  }, [createRoom]);
 
-  const friendsExample = [
-    {
-      id: 1,
-      name: "Aberdai",
-      avatar: "/aberdai.jpeg",
-      lastmessage:
-        "ymta nsawliw had project hjjfhdksjhfsd hj dsjkfhdklshfajksdhfk khsadklfhajkshfl skjhadsklfhdjkshf adslk ?",
-      status: "online",
-      room: {
-        isRoom: false,
-        typeOfRoom: "",
-      },
-    },
-    {
-      id: 2,
-      name: "mmeski",
-      avatar: "/mmeski.jpeg",
-      lastmessage: "fokma briti ",
-      status: "offline",
-      room: {
-        isRoom: false,
-        typeOfRoom: "",
-      },
-    },
-    {
-      id: 3,
-      name: "babdelka",
-      avatar: "/babdelka.jpeg",
-      lastmessage: "hello",
-      status: "away",
-      room: {
-        isRoom: false,
-        typeOfRoom: "",
-      },
-    },
-    {
-      id: 4,
-      name: "famila group",
-      avatar: "",
-      lastmessage: "a fin a famila",
-      status: "online" || "offline" || "ingame",
-      room: {
-        isRoom: true,
-        typeOfRoom: "",
-      },
-    },
-    {
-      id: 4,
-      name: "shit group",
-      avatar: "",
-      lastmessage: "a fin a famila",
-      status: "online" || "offline" || "ingame",
-      room: {
-        isRoom: true,
-        typeOfRoom: "private",
-      },
-    },
-  ];
   return (
     <div className="w-full border-r p-3 max-w-[310px] flex flex-col">
       <h1 className="font-bold text-left text-2xl">Message</h1>
@@ -87,7 +31,7 @@ const ListFriends = () => {
         <span>Create Room</span>{" "}
       </div>
       <div className=" overflow-y-auto  h-[100%]">
-        {friendsExample.map((friend, index) => (
+        {friends.map((friend, index) => (
           <FriendCard key={index} friend={friend} />
         ))}
       </div>
@@ -99,7 +43,7 @@ const ListFriends = () => {
       >
         <Modal.Header />
         <Modal.Body>
-          <CreateRoom />
+          <CreateRoom setCreateRoom={setCreateRoom} />
         </Modal.Body>
       </Modal>
     </div>

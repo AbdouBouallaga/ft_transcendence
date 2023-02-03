@@ -11,9 +11,12 @@ export class ChatController {
 
   @Post('createRoom')
   @UseGuards(JwtAuthGuard)
-  async createRoom(@Body() data: CreateChannelDto): Promise<Channel> {
+  async createRoom(
+    @Body() data: CreateChannelDto,
+    @Req() req: any,
+  ): Promise<Channel> {
     console.log(data);
-    return await this.chatService.createRoom(data);
+    return await this.chatService.createRoom(data, req.user.login42);
   }
 
   @Post('createDM')
