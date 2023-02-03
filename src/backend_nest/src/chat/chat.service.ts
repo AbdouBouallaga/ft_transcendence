@@ -28,7 +28,7 @@ import {
 } from './dto';
 import { UserPrismaService } from 'src/prisma/user.service';
 import * as argon from 'argon2';
-import { ChannelInfo, Conversation, ConversationMessage } from './interfaces';
+import { ChannelInfo, Conversation, ConversationMessage, ConversationRole, ConversationUser } from './interfaces';
 import { UserProfile } from 'src/users/interfaces';
 
 @Injectable()
@@ -394,7 +394,7 @@ export class ChatService {
         },
       })
     ).map((admin) => {
-      return new UserProfile(admin.admin);
+      return new ConversationUser(admin.admin, ConversationRole.ADMIN);
     });
     const members = (
       await this.prisma.memberOfChannel.findMany({
@@ -406,8 +406,22 @@ export class ChatService {
         },
       })
     ).map((member) => {
-      return new UserProfile(member.user);
+      return new ConversationUser(member.user, ConversationRole.MEMBER);
     });
+    members.forEach(member => {
+      if (admins.filter(admin => {
+        return admin.login42 === member.login42;
+      }).length > 0) {
+        member.role = ConversationRole.ADMIN;
+      }
+    });
+    const owner = await this.userPrisma.findUserById(channel.ownerId);
+    members.find(member => {
+      if (member.login42 === owner.login42) {
+        member.role = ConversationRole.OWNER;
+      }
+      return member;
+    })
     const messages = (
       await this.prisma.message.findMany({
         where: {
@@ -424,10 +438,7 @@ export class ChatService {
     });
     return {
       id: channelId,
-      owner: new UserProfile(
-        await this.userPrisma.findUserById(channel.ownerId),
-      ),
-      admins,
+      isDM: channel.type === ChannelType.DIRECT,
       members,
       messages,
     };

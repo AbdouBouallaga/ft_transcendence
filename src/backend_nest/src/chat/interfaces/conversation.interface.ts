@@ -1,4 +1,24 @@
-import { UserProfile } from "src/users/interfaces"
+import { User } from "@prisma/client";
+
+export enum ConversationRole {
+	MEMBER,
+	ADMIN,
+	OWNER
+}
+
+export class ConversationUser {
+	username: string;
+    login42: string;
+    avatar: string;
+	role: ConversationRole
+
+	constructor(user: User, role: ConversationRole) {
+		this.username = user.username;
+		this.login42 = user.login42;
+		this.avatar = user.avatar;
+		this.role = role;
+	}
+}
 
 export class ConversationMessage {
 	login42: string;
@@ -17,8 +37,7 @@ export class ConversationMessage {
 
 export class Conversation {
 	id: number;
-	owner: UserProfile;
-	admins: UserProfile[];
-	members: UserProfile[];
+	isDM: boolean;
+	members: ConversationUser[];
 	messages: ConversationMessage[];
 }
