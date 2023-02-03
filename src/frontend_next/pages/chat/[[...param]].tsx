@@ -7,6 +7,7 @@ import {
   Label,
   Select,
   ToggleSwitch,
+  Alert,
 } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
@@ -27,11 +28,13 @@ const Chat = () => {
     }
   }, [router.query.param]);
   return (
-    <div className="flex w-full h-[calc(100vh-60px)]  ">
-      <ListFriends />
-      <ChatSection />
-      <Drawer drawer={drawer} setDrawer={setDrawer} />
-    </div>
+    <>
+     <div className="flex w-full h-[calc(100vh-60px)]  ">
+        <ListFriends />
+        <ChatSection />
+        <Drawer drawer={drawer} setDrawer={setDrawer} />
+      </div>
+    </>
   );
 };
 
@@ -166,6 +169,17 @@ const friendsExample = [
 //       login42: "aberdai",
 //     },
 //   ],
+  // discussion: [
+  //       {
+  //         user: {
+  //           username: "Aberdai",
+  //           avatar: "/aberdai.jpeg",
+  //           status: "online",
+  //           login42: "aberdai",
+  //         },
+  //         message: "hello",
+  //         date: "2021-08-01T12:00:00.000Z",
+  //       },
 // };
 
 // const examplechat = [
@@ -293,27 +307,6 @@ const Drawer = ({ drawer, setDrawer }) => {
   );
 };
 // list of all friends
-
-const FriendCard = ({ friend }: any) => {
-  const router = useRouter();
-  // console.log("friend ===================", friend);
-  const { lastmessage, status, name, avatar, id } = friend;
-  return (
-    <div className="flex p-2 " onClick={() => router.push(`/chat/${name}`)}>
-      <Avatar
-        className="mr-2 min-w-[50px]"
-        img={avatar}
-        status={status}
-        rounded={true}
-        statusPosition="bottom-right"
-      />
-      <div className="w-[75%]">
-        <div>{name}</div>
-        <div className="truncate">{lastmessage}</div>
-      </div>
-    </div>
-  );
-};
 
 const Msg = () => {
   return (

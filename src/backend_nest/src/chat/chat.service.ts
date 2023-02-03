@@ -1,5 +1,18 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { AdminOfChannel, Channel, ChannelType, MemberOfChannel, Message, User, UserBannedFromChannel, UserBlockedUser } from '@prisma/client';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  AdminOfChannel,
+  Channel,
+  ChannelType,
+  MemberOfChannel,
+  Message,
+  User,
+  UserBannedFromChannel,
+  UserBlockedUser,
+} from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BanUserDto, BlockUserDto, ChannelPasswordDto, CreateChannelDto, CreateDmDto, InviteUserToChannelDto, MuteUserDto, SendMessageDto, UpdateAdminDto, UserJoinChannelDto } from './dto';
 import { UserPrismaService } from 'src/prisma/user.service';
@@ -9,8 +22,10 @@ import { UserProfile } from 'src/users/interfaces';
 
 @Injectable()
 export class ChatService {
-    constructor(private readonly prisma: PrismaService,
-                private readonly userPrisma: UserPrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userPrisma: UserPrismaService,
+  ) {}
 
     async createRoom(data: CreateChannelDto) : Promise<Channel> {
         const user = await this.userPrisma.findUserByLogin42(data.login42);
@@ -134,33 +149,37 @@ export class ChatService {
         });
     }
 
-    async blockUser(data: BlockUserDto) : Promise<UserBlockedUser> {
-        const blocker = await this.userPrisma.findUserByLogin42(data.blockerLogin42);
-        const blockee = await this.userPrisma.findUserByLogin42(data.blockeeLogin42);
-        return await this.prisma.userBlockedUser.create({
-            data: {
-                blockerId: blocker.id,
-                blockeeId: blockee.id
-            }
-        });
-    }
+  async blockUser(data: BlockUserDto): Promise<UserBlockedUser> {
+    const blocker = await this.userPrisma.findUserByLogin42(
+      data.blockerLogin42,
+    );
+    const blockee = await this.userPrisma.findUserByLogin42(
+      data.blockeeLogin42,
+    );
+    return await this.prisma.userBlockedUser.create({
+      data: {
+        blockerId: blocker.id,
+        blockeeId: blockee.id,
+      },
+    });
+  }
 
-    async setChannelPassword(data: ChannelPasswordDto) : Promise<Channel> {
-        const user = await this.userPrisma.findUserByLogin42(data.login42);
-        const channel = await this.findChannelById(data.channelId);
-        if (channel.ownerId !== user.id) {
-            throw new UnauthorizedException();
-        }
-        return await this.prisma.channel.update({
-            where: {
-                id: data.channelId
-            },
-            data: {
-                isProtected: data.isProtected,
-                password: data.password
-            }
-        });
+  async setChannelPassword(data: ChannelPasswordDto): Promise<Channel> {
+    const user = await this.userPrisma.findUserByLogin42(data.login42);
+    const channel = await this.findChannelById(data.channelId);
+    if (channel.ownerId !== user.id) {
+      throw new UnauthorizedException();
     }
+    return await this.prisma.channel.update({
+      where: {
+        id: data.channelId,
+      },
+      data: {
+        isProtected: data.isProtected,
+        password: data.password,
+      },
+    });
+  }
 
     async upgradeToAdmin(data: UpdateAdminDto) : Promise<AdminOfChannel> {
         const user = await this.userPrisma.findUserByLogin42(data.login42);
@@ -180,25 +199,29 @@ export class ChatService {
         });
     }
 
-    async downgradeFromAdmin(data: UpdateAdminDto) : Promise<AdminOfChannel> {
-        const user = await this.userPrisma.findUserByLogin42(data.login42);
-        const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
-        const channel = await this.findChannelById(data.channelId);
-        if (channel.ownerId !== user.id) {
-            throw new UnauthorizedException();
-        }
-        if (!this.isAdminOfChannel({ userId: otherUser.id, channelId: channel.id })) {
-            throw new UnauthorizedException();
-        }
-        return await this.prisma.adminOfChannel.delete({
-            where: {
-                channelId_adminId: {
-                    channelId: channel.id,
-                    adminId: otherUser.id
-                }
-            }
-        });
+  async downgradeFromAdmin(data: UpdateAdminDto): Promise<AdminOfChannel> {
+    const user = await this.userPrisma.findUserByLogin42(data.login42);
+    const otherUser = await this.userPrisma.findUserByLogin42(
+      data.otherLogin42,
+    );
+    const channel = await this.findChannelById(data.channelId);
+    if (channel.ownerId !== user.id) {
+      throw new UnauthorizedException();
     }
+    if (
+      !this.isAdminOfChannel({ userId: otherUser.id, channelId: channel.id })
+    ) {
+      throw new UnauthorizedException();
+    }
+    return await this.prisma.adminOfChannel.delete({
+      where: {
+        channelId_adminId: {
+          channelId: channel.id,
+          adminId: otherUser.id,
+        },
+      },
+    });
+  }
 
     async muteUserFromChannel(data: MuteUserDto): Promise<UserBannedFromChannel> {
         const user = await this.userPrisma.findUserByLogin42(data.login42);
@@ -344,135 +367,152 @@ export class ChatService {
         });
     }
 
-    async getMyChannels(userId: number) : Promise<Channel[]> {
-        const memberOfChannels = await this.prisma.memberOfChannel.findMany({
-            where: {
-                userId,
+  async getMyChannels(userId: number): Promise<Channel[]> {
+    const memberOfChannels = await this.prisma.memberOfChannel.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        channel: true,
+      },
+    });
+    return memberOfChannels.map((element) => {
+      return element.channel;
+    });
+  }
+
+  async findChannelById(channelId: number): Promise<Channel> {
+    return await this.prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+    });
+  }
+
+  async setAdminOfChannel(data: {
+    adminId: number;
+    channelId: number;
+  }): Promise<AdminOfChannel> {
+    if (
+      await this.isAdminOfChannel({
+        userId: data.adminId,
+        channelId: data.channelId,
+      })
+    ) {
+      return await this.prisma.adminOfChannel.findUnique({
+        where: {
+          channelId_adminId: data,
+        },
+      });
+    }
+    return await this.prisma.adminOfChannel.create({
+      data,
+    });
+  }
+
+  async addMemberToChannel(data: {
+    userId: number;
+    channelId: number;
+  }): Promise<MemberOfChannel> {
+    if (await this.isMemberOfChannel(data)) {
+      return await this.prisma.memberOfChannel.findUnique({
+        where: {
+          channelId_userId: data,
+        },
+      });
+    }
+    return await this.prisma.memberOfChannel.create({
+      data,
+    });
+  }
+
+  async rmMemberFromChannel(data: { userId: number; channelId: number }) {
+    await this.prisma.memberOfChannel.delete({
+      where: {
+        channelId_userId: data,
+      },
+    });
+    await this.prisma.adminOfChannel.delete({
+      where: {
+        channelId_adminId: {
+          adminId: data.userId,
+          channelId: data.channelId,
+        },
+      },
+    });
+    const channel = await this.findChannelById(data.channelId);
+    if (channel.ownerId === data.userId) {
+      const randomAdmin = await this.prisma.adminOfChannel.findFirst({
+        where: {
+          channelId: channel.id,
+        },
+      });
+      if (randomAdmin) {
+        await this.prisma.channel.update({
+          where: {
+            id: channel.id,
+          },
+          data: {
+            ownerId: randomAdmin.adminId,
+          },
+        });
+      } else {
+        const randomMember = await this.prisma.memberOfChannel.findFirst({
+          where: {
+            channelId: channel.id,
+          },
+        });
+        if (randomMember) {
+          await this.prisma.adminOfChannel.create({
+            data: {
+              adminId: randomMember.userId,
+              channelId: channel.id,
             },
-            select: {
-                channel: true,
-            }
-        });
-        return memberOfChannels.map(element => {
-            return element.channel;
-        });
-    }
-
-    async findChannelById(channelId: number) : Promise<Channel> {
-        return await this.prisma.channel.findUnique({
+          });
+          await this.prisma.channel.update({
             where: {
-                id: channelId,
-            }
-        });
-    }
-
-    async setAdminOfChannel(data: { adminId: number, channelId: number }) : Promise<AdminOfChannel> {
-        if (await this.isAdminOfChannel({ userId: data.adminId, channelId: data.channelId })) {
-            return await this.prisma.adminOfChannel.findUnique({
-                where: {
-                    channelId_adminId: data
-                }
-            });
+              id: channel.id,
+            },
+            data: {
+              ownerId: randomMember.userId,
+            },
+          });
+        } else {
+          await this.prisma.channel.delete({
+            where: {
+              id: channel.id,
+            },
+          });
         }
-        return await this.prisma.adminOfChannel.create({
-            data,
-        });
+      }
     }
+  }
 
-    async addMemberToChannel(data : { userId: number, channelId: number }) : Promise<MemberOfChannel> {
-        if (await this.isMemberOfChannel(data)) {
-            return await this.prisma.memberOfChannel.findUnique({
-                where: {
-                    channelId_userId: data
-                }
-            });
-        }
-        return await this.prisma.memberOfChannel.create({
-            data,
-        });
-    }
+  async isAdminOfChannel(data: {
+    userId: number;
+    channelId: number;
+  }): Promise<boolean> {
+    const adminOfChannel = await this.prisma.adminOfChannel.findMany({
+      where: {
+        adminId: data.userId,
+        channelId: data.channelId,
+      },
+    });
+    return adminOfChannel.length > 0;
+  }
 
-    async rmMemberFromChannel(data: { userId: number, channelId: number }) {
-        await this.prisma.memberOfChannel.delete({
-            where: {
-                channelId_userId: data,
-            }
-        });
-        await this.prisma.adminOfChannel.delete({
-            where: {
-                channelId_adminId: {
-                    adminId: data.userId,
-                    channelId: data.channelId
-                }
-            }
-        });
-        const channel = await this.findChannelById(data.channelId);
-        if (channel.ownerId === data.userId) {
-            const randomAdmin = await this.prisma.adminOfChannel.findFirst({
-                where: {
-                    channelId: channel.id
-                }
-            });
-            if (randomAdmin) {
-                await this.prisma.channel.update({
-                    where: {
-                        id: channel.id,
-                    },
-                    data: {
-                        ownerId: randomAdmin.adminId
-                    }
-                });
-            } else {
-                const randomMember = await this.prisma.memberOfChannel.findFirst({
-                    where: {
-                        channelId: channel.id
-                    }
-                });
-                if (randomMember) {
-                    await this.prisma.adminOfChannel.create({
-                        data: {
-                            adminId: randomMember.userId,
-                            channelId: channel.id
-                        }
-                    });
-                    await this.prisma.channel.update({
-                        where: {
-                            id: channel.id
-                        },
-                        data: {
-                            ownerId: randomMember.userId
-                        }
-                    });
-                } else {
-                    await this.prisma.channel.delete({
-                        where: {
-                            id: channel.id
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    async isAdminOfChannel(data: { userId: number, channelId: number }) : Promise<boolean> {
-        const adminOfChannel = await this.prisma.adminOfChannel.findMany({
-            where: {
-                adminId: data.userId,
-                channelId: data.channelId
-            }
-        });
-        return adminOfChannel.length > 0;
-    }
-
-    async isMemberOfChannel(data : { userId: number, channelId: number }) : Promise<boolean> {
-        const memberOfChannel = await this.prisma.memberOfChannel.findMany({
-            where: {
-                userId: data.userId,
-                channelId: data.channelId
-            }
-        });
-        return memberOfChannel.length > 0;
-    }
+  async isMemberOfChannel(data: {
+    userId: number;
+    channelId: number;
+  }): Promise<boolean> {
+    const memberOfChannel = await this.prisma.memberOfChannel.findMany({
+      where: {
+        userId: data.userId,
+        channelId: data.channelId,
+      },
+    });
+    return memberOfChannel.length > 0;
+  }
 
     async isBannedFromChannel(data: { userId: number, channelId: number }) : Promise<boolean> {
         const userBannedFromChannel = await this.prisma.userBannedFromChannel.findMany({
