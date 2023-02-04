@@ -52,6 +52,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }
   // let initUsersocket: boolean = false;
   useEffect(() => {
+    if (!Router.isReady) return;
     if (!initsocket) {
       setGameSocket(io("/game"));
       initsocket = true;
@@ -89,7 +90,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         console.log("avalable", profile.login42)
       }
     }
-  }, [reloadApp, profile.login42]);
+  }, [reloadApp, profile.login42, Router.isReady]);
   return (
     <>
       <Head>
