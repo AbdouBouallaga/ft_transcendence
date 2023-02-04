@@ -1,14 +1,15 @@
+import { useRouter } from "next/router";
 import "../styles/globals.css";
 import "../styles/gameStyle.css";
 
 import Head from "next/head";
 import type { AppProps } from "next/app";
-import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
+  const Router = useRouter();
   const [reloadApp, setReloadApp] = useState<number>(0);
   const [Nav_active, setNav_active] = useState<boolean>(false);
   const [appReady, setappReady] = useState<boolean>(false);
@@ -30,17 +31,23 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     isError: boolean = false
   ) {
     //route and display content
+
     const apply = () => {
       setNav_active(nav);
       setappReady(app);
     };
     if (AppProps.router.route !== "/login" && !isError)
       uri = AppProps.router.route;
-    if (AppProps.router.route === "/welcome")
-      nav = false;
+    if (AppProps.router.route === "/welcome") nav = false;
     console.log("uri", uri);
     console.log("query", Router.query);
-    Router.replace({
+    console.log("r Ready", Router.isReady);
+
+    // while (!router.isReady);
+    // if (!Router.isReady) {
+    // await Router.reload();
+    // }
+    Router.push({
       pathname: uri,
       query: Router.query,
     });
@@ -48,7 +55,11 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }
 
   useEffect(() => {
-    console.log("app useEffect")
+    console.log("app useEffect");
+    if (!Router.isReady) {
+      console.log("app useEffect not ready");
+      return;
+    }
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
     } else {
@@ -59,7 +70,8 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
           .then((response) => {
             // console.log(response);
             console.log(response.data);
-            const { login42, username, avatar, tfaEnabled, friends } = response.data;
+            const { login42, username, avatar, tfaEnabled, friends } =
+              response.data;
             setProfile({
               login42,
               username,
@@ -79,7 +91,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       };
       fetchData();
     }
-  }, [reloadApp]);
+  }, [reloadApp, Router.isReady]);
   return (
     <>
       <Head>
@@ -94,7 +106,12 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar profile={profile} />}
-          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp}/>
+          <Component
+            {...pageProps}
+            profile={profile}
+            r={reloadApp}
+            setR={setReloadApp}
+          />
         </div>
       )}
     </>

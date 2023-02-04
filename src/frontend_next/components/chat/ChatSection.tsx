@@ -10,13 +10,15 @@ import {
   ToggleSwitch,
   Alert,
 } from "flowbite-react";
-import { useRouter } from "next/router";
+import { Router, useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Games from "../../components/icons/Games";
 import Menu from "../../components/icons/Menu";
+import EditRoom from "./EditRoom";
 
 const ChatSection = ({ profile }) => {
   const [messages, setMessages] = useState([]);
+
   const [data, setData] = useState({});
 
   const router = useRouter();
@@ -31,9 +33,11 @@ const ChatSection = ({ profile }) => {
     const res = await axios.get(`/api/chat/${id}`);
     const {
       status,
-      data: { isDM, members, messages, name },
+      data: { isDM, members, messages, name, isProtected, type },
     } = res;
-    status === 200 && (setMessages(messages), setData({ isDM, members, name }));
+    status === 200 &&
+      (setMessages(messages),
+      setData({ isDM, members, name, isProtected, type }));
     console.log(res.data);
   };
   return (
@@ -56,7 +60,8 @@ const HeaderOfChat = ({ profile, data }) => {
   const { isDM, members, name } = data;
   const { username } = profile;
   const myRole = role(members, username);
-  const [drawer, setDrawer] = useState(true);
+  const [drawer, setDrawer] = useState(false);
+  const [editRoom, setEditRoom] = useState(false);
 
   return (
     <div className="border-b border-gray-600 flex items-center justify-between mx-3">
@@ -100,18 +105,36 @@ const HeaderOfChat = ({ profile, data }) => {
           inline={true}
           arrowIcon={false}
         >
-          {myRole === "owner" && <Dropdown.Item>Change Pass</Dropdown.Item>}
+          {(myRole === "owner" || myRole === "admin") && (
+            <Dropdown.Item>Invite</Dropdown.Item>
+          )}
+          {myRole === "owner" && (
+            <Dropdown.Item onClick={() => setEditRoom(true)}>
+              Edit Room
+            </Dropdown.Item>
+          )}
           <Dropdown.Item
             onClick={() => {
               setDrawer(true);
             }}
           >
-            All members
+            All Members
           </Dropdown.Item>
           <Dropdown.Item>Leave</Dropdown.Item>
         </Dropdown>
       )}
       <Drawer drawer={drawer} setDrawer={setDrawer} />
+      <Modal
+        show={editRoom}
+        size="md"
+        popup={true}
+        onClose={() => setEditRoom(false)}
+      >
+        <Modal.Header />
+        <Modal.Body>
+          <EditRoom setEditRoom={setEditRoom} data={data} />
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
@@ -181,7 +204,7 @@ const BodyOfChat = ({ messages, profile }) => {
 const SendMsg = () => {
   return (
     <div className="w-full mt-4">
-      <form className="w-full">
+      <form className="w-full" autocomplete="off">
         <div className="relative w-full">
           <input
             type="search"
@@ -213,7 +236,7 @@ const Drawer = ({ drawer, setDrawer }) => {
         id="drawer-right-label"
         className="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"
       >
-        Right drawer
+        All Members
       </h5>
       <button
         onClick={() => setDrawer(false)}

@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { ChannelType, User } from '@prisma/client';
 
 export enum ConversationRole {
   MEMBER,
@@ -38,6 +38,8 @@ export class Conversation {
   id: number;
   name: string;
   isDM: boolean;
+  type: ChannelType;
+  isProtected: boolean;
   members: ConversationUser[];
   messages: ConversationMessage[];
 }

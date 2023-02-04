@@ -6,8 +6,6 @@ const Chat = () => {
     <>
       <div className="flex w-full h-[calc(100vh-60px)]  ">
         <ListFriends />
-        {/* <ChatSection />
-        <Drawer drawer={drawer} setDrawer={setDrawer} /> */}
       </div>
     </>
   );

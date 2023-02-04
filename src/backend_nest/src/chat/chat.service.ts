@@ -76,11 +76,20 @@ export class ChatService {
   }
 
   async updateRoom(data: CreateChannelDto): Promise<Channel> {
+    const channel = await this.prisma.channel.findUnique({
+      where: {
+        name: data.name,
+      },
+    });
+    if (!data.password) {
+      data.password = channel.password;
+    }
+    data.password = await argon.hash(data.password);
     return await this.prisma.channel.update({
       where: {
-        name: data.name
+        name: data.name,
       },
-      data
+      data,
     });
   }
 
@@ -458,6 +467,8 @@ export class ChatService {
       id: channelId,
       name: channel.name,
       isDM: channel.type === ChannelType.DIRECT,
+      isProtected: channel.isProtected,
+      type: channel.type,
       members,
       messages,
     };
