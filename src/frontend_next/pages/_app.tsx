@@ -3,7 +3,7 @@ import "../styles/gameStyle.css";
 
 import Head from "next/head";
 import type { AppProps } from "next/app";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
@@ -11,6 +11,7 @@ import { io } from "socket.io-client";
 import { Socket } from "dgram";
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
+  let Router = useRouter();
   const [gameSocket, setGameSocket] = useState<any>(null);
   let initsocket: boolean = false;
   const [reloadApp, setReloadApp] = useState<number>(0);
