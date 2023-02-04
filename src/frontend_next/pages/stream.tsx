@@ -59,8 +59,8 @@ const index = (props: any) => {
                         }
                     </Carousel>
                     :
-                    <div className='container min-h-screen mx-auto px-4 grid place-items-center min-w-fit'  >
-                        <div className='aero login w-auto rounded-lg  min-h-[300px] shadow-lg m-2 p-2 grid place-items-center ' >
+                    <div className='container mx-auto px-4 grid place-items-center min-w-fit'  >
+                        <div className='aero login w-auto rounded-lg  min-h-[200px] shadow-lg m-20 p-2 grid place-items-center ' >
                             <h1 className='text-2xl font-bold text-center'>No games</h1>
                         </div>
                     </div>
