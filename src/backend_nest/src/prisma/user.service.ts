@@ -40,6 +40,14 @@ export class UserPrismaService {
         });
     }
 
+    async findUserById(id: number) : Promise<User> {
+        return await this.prisma.user.findUnique({
+            where: {
+                id,
+            }
+        });
+    }
+
     async createUser(login42: string, avatar: string) : Promise<User> {
         return await this.prisma.user.create({
             data: {
