@@ -53,7 +53,7 @@ const game = (props: any) => {
     console.log("sss", l);
     console.log("sssq ", mapsel);
     socket.emit("joinGame", {
-      room: room, //was roomFallback
+      room: room === '' ? roomFallback : room, //was roomFallback
       rounds: rds, // rounds
       map: map[l],
       login: props.profile.login42,
@@ -229,6 +229,7 @@ const game = (props: any) => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", (e) => {});
       document.removeEventListener("keyup", (e) => {});
+      props.gameSocket.emit("setUserStatus", { login42 : props.profile.login42 ,status: 1 });
       // socket.emit("disconnect");
       setTimeout(() => {
         socket.close();
@@ -241,6 +242,7 @@ const game = (props: any) => {
   let m = false;
   useEffect(() => { // initialize game after the page is loaded then start the game
     if (!m) {
+      props.gameSocket.emit("setUserStatus", { login42 : props.profile.login42 ,status: 2 });
       m = true;
       setSocket(io("/game"));
     }

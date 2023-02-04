@@ -262,7 +262,7 @@ function requestedUpdate(io, room, delta) {
   }, delta);
   // // console.log('room', room,'set interval ID: ', rooms[room].Interval);
 }
-
+let users: any = {};
 @Injectable()
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnModuleInit {
@@ -270,25 +270,50 @@ export class GameGateway implements OnModuleInit {
 
   @WebSocketServer()
   server: Server;
-  private users: {login42:string, socketId:string}[] = [];
+  // private users: {login42:string, socketId:string, status:number}[] = [];
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
       // console.log(socket.id);
       try {
+        // USERS STATUS MANAGEMENT
         socket.on('initUser', (data) => {
-          console.log('initUser', data);
-          this.users[data] = {login42 : data, socketId : socket.id};
+          // console.log('initUser', data);
+          users[data] = { login42: data, socketId: socket.id, status: 1, life : 10 };
+          this.server.emit("updateUserStatus", users);
+          let interval = setInterval(() => {
+            if (users[data].status > 0 && users[data].life > 0) {
+              console.log("TIK TOK")
+              users[data].life--;
+            } else {
+              clearInterval(interval);
+              users[data].status = 0;
+              this.server.emit("updateUserStatus", users);
+            }
+          }, 5000);
         });
-        socket.on("sendInviteToPlay", (data:any) => {
+        // console.log("status on init", users);
+        socket.on("setUserStatus", (data: any) => {
+          if (data.login42 in users) {
+            users[data.login42].status = data.status;
+            users[data.login42].life = 6;
+            // console.log("status", users);
+            this.server.emit("updateUserStatus", users);
+          }
+        });
+        socket.on("getUsersStatus", () => {
+          socket.emit("updateUserStatus", users);
+        });
+        ///////////////////////////
+        socket.on("sendInviteToPlay", (data: any) => {
           console.log(data);
-          let from:string = data.from;
-          let to:string = data.to;
-          let onRoom:string = data.Room;
+          let from: string = data.from;
+          let to: string = data.to;
+          let onRoom: string = data.Room;
           console.log("sendInviteToPlay", from, to, onRoom);
-          console.log("sendInviteToPlay", this.users);
-          if (this.users[to])
-            this.server.to(this.users[to].socketId).emit("inviteToPlay", data);
+          console.log("sendInviteToPlay", users);
+          if (users[to])
+            this.server.to(users[to].socketId).emit("inviteToPlay", data);
         });
         socket.on('joinGame', (data) => {
           let found = false;
@@ -483,8 +508,5 @@ export class GameGateway implements OnModuleInit {
     });
   }
 
-  @SubscribeMessage('message')
-  onNewMessage(@MessageBody() body: any) {
-    // console.log(body);
-  }
+
 }

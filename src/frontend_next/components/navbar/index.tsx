@@ -120,6 +120,7 @@ const Navbar = (props: any) => {
                   <Dropdown.Divider />
                   <Dropdown.Item
                     onClick={() => {
+                      props.gameSocket.emit("setUserStatus", { login42: profile.login42, status: 0 });
                       Router.push("/api/auth/logout");
                     }}
                   >
