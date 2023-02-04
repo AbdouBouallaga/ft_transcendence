@@ -36,6 +36,7 @@ import {
   ConversationUser,
 } from './interfaces';
 import { UserProfile } from 'src/users/interfaces';
+import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class ChatService {
@@ -72,6 +73,15 @@ export class ChatService {
       channelId: channel.id,
     });
     return channel;
+  }
+
+  async updateRoom(data: CreateChannelDto): Promise<Channel> {
+    return await this.prisma.channel.update({
+      where: {
+        name: data.name
+      },
+      data
+    });
   }
 
   async createDirectMessage(data: CreateDmDto): Promise<Channel> {

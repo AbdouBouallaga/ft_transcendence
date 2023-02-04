@@ -27,7 +27,6 @@ export class ConversationMessage {
   message: string;
 
   constructor(message: any) {
-    console.log('message', message);
     this.login42 = message.sender.login42;
     this.username = message.sender.username;
     this.date = message.createdAt;
