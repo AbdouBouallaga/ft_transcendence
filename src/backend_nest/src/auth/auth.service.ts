@@ -11,7 +11,9 @@ export class AuthService {
     async validateUser(login42: string, avatar: string) : Promise<User> {
         return await this.userPrisma.findOrCreateUser(login42, avatar);
     }
-
+    async verifyAccessToken(jwt: string): Promise<any> {
+        return await this.jwtService.verifyAsync(jwt, { secret: process.env.JWT_SECRET });
+    }
     login42(req: any) : { access_token: string, login42: string } {
         if (!req.user) {
             throw new UnauthorizedException();
