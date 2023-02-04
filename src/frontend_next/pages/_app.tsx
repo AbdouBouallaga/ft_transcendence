@@ -3,16 +3,20 @@ import "../styles/gameStyle.css";
 
 import Head from "next/head";
 import type { AppProps } from "next/app";
-import Router, { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { use, useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import axios from "axios";
+import { io } from "socket.io-client";
+import { Socket } from "dgram";
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
+  let Router = useRouter();
+  const [gameSocket, setGameSocket] = useState<any>(null);
+  let initsocket: boolean = false;
   const [reloadApp, setReloadApp] = useState<number>(0);
   const [Nav_active, setNav_active] = useState<boolean>(false);
   const [appReady, setappReady] = useState<boolean>(false);
-  const [data, setData] = useState<any>({});
   const [profile, setProfile] = useState<any>({
     login42: "",
     username: "",
@@ -38,6 +42,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       uri = AppProps.router.route;
     if (AppProps.router.route === "/welcome")
       nav = false;
+
     console.log("uri", uri);
     console.log("query", Router.query);
     Router.replace({
@@ -46,14 +51,18 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     });
     Router.events.on("routeChangeComplete", apply); /// this is the key
   }
-
+  // let initUsersocket: boolean = false;
   useEffect(() => {
+    if (!Router.isReady) return;
+    if (!initsocket) {
+      setGameSocket(io("/game"));
+      initsocket = true;
+    }
     console.log("app useEffect")
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
     } else {
       const fetchData = async () => {
-        // let appRootContainer = document.getElementById('appRootContainer');
         axios
           .get("/api/users/me/fullprofile")
           .then((response) => {
@@ -67,7 +76,6 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
               tfaEnabled,
               friends,
             });
-            setData(response.data);
             if (response.data.login42) {
               routeMo("/", true, true);
             }
@@ -78,8 +86,12 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
           });
       };
       fetchData();
+      if (profile.login42 !== ''){
+        gameSocket.emit("initUser", profile.login42);
+        console.log("avalable", profile.login42)
+      }
     }
-  }, [reloadApp]);
+  }, [reloadApp, profile.login42, Router.isReady]);
   return (
     <>
       <Head>
@@ -93,8 +105,8 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       </Head>
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
-          {Nav_active && <Navbar profile={profile} />}
-          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp}/>
+          {Nav_active && <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />}
+          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket} />
         </div>
       )}
     </>

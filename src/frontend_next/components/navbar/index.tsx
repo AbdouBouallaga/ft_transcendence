@@ -4,38 +4,64 @@ import Router, { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
-import { Dropdown, Avatar, Modal, Button, TextInput } from "flowbite-react";
+import { Dropdown, Avatar, Modal, Button, TextInput, Alert } from "flowbite-react";
 import Cast from "../icons/Cast";
 import Chat from "../icons/Chat";
 
-const Navbar = ({ profile }: any) => {
+const Navbar = (props: any) => {
+  let profile = props.profile;
   const [searchModal, setSearchModal] = useState(false);
   const [c, setC] = useState(0)
   const [results, setResults] = useState([])
   const searchRef = React.useRef(null);
+  const [inviteinfo, setInviteinfo] = useState<{ to: string, room: string }>({ to: "", room: "" })
+  const [inviteAlert, setInviteAlert] = useState(false)
+  let init: boolean = false;
   useEffect(() => {
+    if (!init) {
+      props.gameSocket.on("inviteToPlay", (data: any) => {
+        console.log(data);
+        setInviteinfo(data)
+        setInviteAlert(true)
+      });
+      init = true;
+    }
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (searchRef.current) {
+          searchRef.current.value = "";
+        }
+        setSearchModal(false)
+      }
+    });
     console.log(searchRef?.current?.value);
     if (searchRef?.current?.value)
-    axios.get(`/api/users/find/`+searchRef?.current?.value)
-      .then((response) => {
-        setResults(response.data)
-        console.log(response);
-      })
+      axios.get(`/api/users/find/` + searchRef?.current?.value)
+        .then((response) => {
+          setResults(response.data)
+          console.log(response);
+        })
     else
       setResults([])
   }, [c]);
   return (
     <>
-      <nav id="Navbar" className="h-[60px] flex items-center min-w-fit sticky">
+      <nav id="Navbar" className="z-50 h-[60px] flex items-center min-w-fit sticky">
         <div className=" container mx-auto flex items-center justify-betwee px-2">
-            <button onClick={() => {Router.push("/");}} className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              PingPong
-            </button>
+          <button onClick={() => { Router.push("/"); }} className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+            PingPong
+          </button>
           <div className=" w-full flex justify-end">
             <ul className="flex items-center flex-row space-x-3 text-sm font-medium  ">
               <li>
                 <button className="m-1">
-                  <svg onClick={() => { setSearchModal(!searchModal) }} aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                  <svg onClick={() => {
+                    setSearchModal(!searchModal)
+                    setTimeout(() => {
+                      searchRef.current.focus()
+                    }, 100);
+                  }}
+                    aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </button>
               </li>
               <li>
@@ -50,7 +76,9 @@ const Navbar = ({ profile }: any) => {
                 </button>
               </li>
               <li>
-                <Cast />
+                <button className="m-1" onClick={() => { Router.push("/stream") }}>
+                  <Cast />
+                </button>
               </li>
               <li>
                 <a
@@ -92,6 +120,7 @@ const Navbar = ({ profile }: any) => {
                   <Dropdown.Divider />
                   <Dropdown.Item
                     onClick={() => {
+                      props.gameSocket.emit("setUserStatus", { login42: profile.login42, status: 0 });
                       Router.push("/api/auth/logout");
                     }}
                   >
@@ -134,7 +163,7 @@ const Navbar = ({ profile }: any) => {
                     setResults([]);
                     if (searchRef.current !== null)
                       searchRef.current.value = "";
-                    Router.replace(`/profile/`+e?.login42)
+                    Router.push(`/profile/` + e?.login42)
                   }}>
                     <Avatar
                       alt="Nav Drop settings"
@@ -152,6 +181,29 @@ const Navbar = ({ profile }: any) => {
             </div>
           </Modal.Body>
         </Modal>
+        {inviteAlert &&
+          <Alert
+            className="z-50 w-auto h-[73px] fixed bottom-0 right-0 m-1 top-20"
+            color="success"
+            onDismiss={() => {
+              setInviteinfo({ to: "", room: "" });
+              setInviteAlert(false);
+            }}
+          >
+            <span className="flex">
+              <span className="font-medium font-bold m-2">
+                {inviteinfo.to} invited you to a game
+              </span>
+              <span className="block text-sm text-gray-500">
+                <Button onClick={() => {
+                  Router.push("/game/" + inviteinfo.room);
+                  setInviteinfo({ to: "", room: "" });
+                  setInviteAlert(false);
+                }} className="ml-2" color="success">Join</Button>
+              </span>
+            </span>
+          </Alert>
+        }
       </nav>
     </>
   );

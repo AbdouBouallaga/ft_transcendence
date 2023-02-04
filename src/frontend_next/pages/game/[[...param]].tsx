@@ -53,13 +53,13 @@ const game = (props: any) => {
     console.log("sss", l);
     console.log("sssq ", mapsel);
     socket.emit("joinGame", {
-      room: roomFallback,
+      room: room === '' ? roomFallback : room, //was roomFallback
       rounds: rds, // rounds
       map: map[l],
       login: props.profile.login42,
       UN: props.profile.username,
       avatar: props.profile.avatar,
-      player : playerFallback
+      player: playerFallback
     });
     roomScreen.current.style.display = "none";
     waitingForGame.current.style.display = "block";
@@ -144,10 +144,10 @@ const game = (props: any) => {
 
     socket.on("startGame", (s: string) => {
       console.log("on startGame event: ", s);
-      gameStarted = true;
-      if (mySide === "left") {
+      if (mySide === "left" && !gameStarted) {
         socket.emit("updateGameStart", s);
       }
+      gameStarted = true;
       waitingForGame.current.style.display = "none";
       setLeftScore(0);
       setRightScore(0);
@@ -183,12 +183,18 @@ const game = (props: any) => {
     });
 
     socket.on("Won", (side: number) => {
-      console.log("Won: ", side);
-      setWinner(side);
-      setWinnerModal(true);
-      console.log("mySide: ", mySide, "winner side: ", side);
-      if ((side === 0 && mySide === 'left') || (side === 1 && mySide === 'right'))
-        socket.emit("saveScoreToDB", room);
+      if (gameStarted) {
+        console.log("Won: ", side);
+        setWinner(side);
+        setWinnerModal(true);
+        console.log("mySide: ", mySide, "winner side: ", side);
+        if ((side === 0 && mySide === 'left') || (side === 1 && mySide === 'right'))
+          socket.emit("saveScoreToDB", room);
+      }
+      else {
+        joinGame();
+      }
+      gameStarted = false;
       // socket.close();
     });
 
@@ -215,16 +221,20 @@ const game = (props: any) => {
       joinGame(0, mapSel, Rounds);
     }
     return () => {
+      socket.off("Won");
       console.log("out", room);
       document.body.style.setProperty("--bg-color", document.body.style.getPropertyValue("--Default-color"));
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
       document.body.style.overflow = "";
-      socket.emit("disconnecte", room);
+      document.removeEventListener("keydown", (e) => {});
+      document.removeEventListener("keyup", (e) => {});
+      props.gameSocket.emit("setUserStatus", { login42 : props.profile.login42 ,status: 1 });
+      // socket.emit("disconnect");
       setTimeout(() => {
         socket.close();
         console.log('socket closed');
-      }, 500);
+      }, 100);
 
     }
   }, [socket]);
@@ -232,6 +242,7 @@ const game = (props: any) => {
   let m = false;
   useEffect(() => { // initialize game after the page is loaded then start the game
     if (!m) {
+      props.gameSocket.emit("setUserStatus", { login42 : props.profile.login42 ,status: 2 });
       m = true;
       setSocket(io("/game"));
     }
@@ -243,9 +254,7 @@ const game = (props: any) => {
     }
   }
     , [init]);
-  function reload() {
-    router.reload();
-  }
+
 
   return (
     <>
@@ -289,7 +298,8 @@ const game = (props: any) => {
         </div>
         <div ref={waitingForGame} className="aero content-center p-6 rounded-lg shadow-lg bg-gray-50" style={{ display: "none" }}>
           <div className="text-center">
-            <h1>Waiting for another player...</h1>
+            <h1 className="font-bold">Waiting for your opponent...</h1>
+            <p>Move paddle: key up and down </p>
             {/* <p>Share this room ID with your friend: <span ref={roomIdspan}></span></p> */}
             <Spinner
               aria-label="loading"
@@ -313,31 +323,33 @@ const game = (props: any) => {
               </div>
             </div>
           </Modal.Body>
-          {mySideFallback !== "spectator" &&
-            <Modal.Footer>
-              <div className="flex flex-row w-full place-content-between">
-                <Button onClick={() => {
-                  setWinnerModal(false);
-                  joinGame();
-                }}>
-                  Re-match !
-                </Button>
-                <Button onClick={() => {
-                  router.reload();
-                }}>
-                  Play again !
-                </Button>
-                <Button
-                  color="gray"
-                  onClick={() => {
-                    router.push("/");
-                  }}
-                >
-                  Quit
-                </Button>
-              </div>
-            </Modal.Footer>
-          }
+          <Modal.Footer>
+            <div className="flex flex-row w-full place-content-between">
+              {mySideFallback !== "spectator" &&
+                <>
+                  <Button onClick={() => {
+                    setWinnerModal(false);
+                    joinGame();
+                  }}>
+                    Re-match !
+                  </Button>
+                  <Button onClick={() => {
+                    router.reload();
+                  }}>
+                    Play again !
+                  </Button>
+                </>
+              }
+              <Button
+                color="gray"
+                onClick={() => {
+                  router.push("/");
+                }}
+              >
+                Quit
+              </Button>
+            </div>
+          </Modal.Footer>
         </Modal>
       </div>
     </>)
