@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "ChannelType" AS ENUM ('PUBLIC', 'PRIVATE', 'DIRECT');
 
+-- CreateEnum
+CREATE TYPE "MemberRole" AS ENUM ('MEMBER', 'ADMIN', 'OWNER');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
@@ -43,7 +46,6 @@ CREATE TABLE "channels" (
     "type" "ChannelType" NOT NULL,
     "isProtected" BOOLEAN NOT NULL DEFAULT false,
     "password" TEXT,
-    "ownerId" INTEGER NOT NULL,
 
     CONSTRAINT "channels_pkey" PRIMARY KEY ("id")
 );
@@ -52,16 +54,11 @@ CREATE TABLE "channels" (
 CREATE TABLE "MemberOfChannel" (
     "channelId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
+    "role" "MemberRole" NOT NULL,
+    "isMuted" BOOLEAN NOT NULL DEFAULT false,
+    "hasLeft" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "MemberOfChannel_pkey" PRIMARY KEY ("channelId","userId")
-);
-
--- CreateTable
-CREATE TABLE "AdminOfChannel" (
-    "channelId" INTEGER NOT NULL,
-    "adminId" INTEGER NOT NULL,
-
-    CONSTRAINT "AdminOfChannel_pkey" PRIMARY KEY ("channelId","adminId")
 );
 
 -- CreateTable
@@ -76,9 +73,6 @@ CREATE TABLE "UserBlockedUser" (
 CREATE TABLE "UserBannedFromChannel" (
     "channelId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
-    "isBanned" BOOLEAN NOT NULL DEFAULT false,
-    "duration" INTEGER NOT NULL DEFAULT 15,
-    "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "UserBannedFromChannel_pkey" PRIMARY KEY ("channelId","userId")
 );
@@ -116,19 +110,10 @@ ALTER TABLE "games" ADD CONSTRAINT "games_idPlayer1_fkey" FOREIGN KEY ("idPlayer
 ALTER TABLE "games" ADD CONSTRAINT "games_idPlayer2_fkey" FOREIGN KEY ("idPlayer2") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "channels" ADD CONSTRAINT "channels_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "MemberOfChannel" ADD CONSTRAINT "MemberOfChannel_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "channels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MemberOfChannel" ADD CONSTRAINT "MemberOfChannel_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "AdminOfChannel" ADD CONSTRAINT "AdminOfChannel_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "channels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "AdminOfChannel" ADD CONSTRAINT "AdminOfChannel_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserBlockedUser" ADD CONSTRAINT "UserBlockedUser_blockerId_fkey" FOREIGN KEY ("blockerId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
