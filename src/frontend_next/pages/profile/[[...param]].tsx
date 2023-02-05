@@ -362,7 +362,22 @@ const Profile = (props: any) => {
                     }, 250);
                   }}>UnFollow</Button>
                 }
-                <Button className='m-2' onClick={() => { router.push("/chat/" + profile.username) }}>Direct message</Button>
+                <Button className='m-2' onClick={() => { 
+                  axios({
+          method: 'POST',
+          url: '/api/chat/createDM',
+          data: {
+            otherLogin42: profile.login42,
+          },
+        })
+        .then((response) => {
+          router.push("/chat/"+response.data.id);
+        console.log(response.data)
+          })
+          .catch((error) => {
+        console.log(error)
+          });
+                }}>Direct message</Button>
                 <Button className='m-2' onClick={() => {
                   let room = uuidv4();
                   setTimeout(() => {

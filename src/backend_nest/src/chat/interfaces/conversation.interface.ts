@@ -37,6 +37,7 @@ export class ConversationMessage {
 export class Conversation {
   id: number;
   name: string;
+  avatar: string;
   isDM: boolean;
   type: ChannelType;
   isProtected: boolean;

@@ -30,15 +30,13 @@ model User {
   gamesCreated Game[] @relation("hasCreatedGame")
   gamesJoined  Game[] @relation("hasJoinedGame")
 
-  ownerOfChannels Channel[]        @relation("isOwnerOfChannel")
-  AdminOfChannel  AdminOfChannel[]
-  MemberOfChannel MemberOfChannel[]
+  memberOf MemberOfChannel[]
 
-  blockerOf  UserBlockedUser[]       @relation("haveBlockedUsers")
-  blockedBy  UserBlockedUser[]       @relation("isBlockedByUsers")
-  bannedFrom UserBannedFromChannel[]
+  blockerOf UserBlockedUser[] @relation("haveBlockedUsers")
+  blockedBy UserBlockedUser[] @relation("isBlockedByUsers")
 
-  Message         Message[]
+  messages               Message[]
+  isBannedFrom UserBannedFromChannel[]
 
   @@map("users")
 }
@@ -74,22 +72,24 @@ enum ChannelType {
   DIRECT
 }
 
+enum MemberRole {
+  MEMBER
+  ADMIN
+  OWNER
+}
+
 model Channel {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 
-  name        String @unique
+  name        String      @unique
   type        ChannelType
   isProtected Boolean     @default(false)
   password    String?
 
-  owner   User @relation("isOwnerOfChannel", fields: [ownerId], references: [id])
-  ownerId Int
-
-  UserBannedFromChannel UserBannedFromChannel[]
-  Message               Message[]
-  AdminOfChannel        AdminOfChannel[]
-  MemberOfChannel       MemberOfChannel[]
+  messages              Message[]
+  members               MemberOfChannel[]
+  bannedUsers UserBannedFromChannel[]
 
   @@map(name: "channels")
 }
@@ -101,17 +101,11 @@ model MemberOfChannel {
   user   User @relation(fields: [userId], references: [id])
   userId Int
 
+  role      MemberRole
+  isMuted   Boolean    @default(false)
+  hasLeft   Boolean    @default(false)
+
   @@id([channelId, userId])
-}
-
-model AdminOfChannel {
-  channel   Channel @relation(fields: [channelId], references: [id])
-  channelId Int
-
-  admin   User @relation(fields: [adminId], references: [id])
-  adminId Int
-
-  @@id([channelId, adminId])
 }
 
 model UserBlockedUser {
@@ -130,10 +124,6 @@ model UserBannedFromChannel {
 
   user   User @relation(fields: [userId], references: [id])
   userId Int
-
-  isBanned   Boolean @default(false)
-  duration  Int @default(15)
-  startedAt DateTime @default(now())
 
   @@id([channelId, userId])
 }
