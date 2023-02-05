@@ -6,3 +6,4 @@ export * from './ban-user.dto';
 export * from './send-message.dto';
 // export * from "./get-message.dto";
 export * from './join-channel.dto';
+export * from './enter-room.dto';
