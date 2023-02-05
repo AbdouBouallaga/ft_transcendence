@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import Router, { useRouter } from "next/router";
 import Link from "next/link";
@@ -13,18 +13,18 @@ const Navbar = (props: any) => {
   const [searchModal, setSearchModal] = useState(false);
   const [c, setC] = useState(0)
   const [results, setResults] = useState([])
-  const searchRef:any = React.useRef(null);
-  const [inviteinfo, setInviteinfo] = useState<{ to: string, room: string }>({ to: "", room: "" })
+  const searchRef: any = React.useRef(null);
+  const [inviteinfo, setInviteinfo] = useState<{ from: string, room: string }>({ from: "", room: "" })
   const [inviteAlert, setInviteAlert] = useState(false)
-  let init: boolean = false;
+  let init = useRef<boolean>(false)
   useEffect(() => {
-    if (!init) {
+    if (!init.current) {
       props.gameSocket.on("inviteToPlay", (data: any) => {
         console.log(data);
         setInviteinfo(data)
         setInviteAlert(true)
       });
-      init = true;
+      init.current = true;
     }
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
@@ -58,7 +58,7 @@ const Navbar = (props: any) => {
                     setSearchModal(!searchModal)
                     setTimeout(() => {
                       if (searchRef.current)
-                          searchRef.current.focus();
+                        searchRef.current.focus();
                     }, 100);
                   }}
                     aria-hidden="true" className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -113,11 +113,10 @@ const Navbar = (props: any) => {
                   >
                     Profile
                   </Dropdown.Item>
-                  <Dropdown.Item>Settings</Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item
                     onClick={() => {
-                      props.gameSocket.emit("setUserStatus", { login42: profile.login42, status: 0 });
+                      props.gameSocket.emit("setUserStatus", { login42: profile.username, status: 0 });
                       Router.push("/api/auth/logout");
                     }}
                   >
@@ -154,20 +153,20 @@ const Navbar = (props: any) => {
             </form>
             <div className="flex-1 m-2">
               <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-                {results.map((e:any, i) =>
-                  <div className="relative m-2" style={{ width: 80 }} onClick={() => {
+                {results.map((e: any, i: number) =>
+                  <div key={i} className="relative m-2" style={{ width: 80 }} onClick={() => {
                     setSearchModal(!searchModal);
                     setResults([]);
                     if (searchRef.current !== null)
                       searchRef.current.value = "";
-                    Router.push(`/profile/` + e?.login42)
+                    Router.push(`/profile/` + e?.username)
                   }}>
                     <Avatar
                       alt="Nav Drop settings"
                       img={e?.avatar}
                       rounded={false}
                       size="lg"
-                      status="online"
+                    // status="online"
                     />
                     <div className="font-bold aero w-full" >
                       {e.username}
@@ -183,18 +182,18 @@ const Navbar = (props: any) => {
             className="z-50 w-auto h-[73px] fixed bottom-0 right-0 m-1 top-20"
             color="success"
             onDismiss={() => {
-              setInviteinfo({ to: "", room: "" });
+              setInviteinfo({ from: "", room: "" });
               setInviteAlert(false);
             }}
           >
             <span className="flex">
               <span className="font-medium font-bold m-2">
-                {inviteinfo.to} invited you to a game
+                {inviteinfo.from} invited you to a game
               </span>
               <span className="block text-sm text-gray-500">
                 <Button onClick={() => {
                   Router.push("/game/" + inviteinfo.room);
-                  setInviteinfo({ to: "", room: "" });
+                  setInviteinfo({ from: "", room: "" });
                   setInviteAlert(false);
                 }} className="ml-2" color="success">Join</Button>
               </span>

@@ -1,4 +1,3 @@
-
 import { Avatar, Badge, Button, Modal, Spinner, Tabs } from "flowbite-react";
 import { LegacyRef, SetStateAction, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
@@ -10,7 +9,7 @@ import io from "socket.io-client";
 const PADDLE_MOVE_DISTANCE = 0.8;
 
 
-const game = (props: any) => {
+const Game = (props: any) => {
   const router = useRouter()
   // const { id } = router.query
   // console.log("id fgame ",id)
@@ -30,13 +29,12 @@ const game = (props: any) => {
   const waitingForGame = useRef<any>(null);
   const roomId = useRef<any>(null);
   const map: string[] = ['Normal', 'Pool', 'Retro', 'Space']
-  const [rounds, setRounds] = useState<number>(5);
+  let [rounds, setRounds] = useState<number>(5);
   const [PlayersPics, setPlayersPics] = useState<string[]>([]);
   const [PlayersUNs, setPlayersUN] = useState<string[]>([]);
   const [winner, setWinner] = useState<number>(5);
   const [mapsel, setMapsel] = useState<number>(0);
   let mapSel = 0;
-  let Rounds = 5;
   const [winnerModal, setWinnerModal] = useState<boolean>(false);
   const [roomFallback, setRoom] = useState<string>("")
   const [mySideFallback, setMyside] = useState<string>("")
@@ -214,11 +212,9 @@ const game = (props: any) => {
         mapSel = parseInt(router.query.param[1]);
       else mapSel = mapsel;
       if (router.query.param[2])
-        Rounds = parseInt(router.query.param[2]);
-      else Rounds = rounds;
-      setRounds(parseInt(router.query.param[2]));
-      console.log("joinGame with room: ", room, " map: ", map[mapSel], " rounds: ", Rounds);
-      joinGame(0, mapSel, Rounds);
+        setRounds(parseInt(router.query.param[2]));
+      console.log("joinGame with room: ", room, " map: ", map[mapSel], " rounds: ", rounds);
+      joinGame(0, mapSel, rounds);
     }
     return () => {
       socket.off("Won");
@@ -227,9 +223,9 @@ const game = (props: any) => {
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
       document.body.style.overflow = "";
-      document.removeEventListener("keydown", (e) => {});
-      document.removeEventListener("keyup", (e) => {});
-      props.gameSocket.emit("setUserStatus", { login42 : props.profile.login42 ,status: 1 });
+      document.removeEventListener("keydown", (e) => { });
+      document.removeEventListener("keyup", (e) => { });
+      props.gameSocket.emit("setUserStatus", { login42: props.profile.username, status: 1 });
       // socket.emit("disconnect");
       setTimeout(() => {
         socket.close();
@@ -242,7 +238,7 @@ const game = (props: any) => {
   let m = false;
   useEffect(() => { // initialize game after the page is loaded then start the game
     if (!m) {
-      props.gameSocket.emit("setUserStatus", { login42 : props.profile.login42 ,status: 2 });
+      props.gameSocket.emit("setUserStatus", { login42: props.profile.username, status: 2 });
       m = true;
       setSocket(io("/game"));
     }
@@ -291,7 +287,7 @@ const game = (props: any) => {
             <div className="form-group">
               <input ref={roomId} type="text" placeholder="Enter Room" id="room-id" className="rounded-l" />
             </div>
-            <Button className="btn btn-success rounded-none rounded-r" id="join-button" onClick={joinGame}>
+            <Button className="btn btn-success rounded-none rounded-r" id="join-button" onClick={() => { joinGame() }}>
               Join Game
             </Button>
           </div>
@@ -355,4 +351,4 @@ const game = (props: any) => {
     </>)
 }
 
-export default game
+export default Game;

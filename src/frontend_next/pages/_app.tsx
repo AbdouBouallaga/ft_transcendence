@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import "../styles/gameStyle.css";
 
 import Head from "next/head";
+import React, { createContext } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
@@ -9,6 +10,11 @@ import Navbar from "../components/navbar";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { Socket } from "dgram";
+
+export const GeneralContext: any = createContext({
+  Socket: null,
+  Profile: null
+});
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   let Router = useRouter();
@@ -53,11 +59,22 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }
   // let initUsersocket: boolean = false;
   useEffect(() => {
-    if (!Router.isReady) return;
     if (!initsocket) {
       setGameSocket(io("/game"));
       initsocket = true;
     }
+  }, []);
+  useEffect(() => {
+    if (profile.login42 !== '') {
+      gameSocket.emit("initUser", profile.username);
+      setInterval(() => {
+        gameSocket.emit("initUser", profile.username);
+      }, 60000*10);
+      // console.log("avalable", profile.login42)
+    }
+  }, [profile.login42]);
+  useEffect(() => {
+    if (!Router.isReady) return;
     console.log("app useEffect")
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
@@ -86,12 +103,12 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
           });
       };
       fetchData();
-      if (profile.login42 !== ''){
-        gameSocket.emit("initUser", profile.login42);
+      if (profile.login42 !== '') {
+        // gameSocket.emit("initUser", profile.login42);
         console.log("avalable", profile.login42)
       }
     }
-  }, [reloadApp, profile.login42, Router.isReady]);
+  }, [reloadApp, Router.isReady]);
   return (
     <>
       <Head>
@@ -106,7 +123,9 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />}
-          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket} />
+          <GeneralContext.Provider value={{ Socket: gameSocket, Profile: profile }}>
+            <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket} />
+          </GeneralContext.Provider>
         </div>
       )}
     </>

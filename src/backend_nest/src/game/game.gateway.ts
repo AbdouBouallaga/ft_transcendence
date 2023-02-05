@@ -245,7 +245,10 @@ class Game {
       delete rooms[this.room];
       // console.log('room ', this.room, ' deleted');
     }, 300);
+    console.log("rooms fg", rooms)
+
   }
+  
 }
 //end
 
@@ -278,25 +281,24 @@ export class GameGateway implements OnModuleInit {
       try {
         // USERS STATUS MANAGEMENT
         socket.on('initUser', (data) => {
-          // console.log('initUser', data);
-          users[data] = { login42: data, socketId: socket.id, status: 1, life : 10 };
+          users[data] = { login42: data, socketId: socket.id, status: 1, life : 20 };
+          console.log('initUser', users[data]);
           this.server.emit("updateUserStatus", users);
           let interval = setInterval(() => {
             if (users[data].status > 0 && users[data].life > 0) {
-              console.log("TIK TOK")
               users[data].life--;
             } else {
               clearInterval(interval);
               users[data].status = 0;
               this.server.emit("updateUserStatus", users);
             }
-          }, 5000);
+          }, 60000);
         });
         // console.log("status on init", users);
         socket.on("setUserStatus", (data: any) => {
           if (data.login42 in users) {
             users[data.login42].status = data.status;
-            users[data.login42].life = 6;
+            users[data.login42].life = 20;
             // console.log("status", users);
             this.server.emit("updateUserStatus", users);
           }
@@ -316,6 +318,7 @@ export class GameGateway implements OnModuleInit {
             this.server.to(users[to].socketId).emit("inviteToPlay", data);
         });
         socket.on('joinGame', (data) => {
+          console.log(rooms);
           let found = false;
           let room: string = data.room;
           let rounds: number = data.rounds;
@@ -388,7 +391,7 @@ export class GameGateway implements OnModuleInit {
               UN: data.UN,
               paddle: new Paddle(this.server, room, player === 0 ? 'Left' : 'Right'),
             });
-            // console.log("DEBUG ", rooms[room].players[player].socketId, "ID", socket.id);
+            console.log("DEBUG ", rooms[room].players[player].id);
             if (player === 0)
               socket.emit('leftSide');
             else
@@ -483,15 +486,21 @@ export class GameGateway implements OnModuleInit {
                 clearInterval(rooms[r]?.Interval);
                 rooms[r]?.game?.gameFinished(1); //if no game yet the next line will delete the room
               }
-              delete rooms[r];
+              setTimeout(() => {
+                console.log("del room ", r)
+                delete rooms[r];
+              }, 100);
             } else if (rooms[r]?.players[1]?.socketId === sid) {
               // console.log("player ", rooms[r].players[1].id, rooms[r].players[1].socketId, " left room ", r);
               clearInterval(rooms[r]?.Interval);
               rooms[r]?.game?.gameFinished(0); //if no game yet the next line will delete the room
-              delete rooms[r];
+              setTimeout(() => {
+                console.log("del room ", r)
+                delete rooms[r];
+              }, 100);
             }
           }
-          // // console.log("rooms >", rooms)
+          console.log("rooms >", rooms)
         });
         socket.on('getRooms', () => {
           let r: any[] = [];

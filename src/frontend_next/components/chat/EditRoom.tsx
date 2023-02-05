@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const EditRoom = ({ setEditRoom, data: oldData }) => {
+const EditRoom = ({ setEditRoom, data: oldData }:any) => {
   const [data, setData] = useState({
     name: oldData.name,
     type: oldData.type,

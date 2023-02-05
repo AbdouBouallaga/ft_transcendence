@@ -1,12 +1,12 @@
 import { Avatar } from "flowbite-react";
 import { Block, Mute, Admine, Play, RemoveAdmin } from "../icons";
+import Router from "next/router";
 
-const Drawer = ({ drawer, setDrawer, myRole, members, profile }) => {
+const Drawer = ({ drawer, setDrawer, myRole, members, profile }:any) => {
   return (
     <div
-      className={`fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${
-        drawer ? "" : "transition-transform translate-x-full"
-      }`}
+      className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${drawer ? "" : "transition-transform translate-x-full"
+        }`}
     >
       <h5
         id="drawer-right-label"
@@ -36,7 +36,7 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }) => {
       </button>
 
       <div>
-        {members?.map((member, i) => {
+        {members?.map((member:any, i:any) => {
           return (
             <MemberCard
               key={i}
@@ -53,7 +53,7 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }) => {
 
 export default Drawer;
 
-const MemberCard = ({ member, myRole, profile }) => {
+const MemberCard = ({ member, myRole, profile }:any) => {
   const { avatar, username, role } = member;
   const userRoleFunction = (role: number): string => {
     const roles = ["member", "admin", "owner"];
@@ -64,7 +64,9 @@ const MemberCard = ({ member, myRole, profile }) => {
 
   return (
     <div className="mb-4 flex items-center">
-      <Avatar img={avatar} rounded={true} />
+      <button onClick={()=>{Router.push("/profile/"+member.username)}}>
+        <Avatar img={avatar} rounded={true} />
+      </button>
       <div className="ml-2 flex flex-col">
         <span className=" text-sm font-semibold  ">{username} </span>
         <span className=" font-semibold text-gray-500 text-xs" />
@@ -98,17 +100,17 @@ const ShowIcon = (
 ) => {
   if (username !== profile && (myRole === "owner" || myRole === "admin")) {
     if (myRole === "admin" && userRole === "owner") {
-      return <Play />;
+      return <Play username={username} />;
     } else
       return (
         <>
           <Block />
           <Mute />
           {userRole === "admin" ? <RemoveAdmin /> : <Admine />}
-          {profile !== username && <Play />}
+          {profile !== username && <Play username={username} />}
         </>
       );
   } else if (myRole === "member" && profile !== username) {
-    return <Play />;
+    return <Play username={username} />;
   }
 };
