@@ -12,10 +12,10 @@ const Index = (props: any) => {
 
   return (
     <>
-      <div className="absolute bottom-0 right-0">
+      <div className="fixed bottom-0 right-0">
         <Arrow />
       </div>
-      <div className=" flex flex-col justify-center mx-auto  mt-28">
+      <div className="z-10 flex flex-col justify-center mx-auto  mt-28">
         <h1 className="text-gray-400 text-5xl">
           Keep the ball in play with Pong.
         </h1>
@@ -31,24 +31,18 @@ const Index = (props: any) => {
           come out on top as the Pong champion?
         </div>
 
-        <Button
+        <button
           onClick={() => router.push("/game")}
           className="mx-auto mt-14 flex align-center justify-center"
           // outline={true}
-          color="black"
-          type="button"
         >
-          <div className="w-[190px] h-[50px]">
+          <div className=" w-[190px] h-[50px]">
             <Lottie animationData={loaddingPong} />
           </div>
-        </Button>
+        </button>
       </div>
     </>
   );
 };
 
 export default Index;
-
-// const Test = (props: any) => {
-//   return <h1> Hello from home </h1>;
-// };
