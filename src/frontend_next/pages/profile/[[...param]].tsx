@@ -229,7 +229,7 @@ const Profile = (props: any) => {
           <Avatar img={profile.avatar}
             size="xl"
             rounded={false}
-            status={users[profile.username] !== undefined ? statustab[users[profile.username].status] : 'offline'}
+            status={users[profile.username] !== undefined ? statustab[users[profile.username].status] as any : 'offline'}
           />
           <h1><b> {profile.username}</b></h1>
           <div className="flex">
@@ -380,8 +380,8 @@ const Profile = (props: any) => {
             <div className="flex-1 card m-2 min-w-[392px]">
               <h1><b>History</b></h1>
               <div className="overflow-auto max-h-[300px]">
-                {profile.games.slice(0).reverse().map((e: any) =>
-                  <Table>
+                {profile.games.slice(0).reverse().map((e: any, i:number) =>
+                  <Table key={i}>
                     <Table.Body className="divide-y bg-white">
                       <Table.Row className="hover:bg-gray-100">
                         <Table.Cell className="">
@@ -424,8 +424,8 @@ const Profile = (props: any) => {
             <div className="flex-1 card m-2">
               <h1><b>Friends</b></h1>
               <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-                {profile.friends.map((e: any) =>
-                  <div className="relative m-2" style={{ width: 80 }} onClick={() => {
+                {profile.friends.map((e: any, i:number) =>
+                  <div key={i} className="relative m-2" style={{ width: 80 }} onClick={() => {
                     router.push(`/profile/` + e['username'])
                   }}>
                     <Avatar
@@ -433,7 +433,7 @@ const Profile = (props: any) => {
                       img={e['avatar']}
                       rounded={false}
                       size="lg"
-                      status={users[e['username']] !== undefined ? statustab[users[e['username']].status] : 'offline'}
+                      status={users[e['username']] !== undefined ? statustab[users[e['username']].status] as any : 'offline'}
                     />
                     <div className="font-bold aero w-full" >
                       {/* {statustab[users[e['login42']].status]} */}

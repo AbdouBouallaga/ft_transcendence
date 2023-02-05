@@ -2,7 +2,7 @@ import { Avatar } from "flowbite-react";
 import { Block, Mute, Admine, Play, RemoveAdmin } from "../icons";
 import Router from "next/router";
 
-const Drawer = ({ drawer, setDrawer, myRole, members, profile }) => {
+const Drawer = ({ drawer, setDrawer, myRole, members, profile }:any) => {
   return (
     <div
       className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${drawer ? "" : "transition-transform translate-x-full"
@@ -36,7 +36,7 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }) => {
       </button>
 
       <div>
-        {members?.map((member, i) => {
+        {members?.map((member:any, i:any) => {
           return (
             <MemberCard
               key={i}
@@ -53,7 +53,7 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }) => {
 
 export default Drawer;
 
-const MemberCard = ({ member, myRole, profile }) => {
+const MemberCard = ({ member, myRole, profile }:any) => {
   const { avatar, username, role } = member;
   const userRoleFunction = (role: number): string => {
     const roles = ["member", "admin", "owner"];

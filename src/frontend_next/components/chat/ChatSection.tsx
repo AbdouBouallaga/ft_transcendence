@@ -21,7 +21,7 @@ import Play from "../icons/Play";
 import Drawer from "./Drawer";
 import EditRoom from "./EditRoom";
 
-const ChatSection = ({ profile }) => {
+const ChatSection = ({ profile }:any) => {
   const [messages, setMessages] = useState([]);
   const [data, setData] = useState({});
   const router = useRouter();
@@ -53,13 +53,13 @@ const ChatSection = ({ profile }) => {
 
 export default ChatSection;
 
-const role = (members: {}, username: string) => {
+const role = (members: any, username: string) => {
   const role = ["member", "admin", "owner"];
   const member = members?.find((member: any) => member.username === username);
   return member && role[member.role];
 };
 
-const HeaderOfChat = ({ profile, data }) => {
+const HeaderOfChat = ({ profile, data }:any) => {
   const { isDM, members, name } = data;
   const { username } = profile;
   const myRole = role(members, username);
@@ -147,7 +147,7 @@ const HeaderOfChat = ({ profile, data }) => {
     </div>
   );
 };
-const Msg = ({ date, message, username }) => {
+const Msg = ({ date, message, username }:any) => {
   return (
     <div className="mb-4 flex max-w-[80%]  m-1">
       {/* <Avatar className="mr-2 min-w-[50px] " img="/with.webp" rounded={true} /> */}
@@ -164,7 +164,7 @@ const Msg = ({ date, message, username }) => {
   );
 };
 
-const MyMsg = ({ date, message, username }) => {
+const MyMsg = ({ date, message, username }:any) => {
   return (
     <div
       className="mb-4 max-w-[80%]
@@ -181,13 +181,13 @@ const MyMsg = ({ date, message, username }) => {
   );
 };
 
-const BodyOfChat = ({ messages, profile }) => {
+const BodyOfChat = ({ messages, profile }:any) => {
   const { avatar, username: myUserName } = profile;
   console.log("the message", messages);
   return (
     <div className="h-full flex flex-col overflow-hidden justify-between ">
       <div className="border-gray-2 p-2 w-full h-full  rounded flex flex-col align-start overflow-y-scroll no-scrollbar">
-        {messages.map((msg, i) => {
+        {messages.map((msg:any, i:any) => {
           const { username, date, message } = msg;
           if (username === myUserName) {
             return (
@@ -213,7 +213,7 @@ const BodyOfChat = ({ messages, profile }) => {
 const SendMsg = () => {
   return (
     <div className="w-full mt-4">
-      <form className="w-full" autocomplete="off">
+      <form className="w-full" autoComplete="off">
         <div className="relative w-full">
           <input
             type="search"

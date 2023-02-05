@@ -9,7 +9,7 @@ import io from "socket.io-client";
 const PADDLE_MOVE_DISTANCE = 0.8;
 
 
-const game = (props: any) => {
+const Game = (props: any) => {
   const router = useRouter()
   // const { id } = router.query
   // console.log("id fgame ",id)
@@ -351,4 +351,4 @@ const game = (props: any) => {
     </>)
 }
 
-export default game
+export default Game;

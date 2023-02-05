@@ -10,7 +10,7 @@ import {
 import React, { useState } from "react";
 import axios from "axios";
 
-const CreateRoom = ({ setCreateRoom }) => {
+const CreateRoom = ({ setCreateRoom }:any) => {
   const [data, setData] = useState({
     name: "",
     type: "PUBLIC",

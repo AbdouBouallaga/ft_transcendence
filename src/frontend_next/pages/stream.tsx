@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Router from 'next/router';
 import { Button, Carousel } from 'flowbite-react';
 
-const index = (props: any) => {
+const Index = (props: any) => {
     const [rooms, setRooms] = useState([]);
     let init = false;
     let interval: any;
@@ -44,13 +44,13 @@ const index = (props: any) => {
                                         {/* <div className='container min-h-screen mx-auto px-4 grid place-items-center min-w-fit'  > */}
                                         <div onClick={
                                             () => {
-                                                Router.push("/game/" + e.id)
+                                                Router.push("/game/" + e['id'])
                                             }
                                         }
                                             className='aero login w-auto rounded-lg  min-h-[300px] shadow-lg m-2 p-2 grid place-items-center ' >
                                             <h1 className='text-2xl font-bold text-center'>Rooms</h1>
-                                            <p className='text-center'>id {e.id}</p>
-                                            <p className='text-center'>{e.players.a} VS {e.players.b}</p>
+                                            <p className='text-center'>id {e['id']}</p>
+                                            <p className='text-center'>{e['players']['a']} VS {e['players']['b']}</p>
                                             {/* </div> */}
                                         </div>
                                     </>
@@ -70,4 +70,4 @@ const index = (props: any) => {
     )
 }
 
-export default index
+export default Index;
