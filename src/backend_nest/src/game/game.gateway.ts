@@ -248,7 +248,7 @@ class Game {
     console.log("rooms fg", rooms)
 
   }
-  
+
 }
 //end
 
@@ -281,11 +281,12 @@ export class GameGateway implements OnModuleInit {
       try {
         // USERS STATUS MANAGEMENT
         socket.on('initUser', (data) => {
-          users[data] = { login42: data, socketId: socket.id, status: 1, life : 20 };
+          users[data] = { login42: data, socketId: socket.id, status: 1, life: 20 };
           console.log('initUser', users[data]);
           this.server.emit("updateUserStatus", users);
           let interval = setInterval(() => {
-            if (users[data].status > 0 && users[data].life > 0) {
+            console.log('initUser', users[data]);
+            if (users[data].life > 0) {
               users[data].life--;
             } else {
               clearInterval(interval);

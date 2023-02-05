@@ -42,21 +42,23 @@ export class UsersService {
                 blockeeId: otherUserId
             }
         })).length > 0;
+        let userFullProfile: UserFullProfile = null;
         if (blocked) {
-            return {
+            userFullProfile = {
                 ...profile,
                 blocked,
                 blocking,
                 friends: [],
                 games: [],
             };
-        }
-        const userFullProfile: UserFullProfile = {
-            ...profile,
-            blocked,
-            blocking,
-            friends: await this.getFriends(username),
-            games: await this.getMatchHistory(username),
+        } else {
+            userFullProfile = {
+                ...profile,
+                blocked,
+                blocking,
+                friends: await this.getFriends(username),
+                games: await this.getMatchHistory(username),
+            }
         }
         return userFullProfile;
     }
