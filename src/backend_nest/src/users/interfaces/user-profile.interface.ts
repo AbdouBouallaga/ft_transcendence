@@ -18,6 +18,8 @@ export class UserProfile {
 export interface UserFullProfile {
     username: string,
     avatar: string,
+    blocked: boolean,
+    blocking: boolean,
     friends: UserProfile[],
     games: GameStats[],
 }

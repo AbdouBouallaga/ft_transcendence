@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
-import { Game, User, Follows } from "@prisma/client";
+import { Game, User, Follows, UserBlockedUser } from "@prisma/client";
 import { UpdateUser } from "src/users/dto";
 import { GameStats, UserFullGameStats, UserProfile } from "src/users/interfaces";
 
@@ -200,5 +200,51 @@ export class UserPrismaService {
                 }
             }
         });
+    }
+
+    async blockUser(login42: string, otherUsername: string) : Promise<UserBlockedUser> {
+        const user = await this.findUserByLogin42(login42);
+        const otherUser = await this.findUser(otherUsername);
+        if ((await this.prisma.userBlockedUser.findMany({
+            where: {
+                blockerId: user.id,
+                blockeeId: otherUser.id
+            }
+        })).length > 0) {
+            return await this.prisma.userBlockedUser.findUnique({
+                where: {
+                    blockerId_blockeeId: {
+                        blockerId: user.id,
+                        blockeeId: otherUser.id
+                    }
+                }
+            });
+        }
+        return await this.prisma.userBlockedUser.create({
+            data: {
+                blockerId: user.id,
+                blockeeId: otherUser.id
+            }
+        });
+    }
+
+    async unblockUser(login42: string, otherUsername: string) : Promise<any> {
+        const user = await this.findUserByLogin42(login42);
+        const otherUser = await this.findUser(otherUsername);
+        if ((await this.prisma.userBlockedUser.findMany({
+            where: {
+                blockerId: user.id,
+                blockeeId: otherUser.id
+            }
+        })).length > 0) {
+            return await this.prisma.userBlockedUser.delete({
+                where: {
+                    blockerId_blockeeId: {
+                        blockerId: user.id,
+                        blockeeId: otherUser.id
+                    }
+                }
+            });
+        }
     }
 }
