@@ -18,9 +18,5 @@ export class CreateChannelDto {
 export class CreateDmDto {
   @IsNotEmpty()
   @IsString()
-  login42: string;
-
-  @IsNotEmpty()
-  @IsString()
   otherLogin42: string;
 }
