@@ -122,11 +122,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />}
-<<<<<<< HEAD
           <GeneralContext.Provider value={{ Socket: gameSocket, Profile: profile }}>
-=======
-          <GeneralContext.Provider value={{Socket:gameSocket, Profile:profile}}>
->>>>>>> edb1ddfc82e1623b4911a8a9adc354856653fbe3
             <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket} />
           </GeneralContext.Provider>
         </div>
