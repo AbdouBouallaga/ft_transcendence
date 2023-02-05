@@ -267,7 +267,7 @@ const Game = (props: any) => {
         <div ref={leftPaddleRef} className="paddle" id="left-paddle" ></div>
         <div ref={rightPaddleRef} className="paddle" id="right-paddle" ></div>
       </div>
-      <div className="flex flex-row items-center justify-center h-screen">
+      <div className="flex flex-row items-center justify-center h-auto m-[5vh]">
         <div ref={roomScreen} id="room-screen" className="aero p-6 flex-col rounded-lg shadow-lg">
           <h1 className="text-2xl font-bold">Rounds</h1>
           <div className="flex flex-row items-center justify-center bg-white rounded-lg">

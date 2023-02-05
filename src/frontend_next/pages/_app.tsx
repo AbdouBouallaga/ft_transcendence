@@ -68,7 +68,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       gameSocket.emit("initUser", profile.username);
       setInterval(() => {
         gameSocket.emit("initUser", profile.username);
-      }, 60000 * 10);
+      }, 60000);
       // console.log("avalable", profile.login42)
     }
   }, [profile.login42]);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef, MutableRefObject } from "react";
 import Router, { useRouter } from 'next/router';
 import axios from "axios";
 import { Modal, Button, TextInput, Badge, Table, Dropdown, Avatar } from "flowbite-react";
@@ -15,8 +15,8 @@ var imageResize = new ImageResize({
 });
 
 const Profile = (props: any) => {
-  const Context:any = useContext(GeneralContext);
-  const gameSocket:any = Context.Socket;
+  const Context: any = useContext(GeneralContext);
+  const gameSocket: any = Context.Socket;
   let statustab = ["offline", "online", "busy"];
   // let users: { login42: string, socketId: string, status: number }[] = [];
   const router = useRouter();
@@ -46,7 +46,7 @@ const Profile = (props: any) => {
   const [enabled2fa, set2faEnabled] = useState<Boolean>(false);
   const [editError, setEditError] = useState<boolean>(false);
   let [img, setImg] = useState(props.profile.avatar);
-  const [users, setUsersFallBack] = useState<any>(null);
+  let [users, setUsersStatus] = useState<any>(null);
 
 
   function modal2faDefault() {
@@ -174,13 +174,19 @@ const Profile = (props: any) => {
   }
 
   // Fetch the user's profile data when the component mounts
-  let init = false;
-  props.gameSocket.on("updateUserStatus", (data: any) => {
-    // users = data;
-    console.log("updateUserStatus", data);
-    setUsersFallBack(data);
-  });
+  let init = useRef<boolean>(false);
   useEffect(() => {
+    console.log("init.current", init.current)
+    if (!init.current) {
+      init.current = true;
+      props.gameSocket.on("updateUserStatus", (data: any) => {
+        console.log("updateUserStatus", data);
+        setUsersStatus(data);
+      },);
+    }
+  }, [])
+  useEffect(() => {
+
     let user = 'me';
     setItsme(true);
     if (router.query.param) {
@@ -195,7 +201,7 @@ const Profile = (props: any) => {
         .then((response) => {
           console.log(">>>>>>>>> ", response.data);
           console.log("APP ", props.profile);
-          const { login42, username, avatar, tfaEnabled, friends, games } = response.data;
+          const { login42, username, avatar, tfaEnabled, friends, games, blocking, blocked } = response.data;
           setProfile({
             login42,
             username,
@@ -203,6 +209,8 @@ const Profile = (props: any) => {
             tfaEnabled,
             friends,
             games,
+            blocking,
+            blocked
           });
           if (!init && gameSocket) {
             gameSocket.emit("getUsersStatus");
@@ -230,8 +238,10 @@ const Profile = (props: any) => {
             size="xl"
             rounded={false}
             status={users[profile.username] !== undefined ? statustab[users[profile.username].status] as any : 'offline'}
+            statusPosition="bottom-right"
           />
           <h1><b> {profile.username}</b></h1>
+          {!profile.blocked?<>
           <div className="flex">
             {profile.login42 === props.profile.login42 && profile.login42 !== '' ?
               <>
@@ -330,28 +340,70 @@ const Profile = (props: any) => {
                     </Modal.Footer>
                   </Modal>
                 </React.Fragment>
-              </> : <></>}
+              </> : <></>
+            }
             {profile.login42 !== props.profile.login42 && profile.login42 !== '' ?
               <>
-                {(props['profile']['friends'].findIndex((x: any) => x['login42'] === profile['login42']) === -1) ?
+                {!profile.blocking ? <>
+                  {(props['profile']['friends'].findIndex((x: any) => x['login42'] === profile['login42']) === -1) ?
+                    <Button className='m-2' onClick={() => {
+                      axios({
+                        method: 'POST',
+                        url: '/api/users/follow/' + profile.username,
+                      })
+                      // router.reload()
+                      setTimeout(() => {
+                        props.setR(props.r + 1)
+                        setTimeout(() => {
+                          setR(r + 1)
+                        }, 250);
+                      }, 250);
+                    }}>Follow</Button>
+                    :
+                    <Button className='m-2 danger' onClick={() => {
+                      axios({
+                        method: 'POST',
+                        url: '/api/users/unfollow/' + profile.username,
+                      })
+                      // router.reload()
+                      setTimeout(() => {
+                        props.setR(props.r + 1)
+                        setTimeout(() => {
+                          setR(r + 1)
+                        }, 250);
+                      }, 250);
+                    }}>UnFollow</Button>
+                  }
                   <Button className='m-2' onClick={() => {
                     axios({
                       method: 'POST',
-                      url: '/api/users/follow/' + profile.username,
+                      url: '/api/chat/createDM',
+                      data: {
+                        otherLogin42: profile.login42,
+                      },
                     })
-                    // router.reload()
+                      .then((response) => {
+                        router.push("/chat/" + response.data.id);
+                        console.log(response.data)
+                      })
+                      .catch((error) => {
+                        console.log(error)
+                      });
+                  }}>Direct message</Button>
+                  <Button className='m-2' onClick={() => {
+                    let room = uuidv4();
                     setTimeout(() => {
-                      props.setR(props.r + 1)
-                      setTimeout(() => {
-                        setR(r + 1)
-                      }, 250);
+                      if (gameSocket) {
+                        gameSocket.emit('sendInviteToPlay', { 'from': props.profile.username, 'to': profile.username, 'room': room })
+                        router.push("/game/" + room)
+                      }
                     }, 250);
-                  }}>Follow</Button>
-                  :
-                  <Button className='m-2 danger' onClick={() => {
+                  }}>Invite to play</Button>
+
+                  <Button color="failure" className='m-2' onClick={() => {
                     axios({
                       method: 'POST',
-                      url: '/api/users/unfollow/' + profile.username,
+                      url: '/api/users/block/' + profile.username,
                     })
                     // router.reload()
                     setTimeout(() => {
@@ -360,55 +412,54 @@ const Profile = (props: any) => {
                         setR(r + 1)
                       }, 250);
                     }, 250);
-                  }}>UnFollow</Button>
+                  }}>Block</Button>
+                </>
+                  :
+                  <Button color="success" className='m-2' onClick={() => {
+                    axios({
+                      method: 'POST',
+                      url: '/api/users/unblock/' + profile.username,
+                    })
+                    // router.reload()
+                    setTimeout(() => {
+                      props.setR(props.r + 1)
+                      setTimeout(() => {
+                        setR(r + 1)
+                      }, 250);
+                    }, 250);
+                  }}>Unblock</Button>
                 }
-                <Button className='m-2' onClick={() => { 
-                  axios({
-          method: 'POST',
-          url: '/api/chat/createDM',
-          data: {
-            otherLogin42: profile.login42,
-          },
-        })
-        .then((response) => {
-          router.push("/chat/"+response.data.id);
-        console.log(response.data)
-          })
-          .catch((error) => {
-        console.log(error)
-          });
-                }}>Direct message</Button>
-                <Button className='m-2' onClick={() => {
-                  let room = uuidv4();
-                  setTimeout(() => {
-                    if (gameSocket) {
-                      gameSocket.emit('sendInviteToPlay', { 'from': props.profile.username, 'to': profile.username, 'room': room })
-                      router.push("/game/" + room)
-                    }
-                  }, 250);
-                }}>Invite to play</Button>
-              </> : <></>}
+                <p>
+                </p>
+              </> :
+              <>
+
+              </>}
           </div>
+          </>:<></>}
         </div>
+        {!profile.blocked?<>
         <div className="flex flex-col"> {/* part2 general div */}
           <div className="flex flex-row flex-wrap justify-center">
             <div className="flex-1 card m-2 min-w-[392px]">
               <h1><b>History</b></h1>
               <div className="overflow-auto max-h-[300px]">
-                {profile.games.slice(0).reverse().map((e: any, i:number) =>
+                {profile.games.slice(0).reverse().map((e: any, i: number) =>
                   <Table key={i}>
                     <Table.Body className="divide-y bg-white">
                       <Table.Row className="hover:bg-gray-100">
                         <Table.Cell className="">
                           <div className="flex flex-row justify-between">
                             <div className="flex flex-row" onClick={() => {
-                              router.replace(`/profile/` + e['winner']['login42'])
+                              router.replace(`/profile/` + e['winner']['username'])
                             }}>
                               <Avatar img={e['winner']['avatar']} />
                               <h2 className="font-bold m-auto ml-1 text-sm">{e['winner']['username']}</h2>
                             </div>
                             <h2 className="font-bold m-auto text-lg">{e['winnerScore'] + '-' + e['loserScore']}</h2>
-                            <div className="flex flex-row">
+                            <div className="flex flex-row" onClick={() => {
+                              router.replace(`/profile/` + e['loser']['username'])
+                            }}>
                               <h2 className="font-bold m-auto mr-1 text-sm">{e['loser']['username']}</h2>
                               <Avatar img={e['loser']['avatar']} />
                             </div>
@@ -439,7 +490,7 @@ const Profile = (props: any) => {
             <div className="flex-1 card m-2">
               <h1><b>Friends</b></h1>
               <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-                {profile.friends.map((e: any, i:number) =>
+                {profile.friends.map((e: any, i: number) =>
                   <div key={i} className="relative m-2" style={{ width: 80 }} onClick={() => {
                     router.push(`/profile/` + e['username'])
                   }}>
@@ -460,6 +511,7 @@ const Profile = (props: any) => {
             </div>
           </div>
         </div>
+        </>:<></>}
       </>
     );
 };

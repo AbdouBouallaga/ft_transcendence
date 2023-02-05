@@ -36,7 +36,7 @@ export class UsersController {
     @Get('me/fullProfile')
     @UseGuards(JwtAuthGuard)
     async getMyFullProfile(@Req() req: any) : Promise<UserFullProfile> {
-        return await this.usersService.getFullProfile(req.user.username);
+        return await this.usersService.getFullProfile(req.user.id, req.user.username);
     }
 
     @Get(':username')
@@ -59,8 +59,8 @@ export class UsersController {
 
     @Get(':username/fullProfile')
     @UseGuards(JwtAuthGuard)
-    async getFullProfile(@Param('username') username: string) : Promise<UserFullProfile> {
-        return await this.usersService.getFullProfile(username);
+    async getFullProfile(@Param('username') username: string, @Req() req: any) : Promise<UserFullProfile> {
+        return await this.usersService.getFullProfile(req.user.id, username);
     }
 
     @Get('find/:username')
@@ -79,5 +79,17 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     async unfollowUser(@Param('username') username: string, @Req() req: any) : Promise<any> {
         return await this.usersService.unfollowUser(req.user.login42, username);
+    }
+
+    @Post('block/:username')
+    @UseGuards(JwtAuthGuard)
+    async blockUser(@Param('username') username: string, @Req() req: any) : Promise<any> {
+        return await this.usersService.blockUser(req.user.login42, username);
+    }
+
+    @Post('unblock/:username')
+    @UseGuards(JwtAuthGuard)
+    async unblockUser(@Param('username') username: string, @Req() req: any) : Promise<any> {
+        return await this.usersService.unblockUser(req.user.login42, username);
     }
 }
