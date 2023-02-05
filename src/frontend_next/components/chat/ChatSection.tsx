@@ -14,14 +14,12 @@ import { Router, useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Games from "../../components/icons/Games";
 import Menu from "../../components/icons/Menu";
-import Admine from "../icons/Admine";
-import Block from "../icons/Block";
-import Mute from "../icons/Mute";
-import Play from "../icons/Play";
+import { Search } from "../icons";
+
 import Drawer from "./Drawer";
 import EditRoom from "./EditRoom";
 
-const ChatSection = ({ profile }:any) => {
+const ChatSection = ({ profile }: any) => {
   const [messages, setMessages] = useState([]);
   const [data, setData] = useState({});
   const router = useRouter();
@@ -59,12 +57,13 @@ const role = (members: any, username: string) => {
   return member && role[member.role];
 };
 
-const HeaderOfChat = ({ profile, data }:any) => {
+const HeaderOfChat = ({ profile, data }: any) => {
   const { isDM, members, name } = data;
   const { username } = profile;
   const myRole = role(members, username);
   const [drawer, setDrawer] = useState(false);
   const [editRoom, setEditRoom] = useState(false);
+  const [invite, setInvite] = useState(false);
 
   return (
     <div className="border-b border-gray-600 flex items-center justify-between mx-3">
@@ -109,7 +108,9 @@ const HeaderOfChat = ({ profile, data }:any) => {
           arrowIcon={false}
         >
           {(myRole === "owner" || myRole === "admin") && (
-            <Dropdown.Item>Invite</Dropdown.Item>
+            <Dropdown.Item onClick={() => setInvite(true)}>
+              Invite
+            </Dropdown.Item>
           )}
           {myRole === "owner" && (
             <Dropdown.Item onClick={() => setEditRoom(true)}>
@@ -144,10 +145,21 @@ const HeaderOfChat = ({ profile, data }:any) => {
           <EditRoom setEditRoom={setEditRoom} data={data} />
         </Modal.Body>
       </Modal>
+      <Modal
+        show={invite}
+        size="md"
+        popup={true}
+        onClose={() => setInvite(false)}
+      >
+        <Modal.Header>Invite your friends to join chat</Modal.Header>
+        <Modal.Body>
+          <InviteToRoom />
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
-const Msg = ({ date, message, username }:any) => {
+const Msg = ({ date, message, username }: any) => {
   return (
     <div className="mb-4 flex max-w-[80%]  m-1">
       {/* <Avatar className="mr-2 min-w-[50px] " img="/with.webp" rounded={true} /> */}
@@ -164,7 +176,7 @@ const Msg = ({ date, message, username }:any) => {
   );
 };
 
-const MyMsg = ({ date, message, username }:any) => {
+const MyMsg = ({ date, message, username }: any) => {
   return (
     <div
       className="mb-4 max-w-[80%]
@@ -181,13 +193,13 @@ const MyMsg = ({ date, message, username }:any) => {
   );
 };
 
-const BodyOfChat = ({ messages, profile }:any) => {
+const BodyOfChat = ({ messages, profile }: any) => {
   const { avatar, username: myUserName } = profile;
   console.log("the message", messages);
   return (
     <div className="h-full flex flex-col overflow-hidden justify-between ">
       <div className="border-gray-2 p-2 w-full h-full  rounded flex flex-col align-start overflow-y-scroll no-scrollbar">
-        {messages.map((msg:any, i:any) => {
+        {messages.map((msg: any, i: any) => {
           const { username, date, message } = msg;
           if (username === myUserName) {
             return (
@@ -234,15 +246,54 @@ const SendMsg = () => {
   );
 };
 
-interface member {
-  avatar: string;
-  username: string;
-  role: number;
-  login42: string;
-}
+const InviteToRoom = () => {
+  const handlSubmit = (e: any) => {
+    e.preventDefault();
+    console.log("submit");
+  };
 
-// const ShowIcon = () => {
-
-//   return (
-
-// }
+  return (
+    <>
+      <form onSubmit={handlSubmit}>
+        <div>
+          <div className="mb-2 block">
+            <Label htmlFor="email4" value="user to add" />
+          </div>
+          <TextInput
+            id="email4"
+            type="email"
+            rightIcon={Search}
+            placeholder="find user to add"
+            // required={true}
+          />
+        </div>
+      </form>
+      <div className="flex-1 m-2">
+        <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
+          {/* {results.map((e: any, i: number) => (
+            <div
+              key={i}
+              className="relative m-2"
+              style={{ width: 80 }}
+              onClick={() => {
+                setSearchModal(!searchModal);
+                setResults([]);
+                if (searchRef.current !== null) searchRef.current.value = "";
+                Router.push(`/profile/` + e?.username);
+              }}
+            >
+              <Avatar
+                alt="Nav Drop settings"
+                img={e?.avatar}
+                rounded={false}
+                size="lg"
+                // status="online"
+              />
+              <div className="font-bold aero w-full">{e.username}</div>
+            </div>
+          ))} */}
+        </div>
+      </div>
+    </>
+  );
+};
