@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import "../styles/gameStyle.css";
 
 import Head from "next/head";
+import React, { createContext } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
@@ -9,6 +10,11 @@ import Navbar from "../components/navbar";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { Socket } from "dgram";
+
+export const GeneralContext: any = createContext({
+  Socket: null,
+  Profile: null
+});
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   let Router = useRouter();
@@ -59,9 +65,9 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     }
   }, []);
   useEffect(() => {
-    if (profile.login42 !== ''){
-      gameSocket.emit("initUser", profile.login42);
-      console.log("avalable", profile.login42)
+    if (profile.login42 !== '') {
+      gameSocket.emit("initUser", profile.username);
+      // console.log("avalable", profile.login42)
     }
   }, [profile.login42]);
   useEffect(() => {
@@ -94,7 +100,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
           });
       };
       fetchData();
-      if (profile.login42 !== ''){
+      if (profile.login42 !== '') {
         // gameSocket.emit("initUser", profile.login42);
         console.log("avalable", profile.login42)
       }
@@ -114,7 +120,9 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
           {Nav_active && <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />}
-          <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket} />
+          <GeneralContext.Provider value={{Socket:gameSocket, Profile:profile}}>
+            <Component {...pageProps} profile={profile} r={reloadApp} setR={setReloadApp} gameSocket={gameSocket} />
+          </GeneralContext.Provider>
         </div>
       )}
     </>

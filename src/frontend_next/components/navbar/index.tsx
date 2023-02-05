@@ -14,7 +14,7 @@ const Navbar = (props: any) => {
   const [c, setC] = useState(0)
   const [results, setResults] = useState([])
   const searchRef:any = React.useRef(null);
-  const [inviteinfo, setInviteinfo] = useState<{ to: string, room: string }>({ to: "", room: "" })
+  const [inviteinfo, setInviteinfo] = useState<{ from: string, room: string }>({ from: "", room: "" })
   const [inviteAlert, setInviteAlert] = useState(false)
   let init: boolean = false;
   useEffect(() => {
@@ -182,18 +182,18 @@ const Navbar = (props: any) => {
             className="z-50 w-auto h-[73px] fixed bottom-0 right-0 m-1 top-20"
             color="success"
             onDismiss={() => {
-              setInviteinfo({ to: "", room: "" });
+              setInviteinfo({ from: "", room: "" });
               setInviteAlert(false);
             }}
           >
             <span className="flex">
               <span className="font-medium font-bold m-2">
-                {inviteinfo.to} invited you to a game
+                {inviteinfo.from} invited you to a game
               </span>
               <span className="block text-sm text-gray-500">
                 <Button onClick={() => {
                   Router.push("/game/" + inviteinfo.room);
-                  setInviteinfo({ to: "", room: "" });
+                  setInviteinfo({ from: "", room: "" });
                   setInviteAlert(false);
                 }} className="ml-2" color="success">Join</Button>
               </span>

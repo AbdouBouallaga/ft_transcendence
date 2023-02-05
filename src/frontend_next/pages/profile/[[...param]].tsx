@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Router, { useRouter } from 'next/router';
 import axios from "axios";
 import { Modal, Button, TextInput, Badge, Table, Dropdown, Avatar } from "flowbite-react";
@@ -6,6 +6,7 @@ import ImageResize from 'image-resize';
 import { v4 as uuidv4 } from 'uuid';
 import { Heart, Win_3, Win_5 } from "../../components/icons/achievement";
 import { userAgentFromString } from "next/server";
+import { GeneralContext } from "../_app";
 
 var imageResize = new ImageResize({
   format: 'png',
@@ -14,6 +15,8 @@ var imageResize = new ImageResize({
 });
 
 const Profile = (props: any) => {
+  const Context:any = useContext(GeneralContext);
+  const gameSocket:any = Context.Socket;
   let statustab = ["offline", "online", "busy"];
   // let users: { login42: string, socketId: string, status: number }[] = [];
   const router = useRouter();
@@ -201,8 +204,8 @@ const Profile = (props: any) => {
             friends,
             games,
           });
-          if (!init) {
-            props.gameSocket.emit("getUsersStatus", response.data.login42);
+          if (!init && gameSocket) {
+            gameSocket.emit("getUsersStatus");
             init = true;
           }
           set2faEnabled(tfaEnabled);
@@ -223,11 +226,11 @@ const Profile = (props: any) => {
       <>
         <div className="card m-2">
 
-            <Avatar img={profile.avatar}
-              size="xl"
-              rounded={false}
-              status={users[profile.login42] !== undefined ? statustab[users[profile.login42].status] : 'offline'}
-            />
+          <Avatar img={profile.avatar}
+            size="xl"
+            rounded={false}
+            status={users[profile.username] !== undefined ? statustab[users[profile.username].status] : 'offline'}
+          />
           <h1><b> {profile.username}</b></h1>
           <div className="flex">
             {profile.login42 === props.profile.login42 && profile.login42 !== '' ?
@@ -363,8 +366,10 @@ const Profile = (props: any) => {
                 <Button className='m-2' onClick={() => {
                   let room = uuidv4();
                   setTimeout(() => {
-                    props.gameSocket.emit('sendInviteToPlay', { 'from': props.profile.login42, 'to': profile.login42, 'room': room })
-                    router.push("/game/" + room)
+                    if (gameSocket) {
+                      gameSocket.emit('sendInviteToPlay', { 'from': props.profile.username, 'to': profile.username, 'room': room })
+                      router.push("/game/" + room)
+                    }
                   }, 250);
                 }}>Invite to play</Button>
               </> : <></>}
@@ -428,7 +433,7 @@ const Profile = (props: any) => {
                       img={e['avatar']}
                       rounded={false}
                       size="lg"
-                      status={users[e['login42']] !== undefined ? statustab[users[e['login42']].status] : 'offline'}
+                      status={users[e['username']] !== undefined ? statustab[users[e['username']].status] : 'offline'}
                     />
                     <div className="font-bold aero w-full" >
                       {/* {statustab[users[e['login42']].status]} */}
