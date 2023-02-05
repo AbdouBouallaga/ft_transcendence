@@ -66,9 +66,10 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }, []);
   useEffect(() => {
     if (profile.login42 !== '') {
-      setTimeout(() => {
+      gameSocket.emit("initUser", profile.username);
+      setInterval(() => {
         gameSocket.emit("initUser", profile.username);
-      }, 500);
+      }, 60000*10);
       // console.log("avalable", profile.login42)
     }
   }, [profile.login42]);

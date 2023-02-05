@@ -12,9 +12,11 @@ var imageResize = new ImageResize({
 });
 
 export default function welcome(props) {
+    
     let [img, setImg] = useState(props.profile.avatar);
     let profile = props.profile;
     async function PushEdits(Username: string, imgInput: string) {
+        props.gameSocket.emit("initUser", Username);
         var imgResized = imageResize.play(imgInput)
             .then((resizedImage) => {
                 console.log(resizedImage);
@@ -28,6 +30,7 @@ export default function welcome(props) {
                 })
                     .then((response) => {
                         if (response.data.login42) {
+                            props.gameSocket.emit("initUser", response.data.username);
                             // Router.reload(); // reload l7za9 kaml
                             Router.replace("/");
                             setTimeout(() => {
