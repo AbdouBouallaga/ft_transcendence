@@ -53,11 +53,19 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }
   // let initUsersocket: boolean = false;
   useEffect(() => {
-    if (!Router.isReady) return;
     if (!initsocket) {
       setGameSocket(io("/game"));
       initsocket = true;
     }
+  }, []);
+  useEffect(() => {
+    if (profile.login42 !== ''){
+      gameSocket.emit("initUser", profile.login42);
+      console.log("avalable", profile.login42)
+    }
+  }, [profile.login42]);
+  useEffect(() => {
+    if (!Router.isReady) return;
     console.log("app useEffect")
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
@@ -87,11 +95,11 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       };
       fetchData();
       if (profile.login42 !== ''){
-        gameSocket.emit("initUser", profile.login42);
+        // gameSocket.emit("initUser", profile.login42);
         console.log("avalable", profile.login42)
       }
     }
-  }, [reloadApp, profile.login42, Router.isReady]);
+  }, [reloadApp, Router.isReady]);
   return (
     <>
       <Head>

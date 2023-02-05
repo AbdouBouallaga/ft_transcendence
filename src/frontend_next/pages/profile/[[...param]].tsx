@@ -222,10 +222,12 @@ const Profile = (props: any) => {
     return (
       <>
         <div className="card m-2">
-          <div className="avatar">
 
-            <Avatar img={profile.avatar} size="xl" />
-          </div>
+            <Avatar img={profile.avatar}
+              size="xl"
+              rounded={false}
+              status={users[profile.login42] !== undefined ? statustab[users[profile.login42].status] : 'offline'}
+            />
           <h1><b> {profile.username}</b></h1>
           <div className="flex">
             {profile.login42 === props.profile.login42 && profile.login42 !== '' ?
@@ -332,7 +334,7 @@ const Profile = (props: any) => {
                   <Button className='m-2' onClick={() => {
                     axios({
                       method: 'POST',
-                      url: '/api/users/follow/' + profile.login42,
+                      url: '/api/users/follow/' + profile.username,
                     })
                     // router.reload()
                     setTimeout(() => {
@@ -346,7 +348,7 @@ const Profile = (props: any) => {
                   <Button className='m-2 danger' onClick={() => {
                     axios({
                       method: 'POST',
-                      url: '/api/users/unfollow/' + profile.login42,
+                      url: '/api/users/unfollow/' + profile.username,
                     })
                     // router.reload()
                     setTimeout(() => {
@@ -373,7 +375,7 @@ const Profile = (props: any) => {
             <div className="flex-1 card m-2 min-w-[392px]">
               <h1><b>History</b></h1>
               <div className="overflow-auto max-h-[300px]">
-                {profile.games.map((e: any) =>
+                {profile.games.slice(0).reverse().map((e: any) =>
                   <Table>
                     <Table.Body className="divide-y bg-white">
                       <Table.Row className="hover:bg-gray-100">
@@ -419,7 +421,7 @@ const Profile = (props: any) => {
               <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
                 {profile.friends.map((e: any) =>
                   <div className="relative m-2" style={{ width: 80 }} onClick={() => {
-                    router.push(`/profile/` + e['login42'])
+                    router.push(`/profile/` + e['username'])
                   }}>
                     <Avatar
                       alt="Nav Drop settings"

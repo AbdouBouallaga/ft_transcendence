@@ -1,4 +1,3 @@
-
 import { Avatar, Badge, Button, Modal, Spinner, Tabs } from "flowbite-react";
 import { LegacyRef, SetStateAction, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";

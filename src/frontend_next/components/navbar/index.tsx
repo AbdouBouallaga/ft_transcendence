@@ -113,7 +113,6 @@ const Navbar = (props: any) => {
                   >
                     Profile
                   </Dropdown.Item>
-                  <Dropdown.Item>Settings</Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item
                     onClick={() => {
@@ -160,14 +159,14 @@ const Navbar = (props: any) => {
                     setResults([]);
                     if (searchRef.current !== null)
                       searchRef.current.value = "";
-                    Router.push(`/profile/` + e?.login42)
+                    Router.push(`/profile/` + e?.username)
                   }}>
                     <Avatar
                       alt="Nav Drop settings"
                       img={e?.avatar}
                       rounded={false}
                       size="lg"
-                      status="online"
+                      // status="online"
                     />
                     <div className="font-bold aero w-full" >
                       {e.username}
