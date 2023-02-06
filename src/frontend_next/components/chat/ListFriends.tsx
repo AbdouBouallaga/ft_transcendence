@@ -21,16 +21,16 @@ const ListFriends = () => {
 
   return (
     <div className="w-full border-r p-3 max-w-[310px] flex flex-col">
-      <h1 className="font-bold text-left text-2xl">Message</h1>
+      <h1 className="font-bold text-orange-200 text-left text-2xl">Message</h1>
       <div
         onClick={() => setCreateRoom(true)}
-        className="flex gap-1 cursor-pointer "
+        className="flex text-gray-200 gap-1 cursor-pointer "
         role="button"
       >
         <Add />
         <span>Create Room</span>{" "}
       </div>
-      <div className=" overflow-y-auto  h-[100%]">
+      <div className="mt-5 overflow-y-auto  h-[100%]">
         {friends.map((friend, index) => (
           <FriendCard key={index} friend={friend} />
         ))}
