@@ -270,16 +270,16 @@ export class ChatServerService {
 	}
 
 	// leaveChannel
-	async leaveChannel(data: EnterRoomDto) : Promise<MemberOfChannel> {
-		const user = await this.userPrisma.findUserByLogin42(data.login42);
-		if (!(await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId }))) {
+	async leaveChannel(login42: string, channelId: number) : Promise<MemberOfChannel> {
+		const user = await this.userPrisma.findUserByLogin42(login42);
+		if (!(await this.chatService.isChannelMember({ userId: user.id, channelId }))) {
 			throw new BadRequestException();
 		}
-		const membership = await this.chatService.getMembership({ userId: user.id, channelId: data.channelId });
+		const membership = await this.chatService.getMembership({ userId: user.id, channelId });
 		if (membership.role === MemberRole.OWNER) {
 			const members = await this.prisma.memberOfChannel.findMany({
 				where: {
-					channelId: data.channelId,
+					channelId,
 				}
 			});
 			let newOwner = null;
@@ -295,23 +295,25 @@ export class ChatServerService {
 				newOwner = admins[0];
 				newOwnerFound = true;
 			}
-			return await this.prisma.memberOfChannel.update({
-				where: {
-					channelId_userId: {
-						channelId: data.channelId,
-						userId: newOwner.id
+			if (newOwnerFound) {
+				return await this.prisma.memberOfChannel.update({
+					where: {
+						channelId_userId: {
+							channelId,
+							userId: newOwner.userId
+						}
+					},
+					data: {
+						role: MemberRole.ADMIN
 					}
-				},
-				data: {
-					role: MemberRole.ADMIN
-				}
-			});
+				});
+			}
 		}
 		return await this.prisma.memberOfChannel.update({
 			where: {
 				channelId_userId: {
 					userId: user.id,
-					channelId: data.channelId
+					channelId
 				}
 			},
 			data: {

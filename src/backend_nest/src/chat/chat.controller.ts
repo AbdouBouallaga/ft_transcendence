@@ -61,17 +61,10 @@ export class ChatController {
   }
 
   @Get(':channelId')
-  @UseGuards(JwtAuthGuard)
-  async getConversation(
-    @Req() req: any,
-    @Param('channelId', new ParseIntPipe()) channelId: number,
-  ): Promise<Conversation> {
-    return await this.chatService.getFullChannelInfo(
-      channelId,
-      req.user.id,
-      req.user.login42,
-    );
-  }
+	@UseGuards(JwtAuthGuard)
+	async getConversation(@Req() req: any, @Param('channelId', new ParseIntPipe()) channelId: number) : Promise<Conversation> {
+    return await this.chatService.getFullChannelInfo(channelId, req.user.id, req.user.login42);
+	}
 
   @Post('joinChannel')
   @UseGuards(JwtAuthGuard)
@@ -81,6 +74,17 @@ export class ChatController {
       await this.chatServerService.joinChannel(data, req.user.login42);
       return { success: true };
     } catch {
+      return { success: false };
+    }
+  }
+	
+  @Post('leaveChannel')
+  @UseGuards(JwtAuthGuard)
+  async leaveChannel(@Req() req: any, @Body() data: { channelId: number }) : Promise<{ success: boolean}> {
+    try {
+      await this.chatServerService.leaveChannel(req.user.login42, data.channelId);
+      return { success: true };
+    } catch(e) {
       return { success: false };
     }
   }

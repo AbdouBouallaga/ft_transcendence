@@ -28,6 +28,7 @@ import Drawer from "./Drawer";
 import EditRoom from "./EditRoom";
 import { v4 as uuidv4 } from "uuid";
 
+
 const ChatSection = ({ profile }: any) => {
   const Context: any = useContext(GeneralContext);
   const socket: any = Context.ChatSocket;
@@ -90,6 +91,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
   const [drawer, setDrawer] = useState(false);
   const [editRoom, setEditRoom] = useState(false);
   const [invite, setInvite] = useState(false);
+  const { id } = Router.query
 
   return (
     <div className="border-b border-gray-600 flex items-center justify-between mx-3">
@@ -166,7 +168,21 @@ const HeaderOfChat = ({ profile, data }: any) => {
           >
             All Members
           </Dropdown.Item>
-          <Dropdown.Item>Leave</Dropdown.Item>
+          <Dropdown.Item
+            onClick={() => {
+              axios({
+                method: 'POST',
+                url: '/api/chat/leaveChannel',
+                data: {
+                  channelId: parseInt(id as string)
+                },
+              })
+                .then((response) => {
+                  if (response.data.success)
+                    Router.replace("/chat");
+                })
+            }}
+          >Leave</Dropdown.Item>
         </Dropdown>
       )}
       <Drawer
