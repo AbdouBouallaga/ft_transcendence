@@ -49,9 +49,7 @@ export class ChatController {
   @Get('publicChannels')
   @UseGuards(JwtAuthGuard)
   async getPublicChannels(@Req() req: any): Promise<ChannelInfo[]> {
-    const channels = await this.chatService.getPublicChannels(req.user.id);
-    console.log('channels', channels);
-    return channels;
+    return await this.chatService.getPublicChannels(req.user.id);
   }
 
   @Get('me')

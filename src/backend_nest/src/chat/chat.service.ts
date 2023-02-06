@@ -127,23 +127,20 @@ export class ChatService {
     return channel;
   }
 
-  async getPublicChannels(userId: number): Promise<ChannelInfo[]> {
-    return;
-    (
-      await this.prisma.channel.findMany({
+  async getPublicChannels(userId: number) : Promise<ChannelInfo[]> {
+    return (await this.prisma.channel.findMany({
         where: {
-          bannedUsers: {
-            none: {
-              userId,
-            },
-          },
-          type: ChannelType.PUBLIC,
-        },
-      })
-    ).map((channel) => {
-      return new ChannelInfo(channel);
-    });
-  }
+            type: ChannelType.PUBLIC,
+            bannedUsers: {
+                none: {
+                    userId
+                }
+            }
+        }
+    })).map((channel) => {
+        return new ChannelInfo(channel);
+    }) || [];
+}
 
   async getMyChannels(userId: number): Promise<ChannelInfo[]> {
     const channels = (
