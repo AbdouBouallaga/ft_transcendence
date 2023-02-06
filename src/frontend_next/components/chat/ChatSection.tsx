@@ -26,17 +26,19 @@ const ChatSection = ({ profile }: any) => {
   const socket:any = Context.ChatSocket; 
   let init = useRef<boolean>(false); 
   const router = useRouter();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<any>([]);
   const [data, setData] = useState({});
   const { id } = router.query;
-console.log("message",messages )
+// console.log("message",messages )
   useEffect(()=>{
+    console.log("oooopppppp")
     if (!init.current)
     {
-      init.current = false;
+      init.current = true;
+      socket.emit("enterRoom", {login42: profile.login42, channelId: parseInt(id)});
       socket.on("updateChatSection", (data:any)=>{
-        console.log(data);
-        // setMessages(data)
+        console.log("ana hna *****************")
+        setMessages((old:any[])=>[...old,data])
       })
     }
   }, [])
@@ -51,6 +53,7 @@ console.log("message",messages )
       status,
       data: { isDM, members, messages, name, isProtected, type },
     } = res;
+    
     status === 200 &&
       (setMessages(messages),
       setData({ isDM, members, name, isProtected, type }));
@@ -231,19 +234,18 @@ const BodyOfChat = ({ messages, profile, roomid }: any) => {
           }
         })}
       </div>
-      <SendMsg roomid={roomid}/>
+      <SendMsg roomid={roomid} to={myUserName}/>
     </div>
   );
 };
 
 const SendMsg = (data:any) => {
   const Context: any = useContext(GeneralContext);
-  const profile:any = Context.Profile;
-  const socket:any = Context.ChatSocket; 
+  const {Profile, ChatSocket} = Context 
   const [myMessage,setMyMessage]= useState("")
   const handleSubmit = (e:any)=>{
     e.preventDefault();
-    socket.emit("sendmessage", {login42: profile.login42, channelId:parseInt(data.roomid) , myMessage});
+    ChatSocket.emit("sendmessage", {login42: Profile.login42, channelId:parseInt(data.roomid) , content: myMessage , to: data.to});
     setMyMessage('')
    
 

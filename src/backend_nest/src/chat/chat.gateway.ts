@@ -2,30 +2,29 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
 import { ChatServerService } from './chat-server.service';
-import { SendMessageDto } from './dto';
+import { EnterRoomDto, SendMessageDto } from './dto';
 
 @WebSocketGateway({ namespace: 'chat' })
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
+  private users: { login42: string ; socketId: string }[] = [];
 
-  socketToChannelMap: Map<string, number>;
-  socketToLogin42Map: Map<string, string>;
 
   constructor(private readonly chatService: ChatService,
               private readonly chatServerService: ChatServerService) {}  
 
-  // @SubscribeMessage('enterRoom')
-  // handleEnterRoom(@MessageBody() data: EnterRoomDto, @ConnectedSocket() client: Socket) : any {
-  //   this.socketToChannelMap.set(client.id, data.channelId);
-  //   this.socketToLogin42Map.set(client.id, data.login42);
-  //   this.server.in(client.id).socketsJoin(`Channel_${data.channelId}`);
-  // }
+  @SubscribeMessage('enterRoom')
+  handleEnterRoom(@MessageBody() data: EnterRoomDto, @ConnectedSocket() client: Socket) : any {
+    console.log("BACK ",`Channel_${data.channelId}`)
+    this.server.in(client.id).socketsJoin(`Channel_${data.channelId}`);
+  }
+
+
   @SubscribeMessage('sendmessage')
   async handlesendmessage(@MessageBody() data :SendMessageDto, @ConnectedSocket() client: Socket)  {
     console.log("sendmessage received", data);
-    await this.chatServerService.sendMessage(data);
-    client.emit("updateChatSection", "fg");
+    this.server.to(`Channel_${data.channelId}`).emit("updateChatSection", await this.chatServerService.sendMessage(data));
   }
 
 
