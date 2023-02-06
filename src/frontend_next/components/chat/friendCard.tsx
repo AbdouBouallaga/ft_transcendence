@@ -8,17 +8,20 @@ const FriendCard = ({ friend }: any) => {
 
   const { lastMessage, name, avatar, id } = friend;
   return (
-    <div className="flex p-2 " onClick={() => router.push(`/chat/${id}`)}>
+    <div
+      className="flex p-2 cursor-pointer hover:bg-gray-700 hover:rounded-full  group "
+      onClick={() => router.push(`/chat/${id}`)}
+    >
       <Avatar
-        className="mr-2 min-w-[50px]"
+        className="mr-2 min-w-[50px] group-hover:animate-bounce"
         img={avatar}
         // status={status}props.status['babdelka']}
         rounded={true}
         statusPosition="bottom-right"
       />
-      <div className="w-[75%]">
-        <div>{name}</div>
-        <div className="truncate">{lastMessage}</div>
+      <div className="text-gray-200 w-[75%]">
+        <div className="uppercase">{name}</div>
+        <div className="text-sm truncate">{lastMessage}</div>
       </div>
     </div>
   );
