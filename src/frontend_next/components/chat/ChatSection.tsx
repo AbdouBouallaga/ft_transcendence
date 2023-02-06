@@ -119,7 +119,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
           let room = uuidv4();
           setTimeout(() => {
             if (gameSocket) {
-              gameSocket.emit('sendInviteToPlay', { 'from': myprofile.username, 'to': username.username, 'room': room })
+              gameSocket.emit('sendInviteToPlay', { 'from': myprofile.username, 'to': name, 'room': room })
               Router.push("/game/" + room)
             }
           }, 250);
