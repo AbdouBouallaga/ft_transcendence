@@ -10,7 +10,7 @@ import {
   ToggleSwitch,
   Alert,
 } from "flowbite-react";
-import { Router, useRouter } from "next/router";
+import Router ,{ useRouter } from "next/router";
 import {
   MutableRefObject,
   useContext,
@@ -25,6 +25,7 @@ import { Search } from "../icons";
 
 import Drawer from "./Drawer";
 import EditRoom from "./EditRoom";
+import { v4 as uuidv4 } from 'uuid';
 
 const ChatSection = ({ profile }: any) => {
   const Context: any = useContext(GeneralContext);
@@ -62,7 +63,7 @@ const ChatSection = ({ profile }: any) => {
     console.log("****** data *******", res.data);
     status === 200 &&
       (setMessages(messages),
-      setData({ isDM, members, name, isProtected, type, avatar }));
+        setData({ isDM, members, name, isProtected, type, avatar }));
   };
   return (
     <div className="grow m-2 flex flex-col ">
@@ -79,6 +80,9 @@ const role = (members: any, username: string) => {
 };
 
 const HeaderOfChat = ({ profile, data }: any) => {
+  const Context: any = useContext(GeneralContext);
+  const gameSocket: any = Context.Socket;
+  const myprofile: any = Context.Profile;
   const { isDM, members, name, avatar } = data;
   const { username } = profile;
   const myRole = role(members, username);
@@ -110,7 +114,17 @@ const HeaderOfChat = ({ profile, data }: any) => {
       </div>
 
       {/* invite to play games */}
-      <button className="flex green-900 cursor-pointer">
+      <button className="flex bg-gray-50 cursor-pointer"
+        onClick={() => {
+          let room = uuidv4();
+          setTimeout(() => {
+            if (gameSocket) {
+              gameSocket.emit('sendInviteToPlay', { 'from': myprofile.username, 'to': username.username, 'room': room })
+              Router.push("/game/" + room)
+            }
+          }, 250);
+        }}
+      >
         <Games />
         <span> Invite To Game</span>
       </button>
@@ -317,7 +331,7 @@ const InviteToRoom = () => {
             type="email"
             rightIcon={Search}
             placeholder="find user to add"
-            // required={true}
+          // required={true}
           />
         </div>
       </form>

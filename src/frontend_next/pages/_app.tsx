@@ -2,7 +2,7 @@ import "../styles/globals.css";
 import "../styles/gameStyle.css";
 
 import Head from "next/head";
-import React, { createContext } from "react";
+import React, { createContext, useRef } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
@@ -21,7 +21,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   let Router = useRouter();
   const [gameSocket, setGameSocket] = useState<any>(null);
   const [ChatSocket, setChatSocket] = useState<any>(null);
-  let initsocket: boolean = false;
+  let initsocket = useRef<boolean>(false)
   const [reloadApp, setReloadApp] = useState<number>(0);
   const [Nav_active, setNav_active] = useState<boolean>(false);
   const [appReady, setappReady] = useState<boolean>(false);
@@ -60,9 +60,9 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   }
   // let initUsersocket: boolean = false;
   useEffect(() => {
-    if (!initsocket) {
+    if (!initsocket.current) {
       setGameSocket(io("/game"));
-      initsocket = true;
+      initsocket.current = true;
       setChatSocket(io("/chat"));
     }
   }, []);
