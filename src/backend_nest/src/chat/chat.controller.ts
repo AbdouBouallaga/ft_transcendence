@@ -1,11 +1,20 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
-import { CreateChannelDto, CreateDmDto } from './dto';
+import { CreateChannelDto, CreateDmDto, JoinChannelDto } from './dto';
 import { Channel } from '@prisma/client';
 import { ChannelInfo, Conversation } from './interfaces';
 import { ChatServerService } from './chat-server.service';
-import { channel } from 'diagnostics_channel';
 
 @Controller('chat')
 export class ChatController {
@@ -23,13 +32,19 @@ export class ChatController {
 
   @Post('updateRoom')
   @UseGuards(JwtAuthGuard)
-  async updateRoom(@Body() data: CreateChannelDto, @Req() req: any) : Promise<Channel> {
+  async updateRoom(
+    @Body() data: CreateChannelDto,
+    @Req() req: any,
+  ): Promise<Channel> {
     return await this.chatService.updateRoom(data, req.user.id);
   }
 
   @Post('createDM')
   @UseGuards(JwtAuthGuard)
-  async createDirectMessage(@Body() data: CreateDmDto, @Req() req: any) : Promise<Channel> {
+  async createDirectMessage(
+    @Body() data: CreateDmDto,
+    @Req() req: any,
+  ): Promise<Channel> {
     return await this.chatService.createDirectMessage(data, req.user.id);
   }
 
@@ -45,12 +60,24 @@ export class ChatController {
     return await this.chatService.getMyChannels(req.user.id);
   }
 
-	@Get(':channelId')
+  @Get(':channelId')
 	@UseGuards(JwtAuthGuard)
 	async getConversation(@Req() req: any, @Param('channelId', new ParseIntPipe()) channelId: number) : Promise<Conversation> {
     return await this.chatService.getFullChannelInfo(channelId, req.user.id, req.user.login42);
 	}
 
+  @Post('joinChannel')
+  @UseGuards(JwtAuthGuard)
+  async joinChannel(@Req() req: any, @Body() data: JoinChannelDto) : Promise<{ success: boolean }> {
+    console.log("data", data);
+    try {
+      await this.chatServerService.joinChannel(data, req.user.login42);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+	
   @Post('leaveChannel')
   @UseGuards(JwtAuthGuard)
   async leaveChannel(@Req() req: any, @Body() data: { channelId: number }) : Promise<{ success: boolean}> {
@@ -58,7 +85,6 @@ export class ChatController {
       await this.chatServerService.leaveChannel(req.user.login42, data.channelId);
       return { success: true };
     } catch(e) {
-      console.log(e);
       return { success: false };
     }
   }

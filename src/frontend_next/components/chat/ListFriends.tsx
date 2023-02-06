@@ -1,14 +1,17 @@
 import { Modal } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 
-import Add from "../../components/icons/Add";
+// import Add from "../../components/icons/Add";
 import axios from "axios";
 import CreateRoom from "./CreateRoom";
 import FriendCard from "./friendCard";
+import { Cool, Add } from "../icons";
+import { useRouter } from "next/router";
 
 const ListFriends = () => {
   const [createRoom, setCreateRoom] = useState(false);
   const [friends, setFriends] = useState([]);
+  const router = useRouter();
 
   const fetchFriends = async () => {
     const res = await axios.get("/api/chat/me");
@@ -24,11 +27,19 @@ const ListFriends = () => {
       <h1 className="font-bold text-orange-200 text-left text-2xl">Message</h1>
       <div
         onClick={() => setCreateRoom(true)}
-        className="flex text-gray-200 gap-1 cursor-pointer "
+        className="flex text-gray-200 gap-1 cursor-pointer hover:bg-gray-700 p-2 rounded-md my-2 "
         role="button"
       >
         <Add />
         <span>Create Room</span>{" "}
+      </div>
+      <div
+        onClick={() => router.push("/rooms")}
+        className="flex text-gray-200 gap-1 cursor-pointer hover:bg-gray-700 p-2 rounded-md my-2"
+        role="button"
+      >
+        <Cool />
+        <span>Join Room</span>{" "}
       </div>
       <div className="mt-5 overflow-y-auto  h-[100%]">
         {friends.map((friend, index) => (

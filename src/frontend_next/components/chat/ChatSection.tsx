@@ -22,11 +22,12 @@ import Games from "../../components/icons/Games";
 import Menu from "../../components/icons/Menu";
 import { GeneralContext } from "../../pages/_app";
 import { Search } from "../icons";
+import * as timeago from "timeago.js";
 
 import Drawer from "./Drawer";
 import EditRoom from "./EditRoom";
-import { v4 as uuidv4 } from 'uuid';
-import { RESPONSE_LIMIT_DEFAULT } from "next/dist/server/api-utils";
+import { v4 as uuidv4 } from "uuid";
+
 
 const ChatSection = ({ profile }: any) => {
   const Context: any = useContext(GeneralContext);
@@ -64,7 +65,7 @@ const ChatSection = ({ profile }: any) => {
     console.log("****** data *******", res.data);
     status === 200 &&
       (setMessages(messages),
-        setData({ isDM, members, name, isProtected, type, avatar }));
+      setData({ isDM, members, name, isProtected, type, avatar }));
   };
   return (
     <div className="grow m-2 flex flex-col ">
@@ -116,21 +117,27 @@ const HeaderOfChat = ({ profile, data }: any) => {
       </div>
 
       {/* invite to play games */}
-      <button className="flex bg-gray-50 cursor-pointer"
-        onClick={() => {
-          let room = uuidv4();
-          setTimeout(() => {
-            if (gameSocket) {
-              gameSocket.emit('sendInviteToPlay', { 'from': myprofile.username, 'to': name, 'room': room })
-              Router.push("/game/" + room)
-            }
-          }, 250);
-        }}
-      >
-        <Games />
-        <span> Invite To Game</span>
-      </button>
-
+      {isDM && (
+        <button
+          className="flex bg-gray-50 cursor-pointer"
+          onClick={() => {
+            let room = uuidv4();
+            setTimeout(() => {
+              if (gameSocket) {
+                gameSocket.emit("sendInviteToPlay", {
+                  from: myprofile.username,
+                  to: name,
+                  room: room,
+                });
+                Router.push("/game/" + room);
+              }
+            }, 250);
+          }}
+        >
+          <Games />
+          <span> Invite To Game</span>
+        </button>
+      )}
       {/* setting */}
       {isDM ? (
         ""
@@ -217,7 +224,7 @@ const Msg = ({ date, message, username }: any) => {
       <div>
         <div>
           <span className="text-black font-medium ">{username} &nbsp;</span>
-          <span className="text-slate-300 text-xs">{date}</span>
+          <span className="text-slate-300 text-xs">{timeago.format(date)}</span>
         </div>
         <div className="rounded-r-lg  rounded-b-lg bg-green-100 p-2">
           {message}
@@ -235,7 +242,7 @@ const MyMsg = ({ date, message, username }: any) => {
     >
       <div className="">
         <span className="text-black font-medium ">{username} &nbsp;</span>
-        <span className="text-slate-300 text-xs">{date}</span>
+        <span className="text-slate-300 text-xs">{timeago.format(date)}</span>
       </div>
       <div className="rounded-l-lg  rounded-b-lg bg-yellow-100 p-2">
         {message}
@@ -347,7 +354,7 @@ const InviteToRoom = () => {
             type="email"
             rightIcon={Search}
             placeholder="find user to add"
-          // required={true}
+            // required={true}
           />
         </div>
       </form>
