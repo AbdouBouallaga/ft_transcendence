@@ -219,7 +219,8 @@ export class ChatService {
         return (await this.prisma.memberOfChannel.findMany({
             where: {
                 channelId: data.channelId,
-                userId: data.userId
+                userId: data.userId,
+                hasLeft: false
             }
         })).length > 0;
     }
