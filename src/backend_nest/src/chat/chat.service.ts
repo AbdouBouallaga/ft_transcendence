@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateChannelDto, CreateDmDto } from "./dto";
 import { UserPrismaService } from "src/prisma/user.service";
-import { Channel, ChannelType, MemberOfChannel, MemberRole } from '@prisma/client';
+import { Channel, ChannelType, MemberOfChannel, MemberRole, UserBannedFromChannel } from '@prisma/client';
 import * as argon from 'argon2';
 import { ChannelInfo, Conversation, ConversationMessage, ConversationRole, ConversationUser } from "./interfaces";
 
@@ -278,4 +278,17 @@ export class ChatService {
         })).length > 0;
     }
 
+    async getMembership(data: { userId: number, channelId: number }) : Promise<MemberOfChannel> {
+        return await this.prisma.memberOfChannel.findUnique({
+            where: {
+                channelId_userId: data
+            }
+        });
+    }
+
+    async userIsBannedFromChannel(where: { userId: number, channelId: number }) : Promise<boolean> {
+        return (await this.prisma.userBannedFromChannel.findMany({
+            where,
+        })).length > 0;
+    }
 }
