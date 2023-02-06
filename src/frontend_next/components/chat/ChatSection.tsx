@@ -115,26 +115,27 @@ const HeaderOfChat = ({ profile, data }: any) => {
       </div>
 
       {/* invite to play games */}
-      <button
-        className="flex bg-gray-50 cursor-pointer"
-        onClick={() => {
-          let room = uuidv4();
-          setTimeout(() => {
-            if (gameSocket) {
-              gameSocket.emit("sendInviteToPlay", {
-                from: myprofile.username,
-                to: name,
-                room: room,
-              });
-              Router.push("/game/" + room);
-            }
-          }, 250);
-        }}
-      >
-        <Games />
-        <span> Invite To Game</span>
-      </button>
-
+      {isDM && (
+        <button
+          className="flex bg-gray-50 cursor-pointer"
+          onClick={() => {
+            let room = uuidv4();
+            setTimeout(() => {
+              if (gameSocket) {
+                gameSocket.emit("sendInviteToPlay", {
+                  from: myprofile.username,
+                  to: name,
+                  room: room,
+                });
+                Router.push("/game/" + room);
+              }
+            }, 250);
+          }}
+        >
+          <Games />
+          <span> Invite To Game</span>
+        </button>
+      )}
       {/* setting */}
       {isDM ? (
         ""
