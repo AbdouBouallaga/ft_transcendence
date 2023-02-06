@@ -104,15 +104,15 @@ const Game = (props: any) => {
       if (data.map !== 'Normal') {
         if (data.map === 'Pool') {
           bgColor = "#168200";
-          bgImage = "url('/static/pool.png')";
+          bgImage = "url('/public/Game_bg/pool.png')";
         }
         else if (data.map === 'Retro') {
           bgColor = "#4d3100";
-          bgImage = "url('/static/retro.png')";
+          bgImage = "url('/public/Game_bg/retro.png')";
         }
         else if (data.map === 'Space') {
           bgColor = "#1a1a1a";
-          bgImage = "url('/static/space.png')";
+          bgImage = "url('/public/Game_bg/space.png')";
         }
         document.body.style.setProperty("--bg-color", bgColor);
         document.body.style.setProperty("--bg-image", bgImage);

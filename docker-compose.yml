@@ -17,7 +17,7 @@ services:
       - 443:443
     volumes:
       - ./storage/nginx/conf.d:/etc/nginx/conf.d
-      - ./src/frontend_next/static:/usr/share/nginx/html/static
+      - ./src/frontend_next/public:/usr/share/nginx/html/public
       # - ./storage/nginx/ssl:/etc/nginx/ssl
     networks:
       my-network:

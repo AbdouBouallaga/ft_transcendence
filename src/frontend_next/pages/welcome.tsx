@@ -32,7 +32,7 @@ export default function Welcome(props:any) {
                         if (response.data.login42) {
                             props.gameSocket.emit("initUser", response.data.username);
                             // Router.reload(); // reload l7za9 kaml
-                            Router.replace("/");
+                            Router.push("/");
                             setTimeout(() => {
                                 props.setR(props.r + 1)
                             }, 250);

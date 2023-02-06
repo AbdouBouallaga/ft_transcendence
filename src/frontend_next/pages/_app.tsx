@@ -123,11 +123,11 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        {/* <link
           href="https://fonts.googleapis.com/css2?family=Chakra+Petch&display=swap"
           rel="stylesheet"
-        />
+        /> */}
       </Head>
       {appReady && (
         <div id="appRoot" className="h-screen flex flex-col">
