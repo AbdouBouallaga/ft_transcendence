@@ -41,7 +41,7 @@ const ChatSection = ({ profile }: any) => {
       init.current = true;
       socket.emit("enterRoom", {
         login42: profile.login42,
-        channelId: parseInt(id),
+        channelId: parseInt(id as string),
       });
       socket.on("updateChatSection", (data: any) => {
         setMessages((old: any[]) => [...old, data]);
@@ -60,7 +60,7 @@ const ChatSection = ({ profile }: any) => {
       status,
       data: { isDM, members, messages, name, isProtected, type, avatar },
     } = res;
-    console.log("****** data *******", res.data);
+    // console.log("****** data *******", res.data);
     status === 200 &&
       (setMessages(messages),
         setData({ isDM, members, name, isProtected, type, avatar }));
@@ -232,7 +232,7 @@ const BodyOfChat = ({ messages, profile, roomid }: any) => {
   const { username: myUserName } = profile;
 
   function useChatScroll<T>(dep: T): React.MutableRefObject<HTMLDivElement> {
-    const ref = useRef<HTMLDivElement>();
+    const ref:any = useRef<HTMLDivElement>();
     useEffect(() => {
       if (ref.current) {
         ref.current.scrollTop = ref.current.scrollHeight;

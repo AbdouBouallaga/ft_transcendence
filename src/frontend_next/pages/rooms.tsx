@@ -5,14 +5,14 @@ import Image from "next/image";
 import { Button } from "flowbite-react";
 import { Lock, Unlock } from "../components/icons";
 
-const rooms = () => {
-  const [rooms, setRooms] = useState([1, 2, 3, 4, 5]);
+const Rooms = () => {
+  const [rooms, setRooms] = useState<any[]>([1, 2, 3, 4, 5]);
 
-  if (rooms.length > 0) return <Rooms rooms={rooms} />;
+  if (rooms.length > 0) return <Roomss rooms={rooms} />;
   else return <NoRooms />;
 };
 
-export default rooms;
+export default Rooms;
 
 const NoRooms = () => {
   return (
@@ -25,7 +25,7 @@ const NoRooms = () => {
   );
 };
 
-const Rooms = ({ rooms }) => {
+const Roomss = ({ rooms }:any) => {
   return (
     <div className="my-8">
       <h1 className="text-gray-300 text-2xl">All Availeble Rooms</h1>

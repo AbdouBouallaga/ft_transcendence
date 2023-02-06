@@ -24,7 +24,7 @@ const CreateRoom = ({ setCreateRoom }:any) => {
 
   const handelSubmit = (e: any) => {
     e.preventDefault();
-    console.log("data", data);
+    // console.log("data", data);
     const send = async () => {
       try {
         let res = await axios.post("/api/chat/createRoom", data);

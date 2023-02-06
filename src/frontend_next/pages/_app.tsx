@@ -50,8 +50,8 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       uri = AppProps.router.route;
     if (AppProps.router.route === "/welcome") nav = false;
 
-    console.log("uri", uri);
-    console.log("query", Router.query);
+    // console.log("uri", uri);
+    // console.log("query", Router.query);
     Router.replace({
       pathname: uri,
       query: Router.query,
@@ -72,12 +72,12 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       setInterval(() => {
         gameSocket.emit("initUser", profile.username);
       }, 60000);
-      // console.log("avalable", profile.login42)
+      // // console.log("avalable", profile.login42)
     }
   }, [profile.login42]);
   useEffect(() => {
     if (!Router.isReady) return;
-    console.log("app useEffect");
+    // console.log("app useEffect");
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
     } else {
@@ -85,8 +85,8 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         axios
           .get("/api/users/me/fullprofile")
           .then((response) => {
-            // console.log(response);
-            console.log(response.data);
+            // // console.log(response);
+            // console.log(response.data);
             const { login42, username, avatar, tfaEnabled, friends } =
               response.data;
             setProfile({
@@ -101,14 +101,14 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
             }
           })
           .catch((e) => {
-            console.log("error");
+            // console.log("error");
             routeMo("/login", false, true, true);
           });
       };
       fetchData();
       if (profile.login42 !== "") {
         // gameSocket.emit("initUser", profile.login42);
-        console.log("avalable", profile.login42);
+        // console.log("avalable", profile.login42);
       }
     }
   }, [reloadApp, Router.isReady]);

@@ -14,7 +14,7 @@ const Index = (props: any) => {
             fetschRooms();
         });
         props.gameSocket.on("rooms", (data: any) => {
-            console.log(data);
+            // console.log(data);
             setRooms(data.rooms);
         });
         fetschRooms();
@@ -26,7 +26,7 @@ const Index = (props: any) => {
 
     useEffect(() => {
         return () => {
-            console.log("unmount");
+            // console.log("unmount");
             props.gameSocket.off("rooms");
             clearInterval(interval);
             document.removeEventListener("keydown", (e) => { });

@@ -7,19 +7,19 @@ import Router from "next/router";
 
 var imageResize = new ImageResize({
     format: 'png',
-    height: 160,
-    width: 160
+    height: 90,
+    width: 90
 });
 
-export default function Welcome(props:any) {
-    
+export default function Welcome(props: any) {
+
     let [img, setImg] = useState(props.profile.avatar);
     let profile = props.profile;
     async function PushEdits(Username: string, imgInput: File) {
         props.gameSocket.emit("initUser", Username);
         var imgResized = imageResize.play(imgInput)
             .then((resizedImage) => {
-                console.log(resizedImage);
+                // console.log(resizedImage);
                 axios({
                     method: 'POST',
                     url: '/api/users/me',
@@ -31,10 +31,12 @@ export default function Welcome(props:any) {
                     .then((response) => {
                         if (response.data.login42) {
                             props.gameSocket.emit("initUser", response.data.username);
+                            props.setR(props.r + 1)
                             // Router.reload(); // reload l7za9 kaml
-                            Router.push("/");
                             setTimeout(() => {
-                                props.setR(props.r + 1)
+                                Router.push("/");
+                                // setTimeout(() => {
+                                // }, 250);
                             }, 250);
                             // setReloadContent(editReloadContent + 1); // this reload the profile but not the navbar
                         }
@@ -42,7 +44,8 @@ export default function Welcome(props:any) {
                     .catch((error) => {
                     })
             }
-            )
+            ).catch((error) => {
+            })
     }
 
 
@@ -68,8 +71,8 @@ export default function Welcome(props:any) {
         } else {
             inputSize = maxSize + 1;
         }
-        console.log(maxSize);
-        console.log(inputSize);
+        // console.log(maxSize);
+        // console.log(inputSize);
         var imgInput: File = profile.avatar;
         if (FileInput.files && FileInput.files[0] && maxSize > inputSize) {
             imgInput = FileInput.files[0];
@@ -84,7 +87,7 @@ export default function Welcome(props:any) {
                     <h1 className='text-2xl font-bold text-center'>Welcome {profile.username}</h1>
                     <p className='text-center'>You can change your username and avatar here</p>
                     {/* <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} /> */}
-                    <Avatar img={img} size="xl"/>
+                    <Avatar img={img} size="xl" />
                     <div className="form-group  space-y-1 flex flex-col">
                         <label className="font-bold">Username</label>
                         <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />

@@ -10,8 +10,8 @@ import { GeneralContext } from "../_app";
 
 var imageResize = new ImageResize({
   format: 'png',
-  height: 160,
-  width: 160
+  height: 90,
+  width: 90
 });
 
 const Profile = (props: any) => {
@@ -70,7 +70,6 @@ const Profile = (props: any) => {
         toggle2faModal();
       })
       .catch((error) => {
-        console.log(error);
       })
   }
   async function disable2fa() {
@@ -176,11 +175,11 @@ const Profile = (props: any) => {
   // Fetch the user's profile data when the component mounts
   let init = useRef<boolean>(false);
   useEffect(() => {
-    console.log("init.current", init.current)
+    // console.log("init.current", init.current)
     if (!init.current) {
       init.current = true;
       props.gameSocket.on("updateUserStatus", (data: any) => {
-        console.log("updateUserStatus", data);
+        // console.log("updateUserStatus", data);
         setUsersStatus(data);
       },);
     }
@@ -199,8 +198,8 @@ const Profile = (props: any) => {
       axios
         .get("/api/users/" + user + "/fullprofile")
         .then((response) => {
-          console.log(">>>>>>>>> ", response.data);
-          console.log("APP ", props.profile);
+          // console.log(">>>>>>>>> ", response.data);
+          // console.log("APP ", props.profile);
           const { login42, username, avatar, tfaEnabled, friends, games, blocking, blocked } = response.data;
           setProfile({
             login42,
@@ -219,7 +218,7 @@ const Profile = (props: any) => {
           set2faEnabled(tfaEnabled);
         })
         .catch((error) => {
-          console.log(error);
+          // console.log(error);
         });
     }
     fetchProfile();
@@ -351,6 +350,8 @@ const Profile = (props: any) => {
                         method: 'POST',
                         url: '/api/users/follow/' + profile.username,
                       })
+                      .catch((error) => {
+                      })
                       // router.reload()
                       setTimeout(() => {
                         props.setR(props.r + 1)
@@ -364,6 +365,8 @@ const Profile = (props: any) => {
                       axios({
                         method: 'POST',
                         url: '/api/users/unfollow/' + profile.username,
+                      })
+                      .catch((error) => {
                       })
                       // router.reload()
                       setTimeout(() => {
@@ -384,10 +387,9 @@ const Profile = (props: any) => {
                     })
                       .then((response) => {
                         router.push("/chat/" + response.data.id);
-                        console.log(response.data)
+                        // console.log(response.data)
                       })
                       .catch((error) => {
-                        console.log(error)
                       });
                   }}>Direct message</Button>
                   <Button className='m-2' onClick={() => {
@@ -405,6 +407,8 @@ const Profile = (props: any) => {
                       method: 'POST',
                       url: '/api/users/block/' + profile.username,
                     })
+                    .catch((error) => {
+                    })
                     // router.reload()
                     setTimeout(() => {
                       props.setR(props.r + 1)
@@ -419,6 +423,8 @@ const Profile = (props: any) => {
                     axios({
                       method: 'POST',
                       url: '/api/users/unblock/' + profile.username,
+                    })
+                    .catch((error) => {
                     })
                     // router.reload()
                     setTimeout(() => {
