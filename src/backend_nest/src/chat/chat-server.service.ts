@@ -289,17 +289,19 @@ export class ChatServerService {
 				newOwner = admins[0];
 				newOwnerFound = true;
 			}
-			return await this.prisma.memberOfChannel.update({
-				where: {
-					channelId_userId: {
-						channelId,
-						userId: newOwner.id
+			if (newOwnerFound) {
+				return await this.prisma.memberOfChannel.update({
+					where: {
+						channelId_userId: {
+							channelId,
+							userId: newOwner.userId
+						}
+					},
+					data: {
+						role: MemberRole.ADMIN
 					}
-				},
-				data: {
-					role: MemberRole.ADMIN
-				}
-			});
+				});
+			}
 		}
 		return await this.prisma.memberOfChannel.update({
 			where: {

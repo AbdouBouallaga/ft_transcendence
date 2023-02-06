@@ -57,7 +57,8 @@ export class ChatController {
     try {
       await this.chatServerService.leaveChannel(req.user.login42, data.channelId);
       return { success: true };
-    } catch {
+    } catch(e) {
+      console.log(e);
       return { success: false };
     }
   }

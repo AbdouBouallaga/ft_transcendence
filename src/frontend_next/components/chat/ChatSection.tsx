@@ -10,7 +10,7 @@ import {
   ToggleSwitch,
   Alert,
 } from "flowbite-react";
-import Router ,{ useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import {
   MutableRefObject,
   useContext,
@@ -26,6 +26,7 @@ import { Search } from "../icons";
 import Drawer from "./Drawer";
 import EditRoom from "./EditRoom";
 import { v4 as uuidv4 } from 'uuid';
+import { RESPONSE_LIMIT_DEFAULT } from "next/dist/server/api-utils";
 
 const ChatSection = ({ profile }: any) => {
   const Context: any = useContext(GeneralContext);
@@ -89,6 +90,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
   const [drawer, setDrawer] = useState(false);
   const [editRoom, setEditRoom] = useState(false);
   const [invite, setInvite] = useState(false);
+  const { id } = Router.query
 
   return (
     <div className="border-b border-gray-600 flex items-center justify-between mx-3">
@@ -159,7 +161,21 @@ const HeaderOfChat = ({ profile, data }: any) => {
           >
             All Members
           </Dropdown.Item>
-          <Dropdown.Item>Leave</Dropdown.Item>
+          <Dropdown.Item
+            onClick={() => {
+              axios({
+                method: 'POST',
+                url: '/api/chat/leaveChannel',
+                data: {
+                  channelId: parseInt(id as string)
+                },
+              })
+                .then((response) => {
+                  if (response.data.success)
+                    Router.replace("/chat");
+                })
+            }}
+          >Leave</Dropdown.Item>
         </Dropdown>
       )}
       <Drawer

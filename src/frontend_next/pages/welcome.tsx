@@ -11,8 +11,8 @@ var imageResize = new ImageResize({
     width: 160
 });
 
-export default function Welcome(props:any) {
-    
+export default function Welcome(props: any) {
+
     let [img, setImg] = useState(props.profile.avatar);
     let profile = props.profile;
     async function PushEdits(Username: string, imgInput: File) {
@@ -32,9 +32,11 @@ export default function Welcome(props:any) {
                         if (response.data.login42) {
                             props.gameSocket.emit("initUser", response.data.username);
                             // Router.reload(); // reload l7za9 kaml
-                            Router.push("/");
                             setTimeout(() => {
                                 props.setR(props.r + 1)
+                                setTimeout(() => {
+                                    Router.push("/");
+                                }, 150);
                             }, 250);
                             // setReloadContent(editReloadContent + 1); // this reload the profile but not the navbar
                         }
@@ -42,7 +44,8 @@ export default function Welcome(props:any) {
                     .catch((error) => {
                     })
             }
-            )
+            ).catch((error) => {
+            })
     }
 
 
@@ -84,7 +87,7 @@ export default function Welcome(props:any) {
                     <h1 className='text-2xl font-bold text-center'>Welcome {profile.username}</h1>
                     <p className='text-center'>You can change your username and avatar here</p>
                     {/* <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} /> */}
-                    <Avatar img={img} size="xl"/>
+                    <Avatar img={img} size="xl" />
                     <div className="form-group  space-y-1 flex flex-col">
                         <label className="font-bold">Username</label>
                         <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
