@@ -14,11 +14,13 @@ import { Socket } from "dgram";
 export const GeneralContext: any = createContext({
   Socket: null,
   Profile: null,
+  ChatSocket: null
 });
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
   let Router = useRouter();
   const [gameSocket, setGameSocket] = useState<any>(null);
+  const [ChatSocket, setChatSocket] = useState<any>(null);
   let initsocket: boolean = false;
   const [reloadApp, setReloadApp] = useState<number>(0);
   const [Nav_active, setNav_active] = useState<boolean>(false);
@@ -61,6 +63,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     if (!initsocket) {
       setGameSocket(io("/game"));
       initsocket = true;
+      setChatSocket(io("/chat"));
     }
   }, []);
   useEffect(() => {
@@ -132,7 +135,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
             <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />
           )}
           <GeneralContext.Provider
-            value={{ Socket: gameSocket, Profile: profile }}
+            value={{ Socket: gameSocket, Profile: profile, ChatSocket }}
           >
             <Component
               {...pageProps}

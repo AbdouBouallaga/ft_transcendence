@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class EnterRoomDto {
-	@IsString()
-	@IsNotEmpty()
-	login42: string;
+    @IsNotEmpty()
+    @IsString()
+    login42: string;
 
-	@IsNumber()
-	@IsNotEmpty()
-	channelId: number;
+    @IsNotEmpty()
+    @IsNumber()
+    channelId: number;
 }
