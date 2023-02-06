@@ -185,9 +185,11 @@ export class ChatService {
         })).map(message => {
             return new ConversationMessage(message);
         });
-        let channelName = members[0].username;
-        let channelAvatar = members[0].avatar;
+        let channelName = channel.name;
+        let channelAvatar = channel.avatar;
         if (channel.type === ChannelType.DIRECT) {
+            channelName = members[0].username;
+            channelAvatar = members[0].avatar;
             for (let i = 1; i < members.length; i++) {
                 if (members[i].login42 !== login42) {
                     channelName = members[i].username;
