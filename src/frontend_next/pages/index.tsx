@@ -23,12 +23,12 @@ const Index = (props: any) => {
           Get ready for a classic arcade experience with Pong! Two players
           control paddles on either side of the screen to hit a ball back and
           forth. The goal is to score points by making the ball pass the
-          opponent's paddle and not allowing it to touch the sides of the
-          screen. Use the UP and DOWN arrow keys to control the movement of your
-          paddle and challenge your friends for hours of fun. With fast-paced
-          gameplay and the option for increased ball speed, power-ups, and
-          obstacles, Pong is a game that will keep you on your toes. Who will
-          come out on top as the Pong champion?
+          opponents paddle and not allowing it to touch the sides of the screen.
+          Use the UP and DOWN arrow keys to control the movement of your paddle
+          and challenge your friends for hours of fun. With fast-paced gameplay
+          and the option for increased ball speed, power-ups, and obstacles,
+          Pong is a game that will keep you on your toes. Who will come out on
+          top as the Pong champion?
         </div>
 
         <button
