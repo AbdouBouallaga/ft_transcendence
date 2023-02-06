@@ -11,13 +11,15 @@ import {
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
-import { CreateChannelDto, CreateDmDto } from './dto';
+import { CreateChannelDto, CreateDmDto, JoinChannelDto } from './dto';
 import { Channel } from '@prisma/client';
 import { ChannelInfo, Conversation } from './interfaces';
+import { ChatServerService } from './chat-server.service';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService,
+              private readonly chatServerService: ChatServerService) {}
 
   @Post('createRoom')
   @UseGuards(JwtAuthGuard)
@@ -69,5 +71,17 @@ export class ChatController {
       req.user.id,
       req.user.login42,
     );
+  }
+
+  @Post('joinChannel')
+  @UseGuards(JwtAuthGuard)
+  async joinChannel(@Req() req: any, @Body() data: JoinChannelDto) : Promise<{ success: boolean }> {
+    console.log("data", data);
+    try {
+      await this.chatServerService.joinChannel(data, req.user.login42);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
   }
 }

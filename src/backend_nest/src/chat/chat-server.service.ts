@@ -213,21 +213,27 @@ export class ChatServerService {
 		});
 	}
 
-	// joinChannel
-	async joinChannel(data: JoinChannelDto) : Promise<MemberOfChannel> {
-		const user = await this.userPrisma.findUserByLogin42(data.login42);
-		if (await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId })) {
-			throw new BadRequestException();
-		}
+	async joinChannel(data: JoinChannelDto, login42: string) : Promise<MemberOfChannel> {
+		const user = await this.userPrisma.findUserByLogin42(login42);
 		if (await this.chatService.userIsBannedFromChannel({ userId: user.id, channelId: data.channelId })) {
 			throw new UnauthorizedException();
+		}
+		if (await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId })) {
+			return await this.prisma.memberOfChannel.findUnique({
+				where: {
+					channelId_userId: {
+						channelId: data.channelId,
+						userId: user.id
+					}
+				}
+			});
 		}
 		const channel = await this.prisma.channel.findUnique({ where: { id: data.channelId } });
 		if (channel.isProtected) {
 			if (!data.password) {
 				throw new BadRequestException();
 			}
-			if (!(await argon.verify(channel.password, data.password))) {
+			else if (!(await argon.verify(channel.password, data.password))) {
 				throw new UnauthorizedException();
 			}
 		}
