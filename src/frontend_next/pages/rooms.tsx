@@ -1,13 +1,21 @@
 import Lottie from "lottie-react";
 import empty from "../components/icons/empty.json";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "flowbite-react";
 import { Lock, Unlock } from "../components/icons";
 
 const rooms = () => {
-  const [rooms, setRooms] = useState([1, 2, 3, 4, 5]);
+  const [rooms, setRooms] = useState([]);
 
+  const fetchRooms = async () => {
+    const res = await fetch("/api/chat/publicChannels");
+    console.log("***** data ******", res.data);
+  };
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
   if (rooms.length > 0) return <Rooms rooms={rooms} />;
   else return <NoRooms />;
 };
