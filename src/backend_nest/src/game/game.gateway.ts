@@ -282,6 +282,7 @@ export class GameGateway implements OnModuleInit {
         // USERS STATUS MANAGEMENT
         socket.on('initUser', (data) => {
           users[data] = { login42: data, socketId: socket.id, status: 1, life: 20 };
+          users[data].life = 20;
           console.log('initUser', users[data]);
           this.server.emit("updateUserStatus", users);
           let interval = setInterval(() => {

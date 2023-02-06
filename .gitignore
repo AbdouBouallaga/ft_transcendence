@@ -11,6 +11,7 @@ src/frontend_next/.pnp.js
 src/frontend_next/package-lock.json
 src/backend_next/package-lock.json
 
+
 # testing
 src/frontend_next/coverage
 
@@ -54,6 +55,7 @@ src/backend_nest/pnpm-debug.log*
 src/backend_nest/yarn-debug.log*
 src/backend_nest/yarn-error.log*
 src/backend_nest/lerna-debug.log*
+src/backend_nest/package-lock.json
 
 # OS
 src/backend_nest/.DS_Store
