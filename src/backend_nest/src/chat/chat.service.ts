@@ -206,20 +206,7 @@ export class ChatService {
       throw new UnauthorizedException();
     }
     const channel = new ChannelInfo(await this.findChannelById(channelId));
-    const members = (
-      await this.prisma.memberOfChannel.findMany({
-        where: { channelId, hasLeft: false },
-        include: { user: true },
-      })
-    ).map((member) => {
-      let role = ConversationRole.MEMBER;
-      if (member.role === MemberRole.OWNER) {
-        role = ConversationRole.OWNER;
-      } else if (member.role === MemberRole.ADMIN) {
-        role = ConversationRole.ADMIN;
-      }
-      return new ConversationUser(member.user, role);
-    });
+    const members = await this.getChannelMembers(userId, channelId);
     const messages = (
       await this.prisma.message.findMany({
         where: {
@@ -302,6 +289,26 @@ export class ChatService {
         })
       )).length > 0
     );
+  }
+
+  async getChannelMembers(userId: number, channelId: number) : Promise<ConversationUser[]> {
+    if (!(await this.isChannelMember({ userId, channelId }))) {
+      throw new UnauthorizedException();
+    }
+    return (
+      await this.prisma.memberOfChannel.findMany({
+        where: { channelId, hasLeft: false },
+        include: { user: true },
+      })
+    ).map((member) => {
+      let role = ConversationRole.MEMBER;
+      if (member.role === MemberRole.OWNER) {
+        role = ConversationRole.OWNER;
+      } else if (member.role === MemberRole.ADMIN) {
+        role = ConversationRole.ADMIN;
+      }
+      return new ConversationUser(member.user, role);
+    });
   }
 
   async findChannelByName(channelName: string): Promise<Channel> {
