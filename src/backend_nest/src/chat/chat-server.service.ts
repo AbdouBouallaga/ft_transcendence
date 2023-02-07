@@ -28,7 +28,7 @@ export class ChatServerService {
 		if (channel.type === ChannelType.DIRECT) {
 			const members = await this.prisma.memberOfChannel.findMany({
 				where: { channelId: data.channelId },
-				select: { user: true }
+				select: { user: true, hasLeft: false }
 			});
 			let otherUser = members[0].user;
 			for (let i = 0; i < members.length; i++) {
@@ -239,7 +239,7 @@ export class ChatServerService {
 		}
 		let newRole: MemberRole = MemberRole.MEMBER;
 		if ((await this.prisma.memberOfChannel.findMany({
-			where: { channelId: data.channelId }
+			where: { channelId: data.channelId, hasLeft: false }
 		})).length === 0) {
 			newRole = MemberRole.OWNER;
 		}
@@ -280,6 +280,7 @@ export class ChatServerService {
 			const members = await this.prisma.memberOfChannel.findMany({
 				where: {
 					channelId,
+					hasLeft: false
 				}
 			});
 			let newOwner = null;
@@ -296,7 +297,7 @@ export class ChatServerService {
 				newOwnerFound = true;
 			}
 			if (newOwnerFound) {
-				return await this.prisma.memberOfChannel.update({
+				await this.prisma.memberOfChannel.update({
 					where: {
 						channelId_userId: {
 							channelId,
@@ -304,7 +305,7 @@ export class ChatServerService {
 						}
 					},
 					data: {
-						role: MemberRole.ADMIN
+						role: MemberRole.OWNER
 					}
 				});
 			}
