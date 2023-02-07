@@ -25,7 +25,11 @@ export class UserPrismaService {
       username = login42;
     }
 
-    const user = await this.findUserByLogin42(login42);
+    const user = await this.prisma.user.findUnique({
+      where: {
+        login42
+      }
+    });
     if (!user) {
       const newUser = await this.createUser(login42, avatar);
       if (!newUser) {
