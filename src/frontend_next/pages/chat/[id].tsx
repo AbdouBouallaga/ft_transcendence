@@ -15,11 +15,10 @@ import Games from "../../components/icons/Games";
 import Menu from "../../components/icons/Menu";
 import { useRouter } from "next/router";
 import Add from "../../components/icons/Add";
-import axios from "axios";
 import ListFriends from "../../components/chat/ListFriends";
 import ChatSection from "../../components/chat/ChatSection";
 
-const Chat = ({ profile }:any) => {
+const Chat = ({ profile }: any) => {
   console.log("Chat log, ", profile)
   return (
     <>

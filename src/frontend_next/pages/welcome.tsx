@@ -34,10 +34,10 @@ export default function Welcome(props: any) {
                             // Router.reload(); // reload l7za9 kaml
                             // setTimeout(() => {
                             //     props.setR(props.r + 1)
-                                setTimeout(() => {
-                                    Router.push("/");
-                                    Router.events.on("routeChangeComplete", ()=>{props.setR(props.r + 1)});
-                                }, 150);
+                            setTimeout(() => {
+                                Router.push("/");
+                                Router.events.on("routeChangeComplete", () => { props.setR(props.r + 1) });
+                            }, 150);
                             // }, 250);
                             // setReloadContent(editReloadContent + 1); // this reload the profile but not the navbar
                         }

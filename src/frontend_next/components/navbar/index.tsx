@@ -39,7 +39,7 @@ const Navbar = (props: any) => {
         .then((response) => {
           setResults(response.data)
           console.log(response);
-        })
+        }).catch((err) => { })
     else
       setResults([])
   }, [c]);

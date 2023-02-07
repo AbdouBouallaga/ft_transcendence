@@ -241,130 +241,170 @@ const Profile = (props: any) => {
             statusPosition="bottom-right"
           />
           <h1><b> {profile.username}</b></h1>
-          {!profile.blocked?<>
-          <div className="flex">
-            {profile.login42 === props.profile.login42 && profile.login42 !== '' ?
-              <>
-                {/* EDIT button and modal*/}
-                <React.Fragment>
-                  <Button className='m-2' onClick={toggleEditModal}>Edit</Button>
-                  <Modal show={enableEditmodal}
-                    onClose={toggleEditModal}
-                    size="sm"
-                  >
-                    <Modal.Header>Edit Profile</Modal.Header>
-                    <Modal.Body>
-                      {editError ?? <Badge color="failure">Error editing profile</Badge>}
-                      <div className="form-group flex flex-col place-items-center">
-                        {/* <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} /> */}
-                        <Avatar img={img} size="xl" />
-                        <label>Username</label>
-                        <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
-                      </div>
-                      <div className="form-group">
-                        <label>Avatar</label>
-                        <input onChange={preview} type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
-                      </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button onClick={ProcessEdits}>
-                        Save
-                      </Button>
-                      <Button color="failure" onClick={toggleEditModal}>
-                        Cancel
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-                </React.Fragment>
-
-                {/* 2FA button and modal*/}
-                <React.Fragment>
-                  {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={disable2fa} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
-                  <Modal show={enable2famodal}
-                    onClose={modal2faDefault}
-                    size="sm"
-                  >
-                    <Modal.Header >Two-factor authentication</Modal.Header>
-                    {!profile.tfaEnabled &&
+          {!profile.blocked ? <>
+            <div className="flex">
+              {profile.login42 === props.profile.login42 && profile.login42 !== '' ?
+                <>
+                  {/* EDIT button and modal*/}
+                  <React.Fragment>
+                    <Button className='m-2' onClick={toggleEditModal}>Edit</Button>
+                    <Modal show={enableEditmodal}
+                      onClose={toggleEditModal}
+                      size="sm"
+                    >
+                      <Modal.Header>Edit Profile</Modal.Header>
                       <Modal.Body>
-                        {qrnextButton &&
-                          <div id="2faQr">
-                            <p className='text-center'>Scan this QR code with your authenticator app</p>
-                            <img className='m-auto' src={data2fa['otpAuthURL']} alt="qr" />
-                          </div>
+                        {editError ?? <Badge color="failure">Error editing profile</Badge>}
+                        <div className="form-group flex flex-col place-items-center">
+                          {/* <img className="rounded-full" height={160} width={160} src={img} alt={profile.username} /> */}
+                          <Avatar img={img} size="xl" />
+                          <label>Username</label>
+                          <TextInput id="username" className='form-control' type="text" defaultValue={profile.username} />
+                        </div>
+                        <div className="form-group">
+                          <label>Avatar</label>
+                          <input onChange={preview} type="file" className="form-control-file" id="avatar" max-size="1" accept="image/*" />
+                        </div>
+                      </Modal.Body>
+                      <Modal.Footer>
+                        <Button onClick={ProcessEdits}>
+                          Save
+                        </Button>
+                        <Button color="failure" onClick={toggleEditModal}>
+                          Cancel
+                        </Button>
+                      </Modal.Footer>
+                    </Modal>
+                  </React.Fragment>
+
+                  {/* 2FA button and modal*/}
+                  <React.Fragment>
+                    {profile.tfaEnabled ? <Button className='m-2' color="failure" onClick={disable2fa} >Disable 2fa</Button> : <Button className='m-2' onClick={enable2fa}>Enable 2fa</Button>}
+                    <Modal show={enable2famodal}
+                      onClose={modal2faDefault}
+                      size="sm"
+                    >
+                      <Modal.Header >Two-factor authentication</Modal.Header>
+                      {!profile.tfaEnabled &&
+                        <Modal.Body>
+                          {qrnextButton &&
+                            <div id="2faQr">
+                              <p className='text-center'>Scan this QR code with your authenticator app</p>
+                              <img className='m-auto' src={data2fa['otpAuthURL']} alt="qr" />
+                            </div>
+                          }
+                          {qrprevButton &&
+                            <div className='flex' id="2faConfirm">
+                              <TextInput className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
+                              <Button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</Button>
+                            </div>
+                          }
+                          {qr2faCodeError &&
+                            <Badge color="failure" size="L">
+                              <strong >Wrong Code !!</strong>
+                            </Badge>
+                          }
+                        </Modal.Body>
+                      }
+                      {profile.tfaEnabled &&
+                        <Modal.Body>
+                          {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
+                            <Badge color="success" size="L">
+                              <strong >2fa enabled successfully</strong>
+                            </Badge>
+                          }
+                        </Modal.Body>
+                      }
+                      <Modal.Footer>
+                        {qrnextButton && !profile.tfaEnabled &&
+                          <Button id='qrnextButton' className=' btn btn-primary' onClick={() => {
+                            set2faCodeError(false);
+                            setqrnextButton(!qrnextButton)
+                            setqrprevButton(!qrprevButton)
+                          }}>
+                            Next
+                          </Button>
                         }
                         {qrprevButton &&
-                          <div className='flex' id="2faConfirm">
-                            <TextInput className='form-control' type="text" inputMode='numeric' id="2faCodeInput" placeholder="Code" maxLength={6} />
-                            <Button className='btn btn btn-primary' onClick={confirm2fa}>Confirm</Button>
-                          </div>
+                          <Button id='qrprevButton' className=' btn btn-primary' onClick={() => {
+                            set2faCodeError(false);
+                            setqrprevButton(!qrprevButton)
+                            setqrnextButton(!qrnextButton)
+                          }}>
+                            Previous
+                          </Button>
                         }
-                        {qr2faCodeError &&
-                          <Badge color="failure" size="L">
-                            <strong >Wrong Code !!</strong>
-                          </Badge>
-                        }
-                      </Modal.Body>
-                    }
-                    {profile.tfaEnabled &&
-                      <Modal.Body>
-                        {qr2faConfirm && // yeah yeah, profile.tfaEnabled logic
-                          <Badge color="success" size="L">
-                            <strong >2fa enabled successfully</strong>
-                          </Badge>
-                        }
-                      </Modal.Body>
-                    }
-                    <Modal.Footer>
-                      {qrnextButton && !profile.tfaEnabled &&
-                        <Button id='qrnextButton' className=' btn btn-primary' onClick={() => {
-                          set2faCodeError(false);
-                          setqrnextButton(!qrnextButton)
-                          setqrprevButton(!qrprevButton)
-                        }}>
-                          Next
+                        <Button className='btn btn-danger' onClick={modal2faDefault}>
+                          Cancel
                         </Button>
-                      }
-                      {qrprevButton &&
-                        <Button id='qrprevButton' className=' btn btn-primary' onClick={() => {
-                          set2faCodeError(false);
-                          setqrprevButton(!qrprevButton)
-                          setqrnextButton(!qrnextButton)
-                        }}>
-                          Previous
-                        </Button>
-                      }
-                      <Button className='btn btn-danger' onClick={modal2faDefault}>
-                        Cancel
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-                </React.Fragment>
-              </> : <></>
-            }
-            {profile.login42 !== props.profile.login42 && profile.login42 !== '' ?
-              <>
-                {!profile.blocking ? <>
-                  {(props['profile']['friends'].findIndex((x: any) => x['login42'] === profile['login42']) === -1) ?
+                      </Modal.Footer>
+                    </Modal>
+                  </React.Fragment>
+                </> : <></>
+              }
+              {profile.login42 !== props.profile.login42 && profile.login42 !== '' ?
+                <>
+                  {!profile.blocking ? <>
+                    {(props['profile']['friends'].findIndex((x: any) => x['login42'] === profile['login42']) === -1) ?
+                      <Button className='m-2' onClick={() => {
+                        axios({
+                          method: 'POST',
+                          url: '/api/users/follow/' + profile.username,
+                        }).then((res) => {}).catch((err) => {})
+                        // router.reload()
+                        setTimeout(() => {
+                          props.setR(props.r + 1)
+                          setTimeout(() => {
+                            setR(r + 1)
+                          }, 250);
+                        }, 250);
+                      }}>Follow</Button>
+                      :
+                      <Button className='m-2 danger' onClick={() => {
+                        axios({
+                          method: 'POST',
+                          url: '/api/users/unfollow/' + profile.username,
+                        }).then((res) => {}).catch((err) => {})
+                        // router.reload()
+                        setTimeout(() => {
+                          props.setR(props.r + 1)
+                          setTimeout(() => {
+                            setR(r + 1)
+                          }, 250);
+                        }, 250);
+                      }}>UnFollow</Button>
+                    }
                     <Button className='m-2' onClick={() => {
                       axios({
                         method: 'POST',
-                        url: '/api/users/follow/' + profile.username,
+                        url: '/api/chat/createDM',
+                        data: {
+                          otherLogin42: profile.login42,
+                        },
                       })
-                      // router.reload()
+                        .then((response) => {
+                          router.push("/chat/" + response.data.id);
+                          console.log(response.data)
+                        })
+                        .catch((error) => {
+                          console.log(error)
+                        });
+                    }}>Direct message</Button>
+                    <Button className='m-2' onClick={() => {
+                      let room = uuidv4();
                       setTimeout(() => {
-                        props.setR(props.r + 1)
-                        setTimeout(() => {
-                          setR(r + 1)
-                        }, 250);
+                        if (gameSocket) {
+                          gameSocket.emit('sendInviteToPlay', { 'from': props.profile.username, 'to': profile.username, 'room': room })
+                          router.push("/game/" + room)
+                        }
                       }, 250);
-                    }}>Follow</Button>
-                    :
-                    <Button className='m-2 danger' onClick={() => {
+                    }}>Invite to play</Button>
+
+                    <Button color="failure" className='m-2' onClick={() => {
                       axios({
                         method: 'POST',
-                        url: '/api/users/unfollow/' + profile.username,
-                      })
+                        url: '/api/users/block/' + profile.username,
+                      }).then((res) => {}).catch((err) => {})
                       // router.reload()
                       setTimeout(() => {
                         props.setR(props.r + 1)
@@ -372,146 +412,106 @@ const Profile = (props: any) => {
                           setR(r + 1)
                         }, 250);
                       }, 250);
-                    }}>UnFollow</Button>
+                    }}>Block</Button>
+                  </>
+                    :
+                    <Button color="success" className='m-2' onClick={() => {
+                      axios({
+                        method: 'POST',
+                        url: '/api/users/unblock/' + profile.username,
+                      }).then((res) => {}).catch((err) => {})
+                      // router.reload()
+                      setTimeout(() => {
+                        props.setR(props.r + 1)
+                        setTimeout(() => {
+                          setR(r + 1)
+                        }, 250);
+                      }, 250);
+                    }}>Unblock</Button>
                   }
-                  <Button className='m-2' onClick={() => {
-                    axios({
-                      method: 'POST',
-                      url: '/api/chat/createDM',
-                      data: {
-                        otherLogin42: profile.login42,
-                      },
-                    })
-                      .then((response) => {
-                        router.push("/chat/" + response.data.id);
-                        console.log(response.data)
-                      })
-                      .catch((error) => {
-                        console.log(error)
-                      });
-                  }}>Direct message</Button>
-                  <Button className='m-2' onClick={() => {
-                    let room = uuidv4();
-                    setTimeout(() => {
-                      if (gameSocket) {
-                        gameSocket.emit('sendInviteToPlay', { 'from': props.profile.username, 'to': profile.username, 'room': room })
-                        router.push("/game/" + room)
-                      }
-                    }, 250);
-                  }}>Invite to play</Button>
+                  <p>
+                  </p>
+                </> :
+                <>
 
-                  <Button color="failure" className='m-2' onClick={() => {
-                    axios({
-                      method: 'POST',
-                      url: '/api/users/block/' + profile.username,
-                    })
-                    // router.reload()
-                    setTimeout(() => {
-                      props.setR(props.r + 1)
-                      setTimeout(() => {
-                        setR(r + 1)
-                      }, 250);
-                    }, 250);
-                  }}>Block</Button>
-                </>
-                  :
-                  <Button color="success" className='m-2' onClick={() => {
-                    axios({
-                      method: 'POST',
-                      url: '/api/users/unblock/' + profile.username,
-                    })
-                    // router.reload()
-                    setTimeout(() => {
-                      props.setR(props.r + 1)
-                      setTimeout(() => {
-                        setR(r + 1)
-                      }, 250);
-                    }, 250);
-                  }}>Unblock</Button>
-                }
-                <p>
-                </p>
-              </> :
-              <>
-
-              </>}
-          </div>
-          </>:<></>}
-        </div>
-        {!profile.blocked?<>
-        <div className="flex flex-col"> {/* part2 general div */}
-          <div className="flex flex-row flex-wrap justify-center">
-            <div className="flex-1 card m-2 min-w-[392px]">
-              <h1><b>History</b></h1>
-              <div className="overflow-auto max-h-[300px]">
-                {profile.games.slice(0).reverse().map((e: any, i: number) =>
-                  <Table key={i}>
-                    <Table.Body className="divide-y bg-white">
-                      <Table.Row className="hover:bg-gray-100">
-                        <Table.Cell className="">
-                          <div className="flex flex-row justify-between">
-                            <div className="flex flex-row" onClick={() => {
-                              router.replace(`/profile/` + e['winner']['username'])
-                            }}>
-                              <Avatar img={e['winner']['avatar']} />
-                              <h2 className="font-bold m-auto ml-1 text-sm">{e['winner']['username']}</h2>
-                            </div>
-                            <h2 className="font-bold m-auto text-lg">{e['winnerScore'] + '-' + e['loserScore']}</h2>
-                            <div className="flex flex-row" onClick={() => {
-                              router.replace(`/profile/` + e['loser']['username'])
-                            }}>
-                              <h2 className="font-bold m-auto mr-1 text-sm">{e['loser']['username']}</h2>
-                              <Avatar img={e['loser']['avatar']} />
-                            </div>
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                    </Table.Body>
-                  </Table>
-                )}
-              </div>
+                </>}
             </div>
-            <div className="flex-2 card m-2 min-w-[240px]">
-              <h1><b>Achivements</b></h1>
-              <div className="flex overflow-auto flex-row  max-h-[300px] max-w-[609px]">
-                <div className="flex space-x-0 flex-wrap justify-center p-1">
-                  {profile.games.length > 0 &&
-                    <Heart />
-                  }
-                  {profile.games.length > 2 &&
-                    <Win_3 />
-                  }
-                  {profile.games.length > 4 &&
-                    <Win_5 />
-                  }
+          </> : <></>}
+        </div>
+        {!profile.blocked ? <>
+          <div className="flex flex-col"> {/* part2 general div */}
+            <div className="flex flex-row flex-wrap justify-center">
+              <div className="flex-1 card m-2 min-w-[392px]">
+                <h1><b>History</b></h1>
+                <div className="overflow-auto max-h-[300px]">
+                  {profile.games.slice(0).reverse().map((e: any, i: number) =>
+                    <Table key={i}>
+                      <Table.Body className="divide-y bg-white">
+                        <Table.Row className="hover:bg-gray-100">
+                          <Table.Cell className="">
+                            <div className="flex flex-row justify-between">
+                              <div className="flex flex-row" onClick={() => {
+                                router.replace(`/profile/` + e['winner']['username'])
+                              }}>
+                                <Avatar img={e['winner']['avatar']} />
+                                <h2 className="font-bold m-auto ml-1 text-sm">{e['winner']['username']}</h2>
+                              </div>
+                              <h2 className="font-bold m-auto text-lg">{e['winnerScore'] + '-' + e['loserScore']}</h2>
+                              <div className="flex flex-row" onClick={() => {
+                                router.replace(`/profile/` + e['loser']['username'])
+                              }}>
+                                <h2 className="font-bold m-auto mr-1 text-sm">{e['loser']['username']}</h2>
+                                <Avatar img={e['loser']['avatar']} />
+                              </div>
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      </Table.Body>
+                    </Table>
+                  )}
+                </div>
+              </div>
+              <div className="flex-2 card m-2 min-w-[240px]">
+                <h1><b>Achivements</b></h1>
+                <div className="flex overflow-auto flex-row  max-h-[300px] max-w-[609px]">
+                  <div className="flex space-x-0 flex-wrap justify-center p-1">
+                    {profile.games.length > 0 &&
+                      <Heart />
+                    }
+                    {profile.games.length > 2 &&
+                      <Win_3 />
+                    }
+                    {profile.games.length > 4 &&
+                      <Win_5 />
+                    }
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 card m-2">
+                <h1><b>Friends</b></h1>
+                <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
+                  {profile.friends.map((e: any, i: number) =>
+                    <div key={i} className="relative m-2" style={{ width: 80 }} onClick={() => {
+                      router.push(`/profile/` + e['username'])
+                    }}>
+                      <Avatar
+                        alt="Nav Drop settings"
+                        img={e['avatar']}
+                        rounded={false}
+                        size="lg"
+                        status={users[e['username']] !== undefined ? statustab[users[e['username']].status] as any : 'offline'}
+                      />
+                      <div className="font-bold aero w-full" >
+                        {/* {statustab[users[e['login42']].status]} */}
+                        {e['username']}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            <div className="flex-1 card m-2">
-              <h1><b>Friends</b></h1>
-              <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-                {profile.friends.map((e: any, i: number) =>
-                  <div key={i} className="relative m-2" style={{ width: 80 }} onClick={() => {
-                    router.push(`/profile/` + e['username'])
-                  }}>
-                    <Avatar
-                      alt="Nav Drop settings"
-                      img={e['avatar']}
-                      rounded={false}
-                      size="lg"
-                      status={users[e['username']] !== undefined ? statustab[users[e['username']].status] as any : 'offline'}
-                    />
-                    <div className="font-bold aero w-full" >
-                      {/* {statustab[users[e['login42']].status]} */}
-                      {e['username']}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
-        </div>
-        </>:<></>}
+        </> : <></>}
       </>
     );
 };
