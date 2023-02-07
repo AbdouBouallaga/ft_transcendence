@@ -68,7 +68,7 @@ const ChatSection = ({ profile }: any) => {
         setData({ isDM, members, name, isProtected, type, avatar });
       })
       .catch((err) => {
-        router.replace("/chat");
+        Router.replace("/");
       });
     // const res = await axios.get(`/api/chat/${id}`);
     // const {
@@ -128,7 +128,9 @@ const HeaderOfChat = ({ profile, data }: any) => {
         .then((response) => {
           setResults(response.data);
         })
-        .catch((err) => {});
+        .catch((err) => {
+          Router.replace("/");
+        });
     else setResults([]);
     return () => {
       document.removeEventListener("keydown", () => {});
@@ -142,7 +144,9 @@ const HeaderOfChat = ({ profile, data }: any) => {
       .then((res) => {
         setMembers(res.data);
       })
-      .catch((err) => {});
+      .catch((err) => {
+        Router.replace("/");
+      });
   };
   useEffect(() => {
     fetchMembers();
@@ -217,7 +221,9 @@ const HeaderOfChat = ({ profile, data }: any) => {
                       },
                     })
                       .then((response) => {})
-                      .catch((err) => {});
+                      .catch((err) => {
+                        Router.replace("/");
+                      });
                   }}
                 >
                   <Avatar
@@ -321,7 +327,9 @@ const HeaderOfChat = ({ profile, data }: any) => {
                   .then((response) => {
                     if (response.data.success) Router.replace("/chat");
                   })
-                  .catch((err) => {});
+                  .catch((err) => {
+                    Router.replace("/");
+                  });
               }}
             >
               Leave

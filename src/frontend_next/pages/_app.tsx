@@ -106,7 +106,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
             }
           })
           .catch((e) => {
-            console.log(e);
+            console.log("error app", e);
             routeMo("/login", false, true, true);
           });
       };
@@ -143,7 +143,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
             <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />
           )}
           <GeneralContext.Provider
-            value={{ Socket: gameSocket, Profile: profile, ChatSocket }}
+            value={{ Socket: gameSocket, Profile: profile, ChatSocket, routeMo }}
           >
             <Component
               {...pageProps}

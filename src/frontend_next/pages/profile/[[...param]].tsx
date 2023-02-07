@@ -85,7 +85,9 @@ const Profile = (props: any) => {
         set2fa(response.data);
         toggle2faModal();
       })
-      .catch((error) => {});
+      .catch((error) => {
+        Router.replace("/");
+      });
   }
   async function disable2fa() {
     axios({
@@ -138,7 +140,7 @@ const Profile = (props: any) => {
         .then((resizedImage) => {
           setImg(resizedImage);
         })
-        .catch((e) => {});
+        .catch((e) => { });
     }
   }
   async function PushEdits(Username: string, imgInput: File) {
@@ -166,9 +168,10 @@ const Profile = (props: any) => {
           })
           .catch((error) => {
             setEditError(true);
+            Context.routeMo("/", false, true, true);
           });
       })
-      .catch((e) => {});
+      .catch((e) => { });
   }
 
   async function ProcessEdits() {
@@ -186,7 +189,7 @@ const Profile = (props: any) => {
         imgInput = FileInput.files[0];
       }
       if (InputRef.current?.value) PushEdits(InputRef.current?.value, imgInput);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Fetch the user's profile data when the component mounts
@@ -238,7 +241,7 @@ const Profile = (props: any) => {
           set2faEnabled(tfaEnabled);
         })
         .catch((error) => {
-          router.replace("/_error");
+          Context.routeMo("/", false, true, true);
         });
     }
     fetchProfile();
@@ -269,7 +272,7 @@ const Profile = (props: any) => {
             <>
               <div className="flex">
                 {profile.login42 === props.profile.login42 &&
-                profile.login42 !== "" ? (
+                  profile.login42 !== "" ? (
                   <>
                     {/* EDIT button and modal*/}
                     <React.Fragment>
@@ -428,7 +431,7 @@ const Profile = (props: any) => {
                   <></>
                 )}
                 {profile.login42 !== props.profile.login42 &&
-                profile.login42 !== "" ? (
+                  profile.login42 !== "" ? (
                   <>
                     {!profile.blocking ? (
                       <>
@@ -442,8 +445,8 @@ const Profile = (props: any) => {
                                 method: "POST",
                                 url: "/api/users/follow/" + profile.username,
                               })
-                                .then((res) => {})
-                                .catch((err) => {});
+                                .then((res) => { })
+                                .catch((err) => { Router.replace("/"); });
                               // router.reload()
                               setTimeout(() => {
                                 props.setR(props.r + 1);
@@ -463,8 +466,8 @@ const Profile = (props: any) => {
                                 method: "POST",
                                 url: "/api/users/unfollow/" + profile.username,
                               })
-                                .then((res) => {})
-                                .catch((err) => {});
+                                .then((res) => { })
+                                .catch((err) => { Router.replace("/"); });
                               // router.reload()
                               setTimeout(() => {
                                 props.setR(props.r + 1);
@@ -490,7 +493,7 @@ const Profile = (props: any) => {
                               .then((response) => {
                                 router.push("/chat/" + response.data.id);
                               })
-                              .catch((error) => {});
+                              .catch((error) => { Router.replace("/"); });
                           }}
                         >
                           Direct message
@@ -522,8 +525,8 @@ const Profile = (props: any) => {
                               method: "POST",
                               url: "/api/users/block/" + profile.username,
                             })
-                              .then((res) => {})
-                              .catch((err) => {});
+                              .then((res) => { })
+                              .catch((err) => { Router.replace("/"); });
                             // router.reload()
                             setTimeout(() => {
                               props.setR(props.r + 1);
@@ -545,8 +548,8 @@ const Profile = (props: any) => {
                             method: "POST",
                             url: "/api/users/unblock/" + profile.username,
                           })
-                            .then((res) => {})
-                            .catch((err) => {});
+                            .then((res) => { })
+                            .catch((err) => { Router.replace("/"); });
                           // router.reload()
                           setTimeout(() => {
                             props.setR(props.r + 1);

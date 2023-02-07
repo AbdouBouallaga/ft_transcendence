@@ -39,7 +39,9 @@ const Navbar = (props: any) => {
         .then((response) => {
           setResults(response.data)
           
-        }).catch((err) => { })
+        }).catch((err) => {
+          Router.replace("/");
+        })
     else
       setResults([])
   }, [c]);

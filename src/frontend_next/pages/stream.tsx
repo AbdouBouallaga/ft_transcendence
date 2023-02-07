@@ -1,9 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Router from 'next/router';
 import { Button, Carousel } from 'flowbite-react';
+import { GeneralContext } from './_app';
+import axios from 'axios';
 
 const Index = (props: any) => {
     const [rooms, setRooms] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+            axios
+                .get("/api/users/me/fullprofile")
+                .then((response: any) => {
+                })
+                .catch((e: any) => {
+                    Router.replace("/");
+                });
+        };
+        fetchData();
+    }, []);
     let init = false;
     let interval: any;
     const fetschRooms = () => {
@@ -14,7 +28,7 @@ const Index = (props: any) => {
             fetschRooms();
         });
         props.gameSocket.on("rooms", (data: any) => {
-            
+
             setRooms(data.rooms);
         });
         fetschRooms();
@@ -26,7 +40,7 @@ const Index = (props: any) => {
 
     useEffect(() => {
         return () => {
-            
+
             props.gameSocket.off("rooms");
             clearInterval(interval);
             document.removeEventListener("keydown", (e) => { });

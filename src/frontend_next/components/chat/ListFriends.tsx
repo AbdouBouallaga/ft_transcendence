@@ -19,7 +19,9 @@ const ListFriends = () => {
       .then((res) => {
         setFriends(res.data);
       })
-      .catch((err) => {});
+      .catch((err) => {
+        Router.replace("/");
+      });
     // const { status, data } = res;
     // status === 200 && setFriends(data);
   };

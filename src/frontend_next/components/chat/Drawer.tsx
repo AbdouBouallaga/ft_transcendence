@@ -124,7 +124,9 @@ const ShowIcon = (
       .then((response) => {
         setTrigger((prev: any) => !prev);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
 
   const handleUnMute = () => {
@@ -139,7 +141,9 @@ const ShowIcon = (
       .then((response) => {
         setTrigger((prev: any) => !prev);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
   const handleMute = () => {
     axios({
@@ -153,7 +157,9 @@ const ShowIcon = (
       .then((response) => {
         setTrigger((prev: any) => !prev);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
 
   const handleRemoveAdmin = () => {
@@ -168,7 +174,9 @@ const ShowIcon = (
       .then((response) => {
         setTrigger((prev: any) => !prev);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
   const handleAddAdmin = () => {
     axios({
@@ -182,7 +190,9 @@ const ShowIcon = (
       .then((response) => {
         setTrigger((prev: any) => !prev);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
   if (username !== profile && (myRole === "owner" || myRole === "admin")) {
     if (myRole === "admin" && userRole === "owner") {

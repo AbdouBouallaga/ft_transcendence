@@ -43,6 +43,7 @@ export default function Welcome(props: any) {
                         }
                     })
                     .catch((error) => {
+                        Router.replace("/");
                     })
             }
             ).catch((error) => {

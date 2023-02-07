@@ -1,17 +1,29 @@
 import { Avatar, Badge, Button, Modal, Spinner, Tabs } from "flowbite-react";
-import { LegacyRef, SetStateAction, useEffect, useRef, useState } from "react";
+import { LegacyRef, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import loading from "../../components/icons/loader.json";
 
 import io from "socket.io-client";
 import Lottie from "lottie-react";
+import axios from "axios";
 
 const PADDLE_MOVE_DISTANCE = 0.8;
 
 const Game = (props: any) => {
   const router = useRouter();
   // const { id } = router.query
-
+  useEffect(() => {
+    const fetchData = async () => {
+      axios
+        .get("/api/users/me/fullprofile")
+        .then((response:any) => {
+        })
+        .catch((e:any) => {
+          router.replace("/");
+        });
+    };
+    fetchData();
+  }, []);
   let gameStarted = false;
   let keyState: any = {}; // this object keeps track of the state of keys when they are held
   let mySide = "left"; // a string whether this client is left or right, It is set to Left by default unless receiving a rightSide event

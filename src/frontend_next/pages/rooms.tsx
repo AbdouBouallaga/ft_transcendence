@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Button, Modal, TextInput } from "flowbite-react";
 import { Lock, Unlock } from "../components/icons";
 import axios from "axios";
-import { useRouter } from "next/router";
+import Router,{ useRouter } from "next/router";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -17,7 +17,9 @@ const Rooms = () => {
       .then((res) => {
         setRooms(res.data);
       })
-      .catch((err) => {});
+      .catch((err) => {
+        Router.replace("/");
+      });
     // const { status, data } = res;
     // status === 200 && setRooms(data);
   };
@@ -78,7 +80,7 @@ const RoomCard = ({ room }: any) => {
         }
       })
       .catch((err) => {
-        console.log("error", err);
+        Router.replace("/");
       });
     // const { success } = res.data;
     // if (!success) {
