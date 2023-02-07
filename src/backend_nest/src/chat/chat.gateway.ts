@@ -16,14 +16,14 @@ export class ChatGateway {
 
   @SubscribeMessage('enterRoom')
   handleEnterRoom(@MessageBody() data: EnterRoomDto, @ConnectedSocket() client: Socket) : any {
-    console.log("BACK ",`Channel_${data.channelId}`)
+    
     this.server.in(client.id).socketsJoin(`Channel_${data.channelId}`);
   }
 
 
   @SubscribeMessage('sendmessage')
   async handlesendmessage(@MessageBody() data :SendMessageDto, @ConnectedSocket() client: Socket)  {
-    console.log("sendmessage received", data);
+    
     this.server.to(`Channel_${data.channelId}`).emit("updateChatSection", await this.chatServerService.sendMessage(data));
   }
 

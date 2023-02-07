@@ -16,7 +16,7 @@ const rooms = () => {
     const { status, data } = res;
     status === 200 && setRooms(data);
 
-    console.log("ressss", res);
+    
   };
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -67,7 +67,7 @@ const RoomCard = ({ room }: any) => {
     });
     const { success } = res.data;
     if (!success) {
-      console.log("error");
+      
       setError(true);
     } else {
       router.push(`/chat/${id}`);
@@ -129,8 +129,8 @@ const RoomCard = ({ room }: any) => {
               type="button"
               onClick={(e) => {
                 e.preventDefault();
-                console.log("id", id);
-                console.log("pass", password);
+                
+                
                 // return;
                 joinRoom(id, password);
               }}

@@ -12,7 +12,7 @@ const PADDLE_MOVE_DISTANCE = 0.8;
 const Game = (props: any) => {
   const router = useRouter()
   // const { id } = router.query
-  // console.log("id fgame ",id)
+  // 
   let gameStarted = false;
   let keyState: any = {}; // this object keeps track of the state of keys when they are held
   let mySide = "left"; // a string whether this client is left or right, It is set to Left by default unless receiving a rightSide event
@@ -48,8 +48,8 @@ const Game = (props: any) => {
   function joinGame(r = 0, l: number = mapsel, rds = rounds) { //// HERE IS THE PROBLEM
     if (roomId.current?.value !== "")
       room = roomId.current.value;
-    console.log("sss", l);
-    console.log("sssq ", mapsel);
+    
+    
     socket.emit("joinGame", {
       room: room === '' ? roomFallback : room, //was roomFallback
       rounds: rds, // rounds
@@ -67,7 +67,7 @@ const Game = (props: any) => {
   function HandleInput() {
     if (gameStarted === false || mySide === "spectator") return;
     if (keyState.ArrowUp) {
-      console.log("UPDATE GAME: ARROWUP");
+      
       socket.emit("updateGame", {
         PressedKeysObj: {
           direction: "up",
@@ -76,7 +76,7 @@ const Game = (props: any) => {
         room,
       });
     } else if (keyState.ArrowDown) {
-      console.log("UPDATE GAME: ARROWDOWN");
+      
       socket.emit("updateGame", {
         PressedKeysObj: {
           direction: "down",
@@ -91,7 +91,7 @@ const Game = (props: any) => {
     if (!socket) return;
     socket.on("initGame", (data: any) => {
       socket.off("initGame");
-      console.log("on initGame event: ", data);
+      
       gameScreen.current.style.display = "block";
       waitingForGame.current.style.display = "none";
       // add count down
@@ -121,27 +121,27 @@ const Game = (props: any) => {
     });
     socket.on("setRoomId", (data: string) => {
       room = data;
-      console.log("on setRoomId event: ", room);
+      
     });
     socket.on("leftSide", () => {
       mySide = "left";
       setPlayer(0);
-      console.log("Changed my side to", mySide);
+      
     });
     socket.on("rightSide", () => {
       mySide = "right";
       setPlayer(1);
-      console.log("Changed my side to", mySide);
+      
     });
 
     socket.on("spectatorSide", () => {
       mySide = "spectator";
       setMyside("spectator");
-      console.log("Changed my side to", mySide);
+      
     });
 
     socket.on("startGame", (s: string) => {
-      console.log("on startGame event: ", s);
+      
       if (mySide === "left" && !gameStarted) {
         socket.emit("updateGameStart", s);
       }
@@ -177,15 +177,15 @@ const Game = (props: any) => {
     });
 
     socket.on("connect", () => {
-      console.log("Connected with id: ", socket.id);
+      
     });
 
     socket.on("Won", (side: number) => {
       if (gameStarted) {
-        console.log("Won: ", side);
+        
         setWinner(side);
         setWinnerModal(true);
-        console.log("mySide: ", mySide, "winner side: ", side);
+        
         if ((side === 0 && mySide === 'left') || (side === 1 && mySide === 'right'))
           socket.emit("saveScoreToDB", room);
       }
@@ -203,9 +203,9 @@ const Game = (props: any) => {
     document.addEventListener("keyup", (e) => {
       keyState[e.key] = false;
     });
-    console.log("router.query: ", router.query);
+    
     if (router.query.param) {
-      console.log("router.query.param: ", router.query.param);
+      
       if (router.query.param[0])
         room = router.query.param[0];
       if (router.query.param[1])
@@ -213,12 +213,12 @@ const Game = (props: any) => {
       else mapSel = mapsel;
       if (router.query.param[2])
         setRounds(parseInt(router.query.param[2]));
-      console.log("joinGame with room: ", room, " map: ", map[mapSel], " rounds: ", rounds);
+      
       joinGame(0, mapSel, rounds);
     }
     return () => {
       socket.off("Won");
-      console.log("out", room);
+      
       document.body.style.setProperty("--bg-color", document.body.style.getPropertyValue("--Default-color"));
       document.body.style.setProperty("--bg-image", "");
       document.getElementById("Navbar")?.style.setProperty("--opacity", "1");
@@ -229,7 +229,7 @@ const Game = (props: any) => {
       // socket.emit("disconnect");
       setTimeout(() => {
         socket.close();
-        console.log('socket closed');
+        
       }, 100);
 
     }
@@ -244,7 +244,7 @@ const Game = (props: any) => {
     }
     return () => {
       if (socket) {
-        console.log("disconnecting socket");
+        
         socket.close();
       }
     }

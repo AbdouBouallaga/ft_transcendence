@@ -9,7 +9,7 @@ export default function Login2fa() {
 
   async function confirm2fa() {
     const TextInput = document.getElementById('code2faVerify') as HTMLInputElement;
-    console.log(TextInput.value);
+    
     if (TextInput.value){
       set2faCodeError(false);
       axios({

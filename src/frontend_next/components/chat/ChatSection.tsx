@@ -61,7 +61,7 @@ const ChatSection = ({ profile }: any) => {
       status,
       data: { isDM, members, messages, name, isProtected, type, avatar },
     } = res;
-    console.log("****** data *******", res.data);
+    
     status === 200 &&
       (setMessages(messages),
       setData({ isDM, members, name, isProtected, type, avatar }));
@@ -95,9 +95,9 @@ const HeaderOfChat = ({ profile, data }: any) => {
   const { id } = Router.query;
 
   const fetchMembers = async () => {
-    console.log("fetchMembers", id);
+    
     const res = await axios.get(`/api/chat/${id}/members`);
-    console.log("members", res.data);
+    
     const { status, data } = res;
     status === 200 && setMembers(data);
   };

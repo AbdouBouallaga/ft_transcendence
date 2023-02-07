@@ -32,7 +32,7 @@ const EditRoom = ({ setEditRoom, data: oldData }:any) => {
 
   const handelSubmit = (e: any) => {
     e.preventDefault();
-    console.log("data", data);
+    
     const send = async () => {
       try {
         let res = await axios.post("/api/chat/updateRoom", data);
