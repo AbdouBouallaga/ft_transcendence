@@ -228,7 +228,7 @@ export class ChatServerService {
 				}
 			});
 		}
-		const channel = await this.prisma.channel.findUnique({ where: { id: data.channelId } });
+		const channel = await this.chatService.findChannelById(data.channelId);
 		if (channel.isProtected) {
 			if (!data.password) {
 				throw new BadRequestException();

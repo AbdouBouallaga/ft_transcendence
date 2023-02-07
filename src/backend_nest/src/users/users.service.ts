@@ -28,7 +28,8 @@ export class UsersService {
     }
 
     async getFullProfile(userId: number, username: string) : Promise<UserFullProfile> {
-        const otherUserId = (await this.userPrisma.findUser(username)).id;
+        const otherUser = await this.userPrisma.findUser(username);
+        const otherUserId = otherUser.id;
         const profile: UserProfile = await this.getProfile(username);
         const blocked = (await this.prisma.userBlockedUser.findMany({
             where: {

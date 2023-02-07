@@ -319,19 +319,25 @@ export class ChatService {
   }
 
   async findChannelByName(channelName: string): Promise<Channel> {
-    return await this.prisma.channel.findUnique({
+    const channel = await this.prisma.channel.findUnique({
       where: {
         name: channelName,
       },
     });
+    if (!channel)
+      throw new NotFoundException();
+    return channel
   }
 
   async findChannelById(channelId: number): Promise<Channel> {
-    return await this.prisma.channel.findUnique({
+    const channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
       },
     });
+    if (!channel)
+      throw new NotFoundException();
+    return channel;
   }
 
   async channelAlreadyExists(channelName: string): Promise<boolean> {
@@ -374,11 +380,14 @@ export class ChatService {
     userId: number;
     channelId: number;
   }): Promise<MemberOfChannel> {
-    return await this.prisma.memberOfChannel.findUnique({
+    const channel = await this.prisma.memberOfChannel.findUnique({
       where: {
         channelId_userId: data,
       },
     });
+    if (!channel)
+      throw new NotFoundException();
+    return channel;
   }
 
   async userIsBannedFromChannel(where: {

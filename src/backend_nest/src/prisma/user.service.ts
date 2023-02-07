@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { Game, User, Follows, UserBlockedUser } from "@prisma/client";
 import { UpdateUser } from "src/users/dto";
@@ -25,27 +25,36 @@ export class UserPrismaService {
     }
 
     async findUser(username: string) : Promise<User> {
-        return await this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: {
                 username,
             }
         });
+        if (!user)
+            throw new NotFoundException();
+        return user;
     }
 
     async findUserByLogin42(login42: string) : Promise<User> {
-        return await this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: {
                 login42,
             }
         });
+        if (!user)
+            throw new NotFoundException();
+        return user;
     }
 
     async findUserById(id: number) : Promise<User> {
-        return await this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: {
                 id,
             }
         });
+        if (!user)
+            throw new NotFoundException();
+        return user;
     }
 
     async createUser(login42: string, avatar: string) : Promise<User> {
@@ -172,11 +181,7 @@ export class UserPrismaService {
     async followUser(login42: string, otherUsername: string) : Promise<Follows> {
         // TODO: check if user wasn't blocked
         const user = await this.findUserByLogin42(login42);
-        const otherUser = await this.prisma.user.findUnique({
-            where: {
-                username: otherUsername
-            }
-        });
+        const otherUser = await this.findUser(otherUsername);
         return await this.prisma.follows.create({
             data: {
                 followerId: user.id,
@@ -187,11 +192,7 @@ export class UserPrismaService {
 
     async unfollowUser(login42: string, otherUsername: string) : Promise<any> {
         const user = await this.findUserByLogin42(login42);
-        const otherUser = await this.prisma.user.findUnique({
-            where: {
-                username: otherUsername
-            }
-        });
+        const otherUser = await this.findUser(otherUsername);
         return await this.prisma.follows.delete({
             where: {
                 followerId_followingId: {
