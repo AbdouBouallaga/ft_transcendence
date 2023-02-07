@@ -124,7 +124,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
       axios.get(`/api/users/find/` + searchRef?.current?.value)
         .then((response) => {
           setResults(response.data)
-          console.log(response);
+          
         }).catch((err) => { })
     else
       setResults([])
@@ -135,7 +135,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
 
 
   const fetchMembers = async () => {
-    console.log("fetchMembers", id);
+    
     let result: any;
     axios.get(`/api/chat/${id}/members`).then((res) => { setMembers(res.data) }).catch((err) => { });
   };
@@ -186,7 +186,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
                       channelId: parseInt(id as string),
                     },
                   }).then((response) => {
-                    console.log(response)
+                    
                   })
                     .catch((err) => { })
                 }}>

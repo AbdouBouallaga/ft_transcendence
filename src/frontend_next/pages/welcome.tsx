@@ -19,7 +19,7 @@ export default function Welcome(props: any) {
         props.gameSocket.emit("initUser", Username);
         var imgResized = imageResize.play(imgInput)
             .then((resizedImage) => {
-                console.log(resizedImage);
+                
                 axios({
                     method: 'POST',
                     url: '/api/users/me',
@@ -72,8 +72,8 @@ export default function Welcome(props: any) {
         } else {
             inputSize = maxSize + 1;
         }
-        console.log(maxSize);
-        console.log(inputSize);
+        
+        
         var imgInput: File = profile.avatar;
         if (FileInput.files && FileInput.files[0] && maxSize > inputSize) {
             imgInput = FileInput.files[0];

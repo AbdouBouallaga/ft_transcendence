@@ -75,7 +75,7 @@ export class ChatController {
   @Post('joinChannel')
   @UseGuards(JwtAuthGuard)
   async joinChannel(@Req() req: any, @Body() data: JoinChannelDto) : Promise<{ success: boolean }> {
-    console.log("data", data);
+    
     try {
       await this.chatServerService.joinChannel(data, req.user.login42);
       return { success: true };

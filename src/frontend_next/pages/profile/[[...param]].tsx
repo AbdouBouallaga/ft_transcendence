@@ -70,7 +70,7 @@ const Profile = (props: any) => {
         toggle2faModal();
       })
       .catch((error) => {
-        console.log(error);
+        
       })
   }
   async function disable2fa() {
@@ -176,11 +176,11 @@ const Profile = (props: any) => {
   // Fetch the user's profile data when the component mounts
   let init = useRef<boolean>(false);
   useEffect(() => {
-    console.log("init.current", init.current)
+    
     if (!init.current) {
       init.current = true;
       props.gameSocket.on("updateUserStatus", (data: any) => {
-        console.log("updateUserStatus", data);
+        
         setUsersStatus(data);
       },);
     }
@@ -199,8 +199,8 @@ const Profile = (props: any) => {
       axios
         .get("/api/users/" + user + "/fullprofile")
         .then((response) => {
-          console.log(">>>>>>>>> ", response.data);
-          console.log("APP ", props.profile);
+          
+          
           const { login42, username, avatar, tfaEnabled, friends, games, blocking, blocked } = response.data;
           setProfile({
             login42,
@@ -219,7 +219,7 @@ const Profile = (props: any) => {
           set2faEnabled(tfaEnabled);
         })
         .catch((error) => {
-          console.log(error);
+          router.replace('/_error');
         });
     }
     fetchProfile();
@@ -384,10 +384,10 @@ const Profile = (props: any) => {
                       })
                         .then((response) => {
                           router.push("/chat/" + response.data.id);
-                          console.log(response.data)
+                          
                         })
                         .catch((error) => {
-                          console.log(error)
+                          
                         });
                     }}>Direct message</Button>
                     <Button className='m-2' onClick={() => {

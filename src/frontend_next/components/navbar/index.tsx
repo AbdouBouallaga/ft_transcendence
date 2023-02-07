@@ -20,7 +20,7 @@ const Navbar = (props: any) => {
   useEffect(() => {
     if (!init.current) {
       props.gameSocket.on("inviteToPlay", (data: any) => {
-        console.log(data);
+        
         setInviteinfo(data)
         setInviteAlert(true)
       });
@@ -38,7 +38,7 @@ const Navbar = (props: any) => {
       axios.get(`/api/users/find/` + searchRef?.current?.value)
         .then((response) => {
           setResults(response.data)
-          console.log(response);
+          
         }).catch((err) => { })
     else
       setResults([])

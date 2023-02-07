@@ -19,7 +19,7 @@ import ListFriends from "../../components/chat/ListFriends";
 import ChatSection from "../../components/chat/ChatSection";
 
 const Chat = ({ profile }: any) => {
-  console.log("Chat log, ", profile)
+  
   return (
     <>
       <div className="flex w-full h-[calc(100vh-60px)]  ">
