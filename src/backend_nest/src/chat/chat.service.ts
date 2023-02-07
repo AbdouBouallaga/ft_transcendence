@@ -127,20 +127,24 @@ export class ChatService {
     return channel;
   }
 
-  async getPublicChannels(userId: number) : Promise<ChannelInfo[]> {
-    return (await this.prisma.channel.findMany({
-        where: {
+  async getPublicChannels(userId: number): Promise<ChannelInfo[]> {
+    return (
+      (
+        await this.prisma.channel.findMany({
+          where: {
             type: ChannelType.PUBLIC,
             bannedUsers: {
-                none: {
-                    userId
-                }
-            }
-        }
-    })).map((channel) => {
+              none: {
+                userId,
+              },
+            },
+          },
+        })
+      ).map((channel) => {
         return new ChannelInfo(channel);
-    }) || [];
-}
+      }) || []
+    );
+  }
 
   async getMyChannels(userId: number): Promise<ChannelInfo[]> {
     const channels = (
@@ -279,19 +283,22 @@ export class ChatService {
   }): Promise<boolean> {
     return (
       (
-        (await this.prisma.memberOfChannel.findMany({
+        await this.prisma.memberOfChannel.findMany({
           where: {
             channelId: data.channelId,
             userId: data.userId,
             hasLeft: false,
-            role: data.role
+            role: data.role,
           },
         })
-      )).length > 0
+      ).length > 0
     );
   }
 
-  async getChannelMembers(userId: number, channelId: number) : Promise<ConversationUser[]> {
+  async getChannelMembers(
+    userId: number,
+    channelId: number,
+  ): Promise<ConversationUser[]> {
     if (!(await this.isChannelMember({ userId, channelId }))) {
       throw new UnauthorizedException();
     }
@@ -307,7 +314,7 @@ export class ChatService {
       } else if (member.role === MemberRole.ADMIN) {
         role = ConversationRole.ADMIN;
       }
-      return new ConversationUser(member.user, role);
+      return new ConversationUser(member.user, role, member.isMuted);
     });
   }
 
