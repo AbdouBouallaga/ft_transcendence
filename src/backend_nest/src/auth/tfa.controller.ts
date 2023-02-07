@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { TwoFactorAuthService } from './tfa.service';
 import { JwtAuthGuard } from './guards';
@@ -22,6 +23,7 @@ export class TwoFactorAuthController {
   @Get('generate')
   @UseGuards(JwtAuthGuard)
   async enableTwoFactorAuth(@Req() req: any): Promise<{ otpAuthURL: string }> {
+    if (!req.user) throw new UnauthorizedException();
     const login42 = req.user.login42;
     return await this.twoFactorAuthService.generateTwoFactorAuthSecret(login42);
   }
@@ -33,6 +35,7 @@ export class TwoFactorAuthController {
     @Res({ passthrough: true }) res: Response,
     @Body('tfaCode') tfaCode: string,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     const login42 = req.user.login42;
     await this.twoFactorAuthService.setTwoFactorAuthEnabled(login42, false);
     const access_token = this.jwtService.sign({
@@ -52,6 +55,7 @@ export class TwoFactorAuthController {
     @Res({ passthrough: true }) res: Response,
     @Body('tfaCode') tfaCode: string,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     const login42 = req.user.login42;
     const { access_token } =
       await this.twoFactorAuthService.verifyTwoFactorAuthCode(login42, tfaCode);
