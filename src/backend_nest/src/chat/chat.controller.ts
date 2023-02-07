@@ -8,6 +8,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
@@ -34,6 +35,7 @@ export class ChatController {
     @Body() data: CreateChannelDto,
     @Req() req: any,
   ): Promise<Channel> {
+    if (!req.user) throw new UnauthorizedException();
     return await this.chatService.createRoom(data, req.user.id);
   }
 
@@ -43,6 +45,7 @@ export class ChatController {
     @Body() data: CreateChannelDto,
     @Req() req: any,
   ): Promise<Channel> {
+    if (!req.user) throw new UnauthorizedException();
     return await this.chatService.updateRoom(data, req.user.id);
   }
 
@@ -52,18 +55,21 @@ export class ChatController {
     @Body() data: CreateDmDto,
     @Req() req: any,
   ): Promise<Channel> {
+    if (!req.user) throw new UnauthorizedException();
     return await this.chatService.createDirectMessage(data, req.user.id);
   }
 
   @Get('publicChannels')
   @UseGuards(JwtAuthGuard)
   async getPublicChannels(@Req() req: any): Promise<ChannelInfo[]> {
+    if (!req.user) throw new UnauthorizedException();
     return await this.chatService.getPublicChannels(req.user.id);
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getMyChannels(@Req() req: any): Promise<ChannelInfo[]> {
+    if (!req.user) throw new UnauthorizedException();
     return await this.chatService.getMyChannels(req.user.id);
   }
 
@@ -73,6 +79,7 @@ export class ChatController {
     @Req() req: any,
     @Param('channelId', new ParseIntPipe()) channelId: number,
   ): Promise<Conversation> {
+    if (!req.user) throw new UnauthorizedException();
     return await this.chatService.getFullChannelInfo(
       channelId,
       req.user.id,
@@ -86,6 +93,7 @@ export class ChatController {
     @Req() req: any,
     @Param('channelId', new ParseIntPipe()) channelId: number,
   ): Promise<ConversationUser[]> {
+    if (!req.user) throw new UnauthorizedException();
     return await this.chatService.getChannelMembers(req.user.id, channelId);
   }
 
@@ -95,6 +103,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: JoinChannelDto,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.joinChannel(data, req.user.login42);
       return { success: true };
@@ -109,6 +118,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: { channelId: number },
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.leaveChannel(
         req.user.login42,
@@ -126,6 +136,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: UserOnUserActionDto,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.inviteUserToChannel(data, req.user.login42);
       return { success: true };
@@ -140,6 +151,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: UserOnUserActionDto,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.banUserFromChannel(data, req.user.login42);
       return { success: true };
@@ -154,6 +166,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: UserOnUserActionDto,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.muteUserFromChannel(data, req.user.login42);
       return { success: true };
@@ -168,6 +181,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: UserOnUserActionDto,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.unmuteUserFromChannel(
         data,
@@ -185,6 +199,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: UserOnUserActionDto,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.upgradeUserRole(data, req.user.login42);
       return { success: true };
@@ -199,6 +214,7 @@ export class ChatController {
     @Req() req: any,
     @Body() data: UserOnUserActionDto,
   ): Promise<{ success: boolean }> {
+    if (!req.user) throw new UnauthorizedException();
     try {
       await this.chatServerService.downgradeUserRole(data, req.user.login42);
       return { success: true };
