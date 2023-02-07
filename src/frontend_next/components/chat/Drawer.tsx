@@ -2,7 +2,7 @@ import { Avatar } from "flowbite-react";
 import { Block, Mute, Admine, Play, RemoveAdmin } from "../icons";
 import Router from "next/router";
 
-const Drawer = ({ drawer, setDrawer, myRole, members, profile }:any) => {
+const Drawer = ({ drawer, setDrawer, myRole, members, profile }: any) => {
   return (
     <div
       className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${drawer ? "" : "transition-transform translate-x-full"
@@ -36,7 +36,7 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }:any) => {
       </button>
 
       <div>
-        {members?.map((member:any, i:any) => {
+        {members?.map((member: any, i: any) => {
           return (
             <MemberCard
               key={i}
@@ -53,7 +53,7 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }:any) => {
 
 export default Drawer;
 
-const MemberCard = ({ member, myRole, profile }:any) => {
+const MemberCard = ({ member, myRole, profile }: any) => {
   const { avatar, username, role } = member;
   const userRoleFunction = (role: number): string => {
     const roles = ["member", "admin", "owner"];
@@ -64,7 +64,7 @@ const MemberCard = ({ member, myRole, profile }:any) => {
 
   return (
     <div className="mb-4 flex items-center">
-      <button onClick={()=>{Router.push("/profile/"+member.username)}}>
+      <button onClick={() => { Router.push("/profile/" + member.username) }}>
         <Avatar img={avatar} rounded={true} />
       </button>
       <div className="ml-2 flex flex-col">
@@ -104,7 +104,24 @@ const ShowIcon = (
     } else
       return (
         <>
-          <Block />
+          <button
+          //  onClick={
+          //   ()=>{
+          //     axios({
+          //       method: 'POST',
+          //       url: '/api/users/me',
+          //       data: {
+          //           username: username,
+          //       },
+          //   })
+          //   .then(()=>{
+
+          //   })
+          // }
+          // }
+          >
+            <Block />
+          </button>
           <Mute />
           {userRole === "admin" ? <RemoveAdmin /> : <Admine />}
           {profile !== username && <Play username={username} />}
