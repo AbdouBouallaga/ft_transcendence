@@ -32,12 +32,13 @@ export default function Welcome(props: any) {
                         if (response.data.login42) {
                             props.gameSocket.emit("initUser", response.data.username);
                             // Router.reload(); // reload l7za9 kaml
-                            setTimeout(() => {
-                                props.setR(props.r + 1)
+                            // setTimeout(() => {
+                            //     props.setR(props.r + 1)
                                 setTimeout(() => {
                                     Router.push("/");
+                                    Router.events.on("routeChangeComplete", ()=>{props.setR(props.r + 1)});
                                 }, 150);
-                            }, 250);
+                            // }, 250);
                             // setReloadContent(editReloadContent + 1); // this reload the profile but not the navbar
                         }
                     })
