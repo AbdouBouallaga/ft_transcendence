@@ -10,11 +10,11 @@ import { TwoFactorAuthService } from './tfa.service';
   imports: [
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1d' }
-    })
+      signOptions: { expiresIn: '1d' },
+    }),
   ],
   controllers: [AuthController, TwoFactorAuthController],
   providers: [AuthService, FortyTwoStrategy, JwtStrategy, TwoFactorAuthService],
-  exports: [AuthService]
+  exports: [AuthService],
 })
 export class AuthModule {}

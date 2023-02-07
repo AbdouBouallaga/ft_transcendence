@@ -10,14 +10,14 @@ import { ChatModule } from './chat/chat.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     PrismaModule,
     AuthModule,
     UsersModule,
     GameModule,
     ScheduleModule.forRoot(),
-    ChatModule
-  ]
+    ChatModule,
+  ],
 })
 export class AppModule {}

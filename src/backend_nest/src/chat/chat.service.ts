@@ -324,9 +324,8 @@ export class ChatService {
         name: channelName,
       },
     });
-    if (!channel)
-      throw new NotFoundException();
-    return channel
+    if (!channel) throw new NotFoundException();
+    return channel;
   }
 
   async findChannelById(channelId: number): Promise<Channel> {
@@ -335,8 +334,7 @@ export class ChatService {
         id: channelId,
       },
     });
-    if (!channel)
-      throw new NotFoundException();
+    if (!channel) throw new NotFoundException();
     return channel;
   }
 
@@ -385,8 +383,7 @@ export class ChatService {
         channelId_userId: data,
       },
     });
-    if (!channel)
-      throw new NotFoundException();
+    if (!channel) throw new NotFoundException();
     return channel;
   }
 

@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class UserOnUserActionDto {
-    @IsNotEmpty()
-    @IsString()
-    otherLogin42: string;
+  @IsNotEmpty()
+  @IsString()
+  otherLogin42: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    channelId: number;
+  @IsNotEmpty()
+  @IsNumber()
+  channelId: number;
 }

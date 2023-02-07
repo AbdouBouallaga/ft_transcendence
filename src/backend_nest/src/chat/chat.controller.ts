@@ -11,15 +11,22 @@ import {
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
-import { CreateChannelDto, CreateDmDto, JoinChannelDto, UserOnUserActionDto } from './dto';
+import {
+  CreateChannelDto,
+  CreateDmDto,
+  JoinChannelDto,
+  UserOnUserActionDto,
+} from './dto';
 import { Channel } from '@prisma/client';
 import { ChannelInfo, Conversation, ConversationUser } from './interfaces';
 import { ChatServerService } from './chat-server.service';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService,
-              private readonly chatServerService: ChatServerService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly chatServerService: ChatServerService,
+  ) {}
 
   @Post('createRoom')
   @UseGuards(JwtAuthGuard)
@@ -61,21 +68,33 @@ export class ChatController {
   }
 
   @Get(':channelId')
-	@UseGuards(JwtAuthGuard)
-	async getConversation(@Req() req: any, @Param('channelId', new ParseIntPipe()) channelId: number) : Promise<Conversation> {
-    return await this.chatService.getFullChannelInfo(channelId, req.user.id, req.user.login42);
-	}
+  @UseGuards(JwtAuthGuard)
+  async getConversation(
+    @Req() req: any,
+    @Param('channelId', new ParseIntPipe()) channelId: number,
+  ): Promise<Conversation> {
+    return await this.chatService.getFullChannelInfo(
+      channelId,
+      req.user.id,
+      req.user.login42,
+    );
+  }
 
   @Get(':channelId/members')
-	@UseGuards(JwtAuthGuard)
-	async getChannelMembers(@Req() req: any, @Param('channelId', new ParseIntPipe()) channelId: number) : Promise<ConversationUser[]> {
+  @UseGuards(JwtAuthGuard)
+  async getChannelMembers(
+    @Req() req: any,
+    @Param('channelId', new ParseIntPipe()) channelId: number,
+  ): Promise<ConversationUser[]> {
     return await this.chatService.getChannelMembers(req.user.id, channelId);
   }
 
   @Post('joinChannel')
   @UseGuards(JwtAuthGuard)
-  async joinChannel(@Req() req: any, @Body() data: JoinChannelDto) : Promise<{ success: boolean }> {
-    
+  async joinChannel(
+    @Req() req: any,
+    @Body() data: JoinChannelDto,
+  ): Promise<{ success: boolean }> {
     try {
       await this.chatServerService.joinChannel(data, req.user.login42);
       return { success: true };
@@ -83,21 +102,30 @@ export class ChatController {
       return { success: false };
     }
   }
-	
+
   @Post('leaveChannel')
   @UseGuards(JwtAuthGuard)
-  async leaveChannel(@Req() req: any, @Body() data: { channelId: number }) : Promise<{ success: boolean}> {
+  async leaveChannel(
+    @Req() req: any,
+    @Body() data: { channelId: number },
+  ): Promise<{ success: boolean }> {
     try {
-      await this.chatServerService.leaveChannel(req.user.login42, data.channelId);
+      await this.chatServerService.leaveChannel(
+        req.user.login42,
+        data.channelId,
+      );
       return { success: true };
-    } catch(e) {
+    } catch (e) {
       return { success: false };
     }
   }
 
   @Post('inviteUserToChannel')
   @UseGuards(JwtAuthGuard)
-  async inviteUserToChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+  async inviteUserToChannel(
+    @Req() req: any,
+    @Body() data: UserOnUserActionDto,
+  ): Promise<{ success: boolean }> {
     try {
       await this.chatServerService.inviteUserToChannel(data, req.user.login42);
       return { success: true };
@@ -108,7 +136,10 @@ export class ChatController {
 
   @Post('banUserFromChannel')
   @UseGuards(JwtAuthGuard)
-  async banUserFromChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+  async banUserFromChannel(
+    @Req() req: any,
+    @Body() data: UserOnUserActionDto,
+  ): Promise<{ success: boolean }> {
     try {
       await this.chatServerService.banUserFromChannel(data, req.user.login42);
       return { success: true };
@@ -119,7 +150,10 @@ export class ChatController {
 
   @Post('muteUserFromChannel')
   @UseGuards(JwtAuthGuard)
-  async muteUserFromChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+  async muteUserFromChannel(
+    @Req() req: any,
+    @Body() data: UserOnUserActionDto,
+  ): Promise<{ success: boolean }> {
     try {
       await this.chatServerService.muteUserFromChannel(data, req.user.login42);
       return { success: true };
@@ -130,9 +164,15 @@ export class ChatController {
 
   @Post('unmuteUserFromChannel')
   @UseGuards(JwtAuthGuard)
-  async unmuteUserFromChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+  async unmuteUserFromChannel(
+    @Req() req: any,
+    @Body() data: UserOnUserActionDto,
+  ): Promise<{ success: boolean }> {
     try {
-      await this.chatServerService.unmuteUserFromChannel(data, req.user.login42);
+      await this.chatServerService.unmuteUserFromChannel(
+        data,
+        req.user.login42,
+      );
       return { success: true };
     } catch {
       return { success: false };
@@ -141,7 +181,10 @@ export class ChatController {
 
   @Post('upgradeUserRole')
   @UseGuards(JwtAuthGuard)
-  async upgradeUserRole(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+  async upgradeUserRole(
+    @Req() req: any,
+    @Body() data: UserOnUserActionDto,
+  ): Promise<{ success: boolean }> {
     try {
       await this.chatServerService.upgradeUserRole(data, req.user.login42);
       return { success: true };
@@ -152,7 +195,10 @@ export class ChatController {
 
   @Post('downgradeUserRole')
   @UseGuards(JwtAuthGuard)
-  async downgradeUserRole(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+  async downgradeUserRole(
+    @Req() req: any,
+    @Body() data: UserOnUserActionDto,
+  ): Promise<{ success: boolean }> {
     try {
       await this.chatServerService.downgradeUserRole(data, req.user.login42);
       return { success: true };

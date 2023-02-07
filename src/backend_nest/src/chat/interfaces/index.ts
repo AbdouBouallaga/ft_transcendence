@@ -1,2 +1,2 @@
-export * from "./channel.interface";
-export * from "./conversation.interface";
+export * from './channel.interface';
+export * from './conversation.interface';

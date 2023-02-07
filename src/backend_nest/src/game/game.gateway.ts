@@ -225,7 +225,6 @@ class Game {
   }
 
   gameFinished(winner: number = 100) {
-    
     if (winner !== 100) {
       if (winner === 0) {
         this.leftScore = 1337;
@@ -235,7 +234,7 @@ class Game {
         this.rightScore = 1337;
       }
     }
-    
+
     clearInterval(rooms[this.room].Interval);
     this.ball.io
       .to(this.room)
@@ -243,18 +242,13 @@ class Game {
     setTimeout(() => {
       clearInterval(rooms[this.room]?.Interval);
       delete rooms[this.room];
-      
     }, 300);
-    
-
   }
-
 }
 //end
 
 function requestedUpdate(io, room, delta) {
   rooms[room].Interval = setInterval(() => {
-    
     if (room in rooms !== false && rooms[room].game !== null) {
       rooms[room]?.game.update(
         io,
@@ -263,13 +257,12 @@ function requestedUpdate(io, room, delta) {
       );
     }
   }, delta);
-  
 }
 let users: any = {};
 @Injectable()
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnModuleInit {
-  constructor(private readonly gameService: GameService) { }
+  constructor(private readonly gameService: GameService) {}
 
   @WebSocketServer()
   server: Server;
@@ -277,55 +270,54 @@ export class GameGateway implements OnModuleInit {
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      
       try {
         // USERS STATUS MANAGEMENT
         socket.on('initUser', (data) => {
           let exist = false;
-          if (data in users)
-            exist = true;
-          users[data] = { login42: data, socketId: socket.id, status: 1, life: 20 };
+          if (data in users) exist = true;
+          users[data] = {
+            login42: data,
+            socketId: socket.id,
+            status: 1,
+            life: 20,
+          };
           users[data].life = 20;
-          
-          this.server.emit("updateUserStatus", users);
+
+          this.server.emit('updateUserStatus', users);
           if (exist) {
             let interval = setInterval(() => {
-              
               if (users[data].life > 0) {
                 users[data].life--;
               } else {
                 clearInterval(interval);
                 users[data].status = 0;
-                this.server.emit("updateUserStatus", users);
+                this.server.emit('updateUserStatus', users);
               }
             }, 60000);
           }
         });
-        
-        socket.on("setUserStatus", (data: any) => {
+
+        socket.on('setUserStatus', (data: any) => {
           if (data.login42 in users) {
             users[data.login42].status = data.status;
             users[data.login42].life = 20;
-            
-            this.server.emit("updateUserStatus", users);
+
+            this.server.emit('updateUserStatus', users);
           }
         });
-        socket.on("getUsersStatus", () => {
-          socket.emit("updateUserStatus", users);
+        socket.on('getUsersStatus', () => {
+          socket.emit('updateUserStatus', users);
         });
         ///////////////////////////
-        socket.on("sendInviteToPlay", (data: any) => {
-          
+        socket.on('sendInviteToPlay', (data: any) => {
           let from: string = data.from;
           let to: string = data.to;
           let onRoom: string = data.Room;
-          
-          
+
           if (users[to])
-            this.server.to(users[to].socketId).emit("inviteToPlay", data);
+            this.server.to(users[to].socketId).emit('inviteToPlay', data);
         });
         socket.on('joinGame', (data) => {
-          
           let found = false;
           let room: string = data.room;
           let rounds: number = data.rounds;
@@ -333,16 +325,11 @@ export class GameGateway implements OnModuleInit {
           let login: string = data.login;
           let player: number = data.player;
           // let login : string = socket.id;
-          
-          if (room === '') {
-            
-            
-            
 
+          if (room === '') {
             if (lastuuid.length) {
               for (let i = 0; i < lastuuid.length; i++) {
                 if (lastuuid[i].map === map && lastuuid[i].rounds === rounds) {
-                  
                   found = true;
                   room = lastuuid[i].id;
                   lastuuid.splice(i, 1);
@@ -351,22 +338,18 @@ export class GameGateway implements OnModuleInit {
               }
             }
             if (!found) {
-              
               lastuuid.push({
                 id: uuidv4(),
                 map: map,
                 rounds: rounds,
               });
-              
-              
+
               room = lastuuid[lastuuid.length - 1].id;
-              
             }
             // else {
             //   room = lastuuid[lastuuid.length-1].id;
             //   lastuuid[lastuuid.length - 1].delete();
             // }
-            
           }
           // if there is no room with that name in rooms, create one and initialize it
           if (room in rooms === false) {
@@ -380,35 +363,33 @@ export class GameGateway implements OnModuleInit {
               players: [],
               spectators: [],
             };
-            
           }
           // else {
           // if there is no player id specified, join as player
           if (player === 100) {
-            
             player = rooms[room].numOfPlayers;
           }
           if (rooms[room].numOfPlayers !== 2) {
-            
             socket.join(room);
-            rooms[room].players[player] = ({
+            rooms[room].players[player] = {
               id: login,
               socketId: socket.id,
               avatar: data.avatar,
               UN: data.UN,
-              paddle: new Paddle(this.server, room, player === 0 ? 'Left' : 'Right'),
-            });
-            
-            if (player === 0)
-              socket.emit('leftSide');
-            else
-              socket.emit('rightSide');
+              paddle: new Paddle(
+                this.server,
+                room,
+                player === 0 ? 'Left' : 'Right',
+              ),
+            };
+
+            if (player === 0) socket.emit('leftSide');
+            else socket.emit('rightSide');
             socket.emit('setRoomId', room);
             rooms[room].numOfPlayers += 1;
             rooms[room].ready += 1;
-            
+
             if (rooms[room].ready === 2) {
-              
               rooms[room].ball = new Ball(this.server, room);
               rooms[room].game = new Game(
                 rooms[room].players,
@@ -433,7 +414,6 @@ export class GameGateway implements OnModuleInit {
                   this.server.to(room).emit('startGame', room);
                 }
               }, 1500);
-
             }
           } else {
             // if 2 players are already in room add next joiner as spectator
@@ -478,51 +458,46 @@ export class GameGateway implements OnModuleInit {
         });
         socket.on('disconnect', () => {
           let sid = socket.id;
-          
-          
+
           for (let r in rooms) {
             if (rooms[r]?.spectators?.includes(socket.id)) {
-              
               rooms[r].spectators.splice(
                 rooms[r].spectators.indexOf(socket.id),
                 1,
               );
             } else if (rooms[r]?.players[0]?.socketId === sid) {
-              
               if (rooms[r]?.players[1]) {
                 clearInterval(rooms[r]?.Interval);
                 rooms[r]?.game?.gameFinished(1); //if no game yet the next line will delete the room
               }
               setTimeout(() => {
-                
                 delete rooms[r];
               }, 100);
             } else if (rooms[r]?.players[1]?.socketId === sid) {
-              
               clearInterval(rooms[r]?.Interval);
               rooms[r]?.game?.gameFinished(0); //if no game yet the next line will delete the room
               setTimeout(() => {
-                
                 delete rooms[r];
               }, 100);
             }
           }
-          
         });
         socket.on('getRooms', () => {
           let r: any[] = [];
           let tR: any = rooms;
           for (let room in rooms) {
             if (rooms[room].ready === 2)
-              r.push({ id: tR[room].id, players: { a: tR[room].players[0].id, b: tR[room].players[1].id } });
-          };
+              r.push({
+                id: tR[room].id,
+                players: {
+                  a: tR[room].players[0].id,
+                  b: tR[room].players[1].id,
+                },
+              });
+          }
           socket.emit('rooms', { rooms: r });
         });
-      } catch (err) {
-        
-      }
+      } catch (err) {}
     });
   }
-
-
 }
