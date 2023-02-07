@@ -72,7 +72,7 @@ const ChatSection = ({ profile }: any) => {
     //   status,
     //   data: { isDM, members, messages, name, isProtected, type, avatar },
     // } = res;
-    // console.log("****** data *******", res.data);
+    
     // status === 200 &&
     //   (setMessages(messages),
     //   setData({ isDM, members, name, isProtected, type, avatar }));

@@ -82,7 +82,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       setInterval(() => {
         gameSocket.emit("initUser", profile.username);
       }, 60000);
-      // console.log("avalable", profile.login42)
+      
     }
   }, [profile.login42]);
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         axios
           .get("/api/users/me/fullprofile")
           .then((response) => {
-            // console.log(response);
+            
             console.log(response.data);
             const { login42, username, avatar, tfaEnabled, friends } =
               response.data;
