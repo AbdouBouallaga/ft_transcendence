@@ -121,7 +121,7 @@ const ShowIcon = (
       },
     }).then((response) => {
       setTrigger((prev: any) => !prev);
-    })
+    }).catch((error) => { })
     console.log("Ban");
   };
 
@@ -135,7 +135,7 @@ const ShowIcon = (
       },
     }).then((response) => {
       setTrigger((prev: any) => !prev);
-    })
+    }).catch((error) => { })
     console.log("unmute");
   };
   const handleMute = () => {
@@ -148,10 +148,10 @@ const ShowIcon = (
       },
     }).then((response) => {
       setTrigger((prev: any) => !prev);
-    })
+    }).catch((error) => { })
     console.log("mute");
   };
-  
+
   const handleRemoveAdmin = () => {
     axios({
       method: "POST",
@@ -162,7 +162,7 @@ const ShowIcon = (
       },
     }).then((response) => {
       setTrigger((prev: any) => !prev);
-    })
+    }).catch((error) => { })
     console.log("RemoveAdmin");
   };
   const handleAddAdmin = () => {
@@ -175,7 +175,7 @@ const ShowIcon = (
       },
     }).then((response) => {
       setTrigger((prev: any) => !prev);
-    })
+    }).catch((error) => { })
     console.log("ADDAdmin");
   };
   if (username !== profile && (myRole === "owner" || myRole === "admin")) {

@@ -36,7 +36,7 @@ const ChatSection = ({ profile }: any) => {
   const router = useRouter();
   const [messages, setMessages] = useState<any>([]);
   const [data, setData] = useState({});
-  const { id } = router.query;
+  const { id }:any = router.query;
 
   useEffect(() => {
     if (!init.current) {
@@ -57,15 +57,25 @@ const ChatSection = ({ profile }: any) => {
   // load chat
   const fetchChat = async (id: string) => {
     setMessages([]);
-    const res = await axios.get(`/api/chat/${id}`);
-    const {
-      status,
-      data: { isDM, members, messages, name, isProtected, type, avatar },
-    } = res;
-    console.log("****** data *******", res.data);
-    status === 200 &&
-      (setMessages(messages),
-      setData({ isDM, members, name, isProtected, type, avatar }));
+    axios.get(`/api/chat/${id}`).then((res) => {
+      const {
+        status,
+        data: { isDM, members, messages, name, isProtected, type, avatar },
+      } = res;
+      setMessages(messages);
+      setData({ isDM, members, name, isProtected, type, avatar });
+    }).catch((err) => {
+      router.replace("/chat")
+    });
+    // const res = await axios.get(`/api/chat/${id}`);
+    // const {
+    //   status,
+    //   data: { isDM, members, messages, name, isProtected, type, avatar },
+    // } = res;
+    // console.log("****** data *******", res.data);
+    // status === 200 &&
+    //   (setMessages(messages),
+    //   setData({ isDM, members, name, isProtected, type, avatar }));
   };
   return (
     <div className="grow m-2 flex flex-col ">
@@ -115,30 +125,28 @@ const HeaderOfChat = ({ profile, data }: any) => {
         .then((response) => {
           setResults(response.data)
           console.log(response);
-        })
+        }).catch((err) => { })
     else
       setResults([])
-    return (()=>{
-      document.removeEventListener("keydown", ()=>{});
+    return (() => {
+      document.removeEventListener("keydown", () => { });
     })
   }, [c]);
 
 
   const fetchMembers = async () => {
     console.log("fetchMembers", id);
-    const res = await axios.get(`/api/chat/${id}/members`);
-    console.log("members", res.data);
-    const { status, data } = res;
-    status === 200 && setMembers(data);
+    let result: any;
+    axios.get(`/api/chat/${id}/members`).then((res) => { setMembers(res.data) }).catch((err) => { });
   };
   useEffect(() => {
     fetchMembers();
   }, [drawer, trigger]);
 
   return (
-  <>
+    <>
 
-<Modal
+      <Modal
         show={inviteModal}
         size="xl"
         onClose={() => {
@@ -170,16 +178,17 @@ const HeaderOfChat = ({ profile, data }: any) => {
                   setResults([]);
                   if (searchRef.current !== null)
                     searchRef.current.value = "";
-                    axios({
-                      method: "POST",
-                      url: "/api/chat/inviteUserToChannel",
-                      data: {
-                        otherLogin42: e.login42,
-                        channelId: parseInt(id as string),
-                      },
-                    }).then((response) => {
-                      console.log(response)
-                    })
+                  axios({
+                    method: "POST",
+                    url: "/api/chat/inviteUserToChannel",
+                    data: {
+                      otherLogin42: e.login42,
+                      channelId: parseInt(id as string),
+                    },
+                  }).then((response) => {
+                    console.log(response)
+                  })
+                    .catch((err) => { })
                 }}>
                   <Avatar
                     alt="Nav Drop settings"
@@ -197,118 +206,118 @@ const HeaderOfChat = ({ profile, data }: any) => {
           </div>
         </Modal.Body>
       </Modal>
-    
-    <div className="border-b border-gray-600 flex items-center justify-between mx-3">
-      {/* avatar and userName */}
-      <div className="flex items-center ">
-        <Avatar
-          className="w-10 h-10 rounded-full m-2"
-          img={avatar}
-          statusPosition="bottom-right"
-          rounded={true}
-          status="online" // online, offline, busy, away
-          alt="user"
-        />
 
-        {isDM ? (
-          <span className="text-xs text-slate-300 hidden md:block">
-            Conversation with &nbsp;
-          </span>
-        ) : (
-          ""
+      <div className="border-b border-gray-600 flex items-center justify-between mx-3">
+        {/* avatar and userName */}
+        <div className="flex items-center ">
+          <Avatar
+            className="w-10 h-10 rounded-full m-2"
+            img={avatar}
+            statusPosition="bottom-right"
+            rounded={true}
+            status="online" // online, offline, busy, away
+            alt="user"
+          />
+
+          {isDM ? (
+            <span className="text-xs text-slate-300 hidden md:block">
+              Conversation with &nbsp;
+            </span>
+          ) : (
+            ""
+          )}
+          <span className=" text-base"> {name}</span>
+        </div>
+
+        {/* invite to play games */}
+        {isDM && (
+          <button
+            className="flex bg-gray-50 cursor-pointer"
+            onClick={() => {
+              let room = uuidv4();
+              setTimeout(() => {
+                if (gameSocket) {
+                  gameSocket.emit("sendInviteToPlay", {
+                    from: myprofile.username,
+                    to: name,
+                    room: room,
+                  });
+                  Router.push("/game/" + room);
+                }
+              }, 250);
+            }}
+          >
+            <Games />
+            <span> Invite To Game</span>
+          </button>
         )}
-        <span className=" text-base"> {name}</span>
-      </div>
-
-      {/* invite to play games */}
-      {isDM && (
-        <button
-          className="flex bg-gray-50 cursor-pointer"
-          onClick={() => {
-            let room = uuidv4();
-            setTimeout(() => {
-              if (gameSocket) {
-                gameSocket.emit("sendInviteToPlay", {
-                  from: myprofile.username,
-                  to: name,
-                  room: room,
-                });
-                Router.push("/game/" + room);
-              }
-            }, 250);
-          }}
-        >
-          <Games />
-          <span> Invite To Game</span>
-        </button>
-      )}
-      {/* setting */}
-      {isDM ? (
-        ""
-      ) : (
-        <Dropdown
-          label={
-            <div className="hover:rounded-full p-1 hover:bg-slate-300">
-              <Menu />
-            </div>
-          }
-          inline={true}
-          arrowIcon={false}
-        >
-          {(myRole === "owner" || myRole === "admin") && (
-            <Dropdown.Item onClick={() => setInviteModal(true)}>
-              Invite
-            </Dropdown.Item>
-          )}
-          {myRole === "owner" && (
-            <Dropdown.Item onClick={() => setEditRoom(true)}>
-              Edit Room
-            </Dropdown.Item>
-          )}
-          <Dropdown.Item
-            onClick={() => {
-              setDrawer(true);
-            }}
+        {/* setting */}
+        {isDM ? (
+          ""
+        ) : (
+          <Dropdown
+            label={
+              <div className="hover:rounded-full p-1 hover:bg-slate-300">
+                <Menu />
+              </div>
+            }
+            inline={true}
+            arrowIcon={false}
           >
-            All Members
-          </Dropdown.Item>
-          <Dropdown.Item
-            onClick={() => {
-              axios({
-                method: "POST",
-                url: "/api/chat/leaveChannel",
-                data: {
-                  channelId: parseInt(id as string),
-                },
-              }).then((response) => {
-                if (response.data.success) Router.replace("/chat");
-              });
-            }}
-          >
-            Leave
-          </Dropdown.Item>
-        </Dropdown>
-      )}
-      <Drawer
-        drawer={drawer}
-        setDrawer={setDrawer}
-        myRole={myRole}
-        members={members}
-        profile={profile}
-        setTrigger={setTrigger}
-      />
-      <Modal
-        show={editRoom}
-        size="md"
-        popup={true}
-        onClose={() => setEditRoom(false)}
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <EditRoom setEditRoom={setEditRoom} data={data} />
-        </Modal.Body>
-      </Modal>
-      {/* <Modal
+            {(myRole === "owner" || myRole === "admin") && (
+              <Dropdown.Item onClick={() => setInviteModal(true)}>
+                Invite
+              </Dropdown.Item>
+            )}
+            {myRole === "owner" && (
+              <Dropdown.Item onClick={() => setEditRoom(true)}>
+                Edit Room
+              </Dropdown.Item>
+            )}
+            <Dropdown.Item
+              onClick={() => {
+                setDrawer(true);
+              }}
+            >
+              All Members
+            </Dropdown.Item>
+            <Dropdown.Item
+              onClick={() => {
+                axios({
+                  method: "POST",
+                  url: "/api/chat/leaveChannel",
+                  data: {
+                    channelId: parseInt(id as string),
+                  },
+                }).then((response) => {
+                  if (response.data.success) Router.replace("/chat");
+                }).catch((err) => { });
+              }}
+            >
+              Leave
+            </Dropdown.Item>
+          </Dropdown>
+        )}
+        <Drawer
+          drawer={drawer}
+          setDrawer={setDrawer}
+          myRole={myRole}
+          members={members}
+          profile={profile}
+          setTrigger={setTrigger}
+        />
+        <Modal
+          show={editRoom}
+          size="md"
+          popup={true}
+          onClose={() => setEditRoom(false)}
+        >
+          <Modal.Header />
+          <Modal.Body>
+            <EditRoom setEditRoom={setEditRoom} data={data} />
+          </Modal.Body>
+        </Modal>
+        {/* <Modal
         show={invite}
         size="md"
         popup={true}
@@ -319,7 +328,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
           <InviteToRoom />
         </Modal.Body>
       </Modal> */}
-    </div>
+      </div>
     </>
   );
 };
@@ -357,10 +366,10 @@ const MyMsg = ({ date, message, username }: any) => {
   );
 };
 
-const BodyOfChat = ({ messages, profile, roomid }: any) => {
+const BodyOfChat = ({ messages, profile, roomid }: any):any => {
   const { username: myUserName } = profile;
 
-  function useChatScroll<T>(dep: T): React.MutableRefObject<HTMLDivElement> {
+  function useChatScroll<T>(dep: T): any {
     const ref = useRef<HTMLDivElement>();
     useEffect(() => {
       if (ref.current) {
@@ -460,7 +469,7 @@ const InviteToRoom = () => {
             type="email"
             rightIcon={Search}
             placeholder="find user to add"
-            // required={true}
+          // required={true}
           />
         </div>
       </form>

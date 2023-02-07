@@ -7,14 +7,14 @@ import { Lock, Unlock } from "../components/icons";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const rooms = () => {
+const Rooms = () => {
   const [rooms, setRooms] = useState([]);
   const router = useRouter();
 
   const fetchRooms = async () => {
-    const res = await axios.get("/api/chat/publicChannels");
-    const { status, data } = res;
-    status === 200 && setRooms(data);
+    const res = await axios.get("/api/chat/publicChannels").then((res) => { setRooms(res.data) }).catch((err) => { });
+    // const { status, data } = res;
+    // status === 200 && setRooms(data);
 
     console.log("ressss", res);
   };
@@ -23,11 +23,11 @@ const rooms = () => {
   useEffect(() => {
     fetchRooms();
   }, []);
-  if (rooms.length > 0) return <Rooms rooms={rooms} />;
+  if (rooms.length > 0) return <Roomss rooms={rooms} />;
   else return <NoRooms />;
 };
 
-export default rooms;
+export default Rooms;
 
 const NoRooms = () => {
   return (
@@ -40,7 +40,7 @@ const NoRooms = () => {
   );
 };
 
-const Rooms = ({ rooms }: any) => {
+const Roomss = ({ rooms }: any) => {
   return (
     <div className="my-8">
       <h1 className="text-gray-300 text-2xl">All Availeble Rooms</h1>
@@ -64,14 +64,23 @@ const RoomCard = ({ room }: any) => {
     const res = await axios.post("/api/chat/joinChannel", {
       channelId: id,
       password,
-    });
-    const { success } = res.data;
-    if (!success) {
-      console.log("error");
-      setError(true);
-    } else {
-      router.push(`/chat/${id}`);
-    }
+    })
+      .then((res) => {
+        if (res.data.success) {
+          console.log("error");
+          setError(true);
+        } else {
+          router.push(`/chat/${id}`);
+        }
+      }
+      ).catch((err) => { });
+    // const { success } = res.data;
+    // if (!success) {
+    //   console.log("error");
+    //   setError(true);
+    // } else {
+    //   router.push(`/chat/${id}`);
+    // }
   };
 
   const handleJoinRoom = () => {

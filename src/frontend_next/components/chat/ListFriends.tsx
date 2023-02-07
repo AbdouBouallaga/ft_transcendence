@@ -13,14 +13,14 @@ const ListFriends = () => {
   const [friends, setFriends] = useState([]);
   const router = useRouter();
 
-  
-  
+
+
   const fetchFriends = async () => {
-    const res = await axios.get("/api/chat/me");
-    const { status, data } = res;
-    status === 200 && setFriends(data);
+    const res = await axios.get("/api/chat/me").then((res) => { setFriends(res.data) }).catch((err) => { });
+    // const { status, data } = res;
+    // status === 200 && setFriends(data);
   };
-  
+
   useEffect(() => {
     fetchFriends();
   }, [createRoom]);
@@ -28,7 +28,7 @@ const ListFriends = () => {
   return (
     <>
 
-      
+
 
       <div className="w-full border-r p-3 max-w-[310px] flex flex-col">
         <h1 className="font-bold text-orange-200 text-left text-2xl">Message</h1>
