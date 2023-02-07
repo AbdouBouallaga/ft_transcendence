@@ -12,7 +12,7 @@ const PADDLE_MOVE_DISTANCE = 0.8;
 const Game = (props: any) => {
   const router = useRouter()
   // const { id } = router.query
-  // console.log("id fgame ",id)
+  
   let gameStarted = false;
   let keyState: any = {}; // this object keeps track of the state of keys when they are held
   let mySide = "left"; // a string whether this client is left or right, It is set to Left by default unless receiving a rightSide event
