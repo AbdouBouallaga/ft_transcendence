@@ -13,7 +13,7 @@ import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateChannelDto, CreateDmDto, JoinChannelDto } from './dto';
 import { Channel } from '@prisma/client';
-import { ChannelInfo, Conversation } from './interfaces';
+import { ChannelInfo, Conversation, ConversationUser } from './interfaces';
 import { ChatServerService } from './chat-server.service';
 
 @Controller('chat')
@@ -65,6 +65,12 @@ export class ChatController {
 	async getConversation(@Req() req: any, @Param('channelId', new ParseIntPipe()) channelId: number) : Promise<Conversation> {
     return await this.chatService.getFullChannelInfo(channelId, req.user.id, req.user.login42);
 	}
+
+  @Get(':channelId/members')
+	@UseGuards(JwtAuthGuard)
+	async getChannelMembers(@Req() req: any, @Param('channelId', new ParseIntPipe()) channelId: number) : Promise<ConversationUser[]> {
+    return await this.chatService.getChannelMembers(req.user.id, channelId);
+  }
 
   @Post('joinChannel')
   @UseGuards(JwtAuthGuard)
