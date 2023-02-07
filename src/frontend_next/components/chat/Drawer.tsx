@@ -1,6 +1,7 @@
 import { Avatar } from "flowbite-react";
 import { Block, Mute, Admine, Play, RemoveAdmin, Unmute } from "../icons";
 import Router from "next/router";
+import axios from "axios";
 
 const Drawer = ({
   drawer,
@@ -13,9 +14,8 @@ const Drawer = ({
 }: any) => {
   return (
     <div
-      className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${
-        drawer ? "" : "transition-transform translate-x-full"
-      }`}
+      className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${drawer ? "" : "transition-transform translate-x-full"
+        }`}
     >
       <h5
         id="drawer-right-label"
@@ -110,26 +110,72 @@ const ShowIcon = (
   username: string,
   setTrigger: any
 ) => {
-  const handleBlock = () => {
-    setTrigger((prev: any) => !prev);
-    console.log("block");
+  const { id } = Router.query;
+  const handleBan = () => {
+    axios({
+      method: "POST",
+      url: "/api/chat/banUserFromChannel",
+      data: {
+        otherLogin42: username,
+        channelId: parseInt(id as string),
+      },
+    }).then((response) => {
+      setTrigger((prev: any) => !prev);
+    })
+    console.log("Ban");
   };
 
   const handleUnMute = () => {
-    setTrigger((prev: any) => !prev);
+    axios({
+      method: "POST",
+      url: "/api/chat/unmuteUserFromChannel",
+      data: {
+        otherLogin42: username,
+        channelId: parseInt(id as string),
+      },
+    }).then((response) => {
+      setTrigger((prev: any) => !prev);
+    })
     console.log("unmute");
   };
   const handleMute = () => {
-    setTrigger((prev: any) => !prev);
+    axios({
+      method: "POST",
+      url: "/api/chat/muteUserFromChannel",
+      data: {
+        otherLogin42: username,
+        channelId: parseInt(id as string),
+      },
+    }).then((response) => {
+      setTrigger((prev: any) => !prev);
+    })
     console.log("mute");
   };
-
+  
   const handleRemoveAdmin = () => {
-    setTrigger((prev: any) => !prev);
+    axios({
+      method: "POST",
+      url: "/api/chat/downgradeUserRole",
+      data: {
+        otherLogin42: username,
+        channelId: parseInt(id as string),
+      },
+    }).then((response) => {
+      setTrigger((prev: any) => !prev);
+    })
     console.log("RemoveAdmin");
   };
   const handleAddAdmin = () => {
-    setTrigger((prev: any) => !prev);
+    axios({
+      method: "POST",
+      url: "/api/chat/upgradeUserRole",
+      data: {
+        otherLogin42: username,
+        channelId: parseInt(id as string),
+      },
+    }).then((response) => {
+      setTrigger((prev: any) => !prev);
+    })
     console.log("ADDAdmin");
   };
   if (username !== profile && (myRole === "owner" || myRole === "admin")) {
@@ -138,7 +184,7 @@ const ShowIcon = (
     } else
       return (
         <>
-          <button onClick={handleBlock}>
+          <button onClick={handleBan}>
             <Block />
           </button>
           {isMuted ? (

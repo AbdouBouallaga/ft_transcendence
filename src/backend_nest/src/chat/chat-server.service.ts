@@ -65,7 +65,7 @@ export class ChatServerService {
 	// banUserFromChannel
 	async banUserFromChannel(data: UserOnUserActionDto, login42: string) : Promise<UserBannedFromChannel> {
 		const user = await this.userPrisma.findUserByLogin42(login42);
-		const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
+		const otherUser = await this.userPrisma.findUser(data.otherLogin42);
 		if (!(await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId }))
 			|| !(await this.chatService.isChannelMember({ userId: otherUser.id, channelId: data.channelId }))) {
 			throw new BadRequestException();
@@ -95,7 +95,7 @@ export class ChatServerService {
 	// muteUserFromChannel
 	async muteUserFromChannel(data: UserOnUserActionDto, login42: string) : Promise<MemberOfChannel> {
 		const user = await this.userPrisma.findUserByLogin42(login42);
-		const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
+		const otherUser = await this.userPrisma.findUser(data.otherLogin42);
 		if (!(await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId }))
 			|| !(await this.chatService.isChannelMember({ userId: otherUser.id, channelId: data.channelId }))) {
 			throw new BadRequestException();
@@ -119,7 +119,7 @@ export class ChatServerService {
 	// unmuteUserFromChannel
 	async unmuteUserFromChannel(data: UserOnUserActionDto, login42: string) : Promise<MemberOfChannel> {
 		const user = await this.userPrisma.findUserByLogin42(login42);
-		const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
+		const otherUser = await this.userPrisma.findUser(data.otherLogin42);
 		if (!(await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId }))
 			|| !(await this.chatService.isChannelMember({ userId: otherUser.id, channelId: data.channelId }))) {
 			throw new BadRequestException();
@@ -143,7 +143,7 @@ export class ChatServerService {
 	// upgradeUserRole
 	async upgradeUserRole(data: UserOnUserActionDto, login42: string) : Promise<MemberOfChannel> {
 		const user = await this.userPrisma.findUserByLogin42(login42);
-		const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
+		const otherUser = await this.userPrisma.findUser(data.otherLogin42);
 		if (!(await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId }))
 			|| !(await this.chatService.isChannelMember({ userId: otherUser.id, channelId: data.channelId }))) {
 			throw new BadRequestException();
@@ -167,7 +167,7 @@ export class ChatServerService {
 	// downgradeUserRole
 	async downgradeUserRole(data: UserOnUserActionDto, login42: string) : Promise<MemberOfChannel> {
 		const user = await this.userPrisma.findUserByLogin42(login42);
-		const otherUser = await this.userPrisma.findUserByLogin42(data.otherLogin42);
+		const otherUser = await this.userPrisma.findUser(data.otherLogin42);
 		if (!(await this.chatService.isChannelMember({ userId: user.id, channelId: data.channelId }))
 			|| !(await this.chatService.isChannelMember({ userId: otherUser.id, channelId: data.channelId }))) {
 			throw new BadRequestException();
