@@ -28,7 +28,6 @@ import Drawer from "./Drawer";
 import EditRoom from "./EditRoom";
 import { v4 as uuidv4 } from "uuid";
 
-
 const ChatSection = ({ profile }: any) => {
   const Context: any = useContext(GeneralContext);
   const socket: any = Context.ChatSocket;
@@ -85,13 +84,26 @@ const HeaderOfChat = ({ profile, data }: any) => {
   const Context: any = useContext(GeneralContext);
   const gameSocket: any = Context.Socket;
   const myprofile: any = Context.Profile;
-  const { isDM, members, name, avatar } = data;
+  const { isDM, name, avatar } = data;
+  const [members, setMembers] = useState<any>([]);
+
   const { username } = profile;
   const myRole = role(members, username);
   const [drawer, setDrawer] = useState(false);
   const [editRoom, setEditRoom] = useState(false);
   const [invite, setInvite] = useState(false);
-  const { id } = Router.query
+  const { id } = Router.query;
+
+  const fetchMembers = async () => {
+    console.log("fetchMembers", id);
+    const res = await axios.get(`/api/chat/${id}/members`);
+    console.log("members", res.data);
+    const { status, data } = res;
+    status === 200 && setMembers(data);
+  };
+  useEffect(() => {
+    fetchMembers();
+  }, [drawer]);
 
   return (
     <div className="border-b border-gray-600 flex items-center justify-between mx-3">
@@ -171,18 +183,18 @@ const HeaderOfChat = ({ profile, data }: any) => {
           <Dropdown.Item
             onClick={() => {
               axios({
-                method: 'POST',
-                url: '/api/chat/leaveChannel',
+                method: "POST",
+                url: "/api/chat/leaveChannel",
                 data: {
-                  channelId: parseInt(id as string)
+                  channelId: parseInt(id as string),
                 },
-              })
-                .then((response) => {
-                  if (response.data.success)
-                    Router.replace("/chat");
-                })
+              }).then((response) => {
+                if (response.data.success) Router.replace("/chat");
+              });
             }}
-          >Leave</Dropdown.Item>
+          >
+            Leave
+          </Dropdown.Item>
         </Dropdown>
       )}
       <Drawer
