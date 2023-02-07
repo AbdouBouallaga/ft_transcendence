@@ -40,7 +40,7 @@ const NoRooms = () => {
   );
 };
 
-const Rooms = ({ rooms }) => {
+const Rooms = ({ rooms }: any) => {
   return (
     <div className="my-8">
       <h1 className="text-gray-300 text-2xl">All Availeble Rooms</h1>
@@ -53,8 +53,8 @@ const Rooms = ({ rooms }) => {
   );
 };
 
-const RoomCard = ({ room }) => {
-  const { name, owner, isProtected, id } = room;
+const RoomCard = ({ room }: any) => {
+  const { name, isProtected, id } = room;
   const [showModal, setShowModal] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
@@ -82,22 +82,25 @@ const RoomCard = ({ room }) => {
     }
   };
   return (
-    <div className="flex justify-center group">
+    <div className="flex justify-center group max-w-[312px]">
       <div className="flex  flex-row max-w-xl rounded-lg bg-white shadow-lg overflow-hidden relative">
         <div className="w-[140px]">
+          <div className="absulute right-2 top-2 absolute">
+            {isProtected ? <Lock /> : <Unlock />}
+          </div>
           <Image
-            className=" h-[125px] object-cover rounded-none rounded-l-lg group-hover:scale-110 transition-all duration-300 ease-in-out"
+            className=" h-[150px] object-cover rounded-none rounded-l-lg group-hover:scale-110 transition-all duration-300 ease-in-out"
             src={"/static/rooms.jpeg"}
             width={140}
-            height={125}
+            height={150}
             alt="avatar"
           />
         </div>
-        <div className="p-6 flex flex-col justify-start ">
-          <h5 className="text-gray-900 text-xl font-medium mb-2">{name}</h5>
-
-          <div className="absulute right-2 top-2 absolute">
-            {isProtected ? <Lock /> : <Unlock />}
+        <div className="mt-6 p-3 flex flex-col justify-start items-center w-[172px] overfole-hidden  truncate">
+          <div className="w-[100%]">
+            <h5 className="text-gray-900 text-xl font-medium mb-2 whitespace-nowrap  truncate">
+              {name}
+            </h5>
           </div>
 
           <Button
@@ -105,7 +108,7 @@ const RoomCard = ({ room }) => {
             gradientMonochrome="success"
             onClick={handleJoinRoom}
           >
-            Join the room
+            Join The Room
           </Button>
         </div>
       </div>

@@ -20,7 +20,7 @@ const FriendCard = ({ friend }: any) => {
         statusPosition="bottom-right"
       />
       <div className="text-gray-200 w-[75%]">
-        <div className="uppercase">{name}</div>
+        <div className="uppercase truncate">{name}</div>
         <div className="text-sm truncate">{lastMessage}</div>
       </div>
     </div>
