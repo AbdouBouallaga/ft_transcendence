@@ -13,10 +13,13 @@ const ListFriends = () => {
   const [friends, setFriends] = useState([]);
   const router = useRouter();
 
-
-
   const fetchFriends = async () => {
-    const res = await axios.get("/api/chat/me").then((res) => { setFriends(res.data) }).catch((err) => { });
+    const res = await axios
+      .get("/api/chat/me")
+      .then((res) => {
+        setFriends(res.data);
+      })
+      .catch((err) => {});
     // const { status, data } = res;
     // status === 200 && setFriends(data);
   };
@@ -27,11 +30,10 @@ const ListFriends = () => {
 
   return (
     <>
-
-
-
       <div className="w-full border-r p-3 max-w-[310px] flex flex-col">
-        <h1 className="font-bold text-orange-200 text-left text-2xl">Message</h1>
+        <h1 className="font-bold text-orange-200 text-left text-2xl">
+          Message
+        </h1>
         <div
           onClick={() => setCreateRoom(true)}
           className="flex text-gray-200 gap-1 cursor-pointer hover:bg-gray-700 p-2 rounded-md my-2 "

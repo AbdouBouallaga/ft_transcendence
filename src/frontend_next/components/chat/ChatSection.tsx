@@ -36,7 +36,7 @@ const ChatSection = ({ profile }: any) => {
   const router = useRouter();
   const [messages, setMessages] = useState<any>([]);
   const [data, setData] = useState({});
-  const { id }:any = router.query;
+  const { id }: any = router.query;
 
   useEffect(() => {
     if (!init.current) {
@@ -57,22 +57,25 @@ const ChatSection = ({ profile }: any) => {
   // load chat
   const fetchChat = async (id: string) => {
     setMessages([]);
-    axios.get(`/api/chat/${id}`).then((res) => {
-      const {
-        status,
-        data: { isDM, members, messages, name, isProtected, type, avatar },
-      } = res;
-      setMessages(messages);
-      setData({ isDM, members, name, isProtected, type, avatar });
-    }).catch((err) => {
-      router.replace("/chat")
-    });
+    axios
+      .get(`/api/chat/${id}`)
+      .then((res) => {
+        const {
+          status,
+          data: { isDM, members, messages, name, isProtected, type, avatar },
+        } = res;
+        setMessages(messages);
+        setData({ isDM, members, name, isProtected, type, avatar });
+      })
+      .catch((err) => {
+        router.replace("/chat");
+      });
     // const res = await axios.get(`/api/chat/${id}`);
     // const {
     //   status,
     //   data: { isDM, members, messages, name, isProtected, type, avatar },
     // } = res;
-    
+
     // status === 200 &&
     //   (setMessages(messages),
     //   setData({ isDM, members, name, isProtected, type, avatar }));
@@ -106,38 +109,40 @@ const HeaderOfChat = ({ profile, data }: any) => {
   const { id } = Router.query;
   const [trigger, setTrigger] = useState(false);
 
-
   const [inviteModal, setInviteModal] = useState(false);
   const searchRef: any = React.useRef(null);
-  const [c, setC] = useState(0)
-  const [results, setResults] = useState([])
+  const [c, setC] = useState(0);
+  const [results, setResults] = useState([]);
   useEffect(() => {
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (searchRef.current) {
           searchRef.current.value = "";
         }
-        setInviteModal(false)
+        setInviteModal(false);
       }
     });
     if (searchRef?.current?.value)
-      axios.get(`/api/users/find/` + searchRef?.current?.value)
+      axios
+        .get(`/api/users/find/` + searchRef?.current?.value)
         .then((response) => {
-          setResults(response.data)
-          
-        }).catch((err) => { })
-    else
-      setResults([])
-    return (() => {
-      document.removeEventListener("keydown", () => { });
-    })
+          setResults(response.data);
+        })
+        .catch((err) => {});
+    else setResults([]);
+    return () => {
+      document.removeEventListener("keydown", () => {});
+    };
   }, [c]);
 
-
   const fetchMembers = async () => {
-    
     let result: any;
-    axios.get(`/api/chat/${id}/members`).then((res) => { setMembers(res.data) }).catch((err) => { });
+    axios
+      .get(`/api/chat/${id}/members`)
+      .then((res) => {
+        setMembers(res.data);
+      })
+      .catch((err) => {});
   };
   useEffect(() => {
     fetchMembers();
@@ -145,7 +150,6 @@ const HeaderOfChat = ({ profile, data }: any) => {
 
   return (
     <>
-
       <Modal
         show={inviteModal}
         size="xl"
@@ -157,51 +161,75 @@ const HeaderOfChat = ({ profile, data }: any) => {
           }
         }}
       >
-        <Modal.Header>
-          Invite a user
-        </Modal.Header>
+        <Modal.Header>Invite a user</Modal.Header>
         <Modal.Body>
           <form>
-            <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+            <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
+              Search
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <svg aria-hidden="true" className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <svg
+                  aria-hidden="true"
+                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
               </div>
-              <input onChange={() => { setC(c + 1) }} ref={searchRef} className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Username" required />
+              <input
+                onChange={() => {
+                  setC(c + 1);
+                }}
+                ref={searchRef}
+                className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Username"
+                required
+              />
             </div>
           </form>
           <div className="flex-1 m-2">
             <div className="flex flex-row flex-wrap overflow-auto max-h-[300px]">
-              {results.map((e: any, i: number) =>
-                <div key={i} className="relative m-2" style={{ width: 80 }} onClick={() => {
-                  setInviteModal(!inviteModal);
-                  setResults([]);
-                  if (searchRef.current !== null)
-                    searchRef.current.value = "";
-                  axios({
-                    method: "POST",
-                    url: "/api/chat/inviteUserToChannel",
-                    data: {
-                      otherLogin42: e.login42,
-                      channelId: parseInt(id as string),
-                    },
-                  }).then((response) => {
-                    
-                  })
-                    .catch((err) => { })
-                }}>
+              {results.map((e: any, i: number) => (
+                <div
+                  key={i}
+                  className="relative m-2"
+                  style={{ width: 80 }}
+                  onClick={() => {
+                    setInviteModal(!inviteModal);
+                    setResults([]);
+                    if (searchRef.current !== null)
+                      searchRef.current.value = "";
+                    axios({
+                      method: "POST",
+                      url: "/api/chat/inviteUserToChannel",
+                      data: {
+                        otherLogin42: e.login42,
+                        channelId: parseInt(id as string),
+                      },
+                    })
+                      .then((response) => {})
+                      .catch((err) => {});
+                  }}
+                >
                   <Avatar
                     alt="Nav Drop settings"
                     img={e?.avatar}
                     rounded={false}
                     size="lg"
-                  // status="online"
+                    // status="online"
                   />
-                  <div className="font-bold aero w-full" >
-                    {e.username}
-                  </div>
+                  <div className="font-bold aero w-full">{e.username}</div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </Modal.Body>
@@ -289,9 +317,11 @@ const HeaderOfChat = ({ profile, data }: any) => {
                   data: {
                     channelId: parseInt(id as string),
                   },
-                }).then((response) => {
-                  if (response.data.success) Router.replace("/chat");
-                }).catch((err) => { });
+                })
+                  .then((response) => {
+                    if (response.data.success) Router.replace("/chat");
+                  })
+                  .catch((err) => {});
               }}
             >
               Leave
@@ -366,7 +396,7 @@ const MyMsg = ({ date, message, username }: any) => {
   );
 };
 
-const BodyOfChat = ({ messages, profile, roomid }: any):any => {
+const BodyOfChat = ({ messages, profile, roomid }: any): any => {
   const { username: myUserName } = profile;
 
   function useChatScroll<T>(dep: T): any {
@@ -469,7 +499,7 @@ const InviteToRoom = () => {
             type="email"
             rightIcon={Search}
             placeholder="find user to add"
-          // required={true}
+            // required={true}
           />
         </div>
       </form>
