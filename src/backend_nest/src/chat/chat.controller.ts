@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from 'src/auth/guards';
-import { CreateChannelDto, CreateDmDto, JoinChannelDto } from './dto';
+import { CreateChannelDto, CreateDmDto, JoinChannelDto, UserOnUserActionDto } from './dto';
 import { Channel } from '@prisma/client';
 import { ChannelInfo, Conversation, ConversationUser } from './interfaces';
 import { ChatServerService } from './chat-server.service';
@@ -91,6 +91,72 @@ export class ChatController {
       await this.chatServerService.leaveChannel(req.user.login42, data.channelId);
       return { success: true };
     } catch(e) {
+      return { success: false };
+    }
+  }
+
+  @Post('inviteUserToChannel')
+  @UseGuards(JwtAuthGuard)
+  async inviteUserToChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+    try {
+      await this.chatServerService.inviteUserToChannel(data, req.user.login42);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  @Post('banUserFromChannel')
+  @UseGuards(JwtAuthGuard)
+  async banUserFromChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+    try {
+      await this.chatServerService.banUserFromChannel(data, req.user.login42);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  @Post('muteUserFromChannel')
+  @UseGuards(JwtAuthGuard)
+  async muteUserFromChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+    try {
+      await this.chatServerService.muteUserFromChannel(data, req.user.login42);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  @Post('unmuteUserFromChannel')
+  @UseGuards(JwtAuthGuard)
+  async unmuteUserFromChannel(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+    try {
+      await this.chatServerService.unmuteUserFromChannel(data, req.user.login42);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  @Post('upgradeUserRole')
+  @UseGuards(JwtAuthGuard)
+  async upgradeUserRole(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+    try {
+      await this.chatServerService.upgradeUserRole(data, req.user.login42);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  @Post('downgradeUserRole')
+  @UseGuards(JwtAuthGuard)
+  async downgradeUserRole(@Req() req: any, @Body() data: UserOnUserActionDto) : Promise<{ success: boolean}> {
+    try {
+      await this.chatServerService.downgradeUserRole(data, req.user.login42);
+      return { success: true };
+    } catch {
       return { success: false };
     }
   }
