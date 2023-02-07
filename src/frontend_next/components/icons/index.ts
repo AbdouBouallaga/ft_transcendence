@@ -13,7 +13,9 @@ import Play from "./Play";
 import RemoveAdmin from "./RemoveAdmin";
 import Search from "./Search";
 import Unlock from "./Unlock";
+import Unmute from "./Unmute";
 export {
+  Unmute,
   Cool,
   Unlock,
   Lock,

@@ -1,12 +1,21 @@
 import { Avatar } from "flowbite-react";
-import { Block, Mute, Admine, Play, RemoveAdmin } from "../icons";
+import { Block, Mute, Admine, Play, RemoveAdmin, Unmute } from "../icons";
 import Router from "next/router";
 
-const Drawer = ({ drawer, setDrawer, myRole, members, profile }: any) => {
+const Drawer = ({
+  drawer,
+  setDrawer,
+  myRole,
+  members,
+  profile,
+
+  setTrigger,
+}: any) => {
   return (
     <div
-      className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${drawer ? "" : "transition-transform translate-x-full"
-        }`}
+      className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${
+        drawer ? "" : "transition-transform translate-x-full"
+      }`}
     >
       <h5
         id="drawer-right-label"
@@ -43,6 +52,7 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }: any) => {
               member={member}
               myRole={myRole}
               profile={profile}
+              setTrigger={setTrigger}
             />
           );
         })}
@@ -53,8 +63,8 @@ const Drawer = ({ drawer, setDrawer, myRole, members, profile }: any) => {
 
 export default Drawer;
 
-const MemberCard = ({ member, myRole, profile }: any) => {
-  const { avatar, username, role } = member;
+const MemberCard = ({ member, myRole, profile, setTrigger }: any) => {
+  const { avatar, username, role, isMuted } = member;
   const userRoleFunction = (role: number): string => {
     const roles = ["member", "admin", "owner"];
     return roles[role];
@@ -64,66 +74,91 @@ const MemberCard = ({ member, myRole, profile }: any) => {
 
   return (
     <div className="mb-4 flex items-center">
-      <button onClick={() => { Router.push("/profile/" + member.username) }}>
+      <button
+        className="max-w-[50px] w-[100%]"
+        onClick={() => {
+          Router.push("/profile/" + member.username);
+        }}
+      >
         <Avatar img={avatar} rounded={true} />
       </button>
-      <div className="ml-2 flex flex-col">
-        <span className=" text-sm font-semibold  ">{username} </span>
-        <span className=" font-semibold text-gray-500 text-xs" />
+      <div className="ml-2 flex flex-col max-w-[120px] w-[100%]">
+        <span className=" text-sm font-semibold truncate ">{username} </span>
+        <span className=" font-semibold text-gray-500  text-xs truncate" />
         {userRole}
         <span />
       </div>
-      <div className="flex">
-        {/* {username !== profile.username &&
-          (myRole === "owner" || myRole === "admin") &&
-          myRole === "admin" &&
-          userRole === "owner" && (
-            <>
-              <Block />
-              <Mute />
-              <Admine />
-            </>
-          )}
-
-        <Play /> */}
-        {ShowIcon(myRole, userRole, profile.username, username)}
+      <div className="ml-4 flex max-w-[150px] w-full justify-end w-[100%]">
+        {ShowIcon(
+          isMuted,
+          myRole,
+          userRole,
+          profile.username,
+          username,
+          setTrigger
+        )}
       </div>
     </div>
   );
 };
 
 const ShowIcon = (
+  isMuted: boolean,
   myRole: string,
   userRole: string,
   profile: string,
-  username: string
+  username: string,
+  setTrigger: any
 ) => {
+  const handleBlock = () => {
+    setTrigger((prev: any) => !prev);
+    console.log("block");
+  };
+
+  const handleUnMute = () => {
+    setTrigger((prev: any) => !prev);
+    console.log("unmute");
+  };
+  const handleMute = () => {
+    setTrigger((prev: any) => !prev);
+    console.log("mute");
+  };
+
+  const handleRemoveAdmin = () => {
+    setTrigger((prev: any) => !prev);
+    console.log("RemoveAdmin");
+  };
+  const handleAddAdmin = () => {
+    setTrigger((prev: any) => !prev);
+    console.log("ADDAdmin");
+  };
   if (username !== profile && (myRole === "owner" || myRole === "admin")) {
     if (myRole === "admin" && userRole === "owner") {
       return <Play username={username} />;
     } else
       return (
         <>
-          <button
-          //  onClick={
-          //   ()=>{
-          //     axios({
-          //       method: 'POST',
-          //       url: '/api/users/me',
-          //       data: {
-          //           username: username,
-          //       },
-          //   })
-          //   .then(()=>{
-
-          //   })
-          // }
-          // }
-          >
+          <button onClick={handleBlock}>
             <Block />
           </button>
-          <Mute />
-          {userRole === "admin" ? <RemoveAdmin /> : <Admine />}
+          {isMuted ? (
+            <button onClick={handleUnMute}>
+              <Unmute />
+            </button>
+          ) : (
+            <button onClick={handleMute}>
+              <Mute />
+            </button>
+          )}
+          {userRole === "admin" ? (
+            <button onClick={handleRemoveAdmin}>
+              <RemoveAdmin />
+            </button>
+          ) : (
+            <button onClick={handleAddAdmin}>
+              <Admine />
+            </button>
+          )}
           {profile !== username && <Play username={username} />}
         </>
       );

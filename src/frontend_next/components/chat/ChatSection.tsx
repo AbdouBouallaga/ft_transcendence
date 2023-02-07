@@ -93,6 +93,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
   const [editRoom, setEditRoom] = useState(false);
   const [invite, setInvite] = useState(false);
   const { id } = Router.query;
+  const [trigger, setTrigger] = useState(false);
 
   const fetchMembers = async () => {
     console.log("fetchMembers", id);
@@ -103,7 +104,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
   };
   useEffect(() => {
     fetchMembers();
-  }, [drawer]);
+  }, [drawer, trigger]);
 
   return (
     <div className="border-b border-gray-600 flex items-center justify-between mx-3">
@@ -203,6 +204,7 @@ const HeaderOfChat = ({ profile, data }: any) => {
         myRole={myRole}
         members={members}
         profile={profile}
+        setTrigger={setTrigger}
       />
       <Modal
         show={editRoom}

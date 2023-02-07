@@ -11,12 +11,14 @@ export class ConversationUser {
   login42: string;
   avatar: string;
   role: ConversationRole;
+  isMuted: boolean;
 
-  constructor(user: User, role: ConversationRole) {
+  constructor(user: User, role: ConversationRole, isMuted: boolean) {
     this.username = user.username;
     this.login42 = user.login42;
     this.avatar = user.avatar;
     this.role = role;
+    this.isMuted = isMuted;
   }
 }
 
