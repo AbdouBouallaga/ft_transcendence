@@ -7,8 +7,8 @@ import Router from "next/router";
 
 var imageResize = new ImageResize({
     format: 'png',
-    height: 160,
-    width: 160
+    height: 90,
+    width: 90
 });
 
 export default function Welcome(props: any) {

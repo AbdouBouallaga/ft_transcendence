@@ -10,8 +10,8 @@ import { GeneralContext } from "../_app";
 
 var imageResize = new ImageResize({
   format: 'png',
-  height: 160,
-  width: 160
+  height: 90,
+  width: 90
 });
 
 const Profile = (props: any) => {
