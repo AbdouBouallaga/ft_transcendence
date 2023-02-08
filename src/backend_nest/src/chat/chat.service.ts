@@ -28,7 +28,7 @@ export class ChatService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userPrisma: UserPrismaService,
-  ) {}
+  ) { }
 
   async createRoom(data: CreateChannelDto, userId: number): Promise<Channel> {
     if (await this.channelAlreadyExists(data.name)) {
@@ -254,6 +254,20 @@ export class ChatService {
     channelId: number;
     role: MemberRole;
   }): Promise<MemberOfChannel> {
+    if (await this.isChannelMember({ userId: data.userId, channelId: data.channelId })) {
+      return await this.prisma.memberOfChannel.update({
+        where: {
+          channelId_userId: {
+            userId: data.userId,
+            channelId: data.channelId
+          }
+        },
+        data: {
+          hasLeft: false,
+          role: data.role
+        }
+      });
+    }
     return await this.prisma.memberOfChannel.create({
       data,
     });

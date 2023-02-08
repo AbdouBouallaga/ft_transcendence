@@ -360,14 +360,7 @@ export class ChatServerService {
     if (membership.role === MemberRole.MEMBER) {
       throw new UnauthorizedException();
     }
-    return await this.prisma.memberOfChannel.create({
-      data: {
-        userId: otherUser.id,
-        channelId: data.channelId,
-        role: MemberRole.MEMBER,
-        isMuted: false,
-      },
-    });
+    return this.chatService.addMemberToChannel({ userId: otherUser.id, channelId: data.channelId, role: MemberRole.MEMBER });
   }
 
   async joinChannel(
@@ -416,34 +409,7 @@ export class ChatServerService {
     ) {
       newRole = MemberRole.OWNER;
     }
-    if (
-      (
-        await this.prisma.memberOfChannel.findMany({
-          where: { userId: user.id, channelId: data.channelId },
-        })
-      ).length > 0
-    ) {
-      return await this.prisma.memberOfChannel.update({
-        where: {
-          channelId_userId: {
-            channelId: data.channelId,
-            userId: user.id,
-          },
-        },
-        data: {
-          hasLeft: false,
-          role: newRole,
-        },
-      });
-    }
-    return await this.prisma.memberOfChannel.create({
-      data: {
-        userId: user.id,
-        channelId: data.channelId,
-        role: newRole,
-        isMuted: false,
-      },
-    });
+    return this.chatService.addMemberToChannel({ userId: user.id, channelId: data.channelId, role: MemberRole.MEMBER });
   }
 
   // leaveChannel

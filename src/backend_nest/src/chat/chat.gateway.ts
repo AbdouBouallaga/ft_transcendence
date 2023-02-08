@@ -34,11 +34,13 @@ export class ChatGateway {
     @MessageBody() data: SendMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    this.server
-      .to(`Channel_${data.channelId}`)
-      .emit(
-        'updateChatSection',
-        await this.chatServerService.sendMessage(data),
-      );
+    try {
+      this.server
+        .to(`Channel_${data.channelId}`)
+        .emit(
+          'updateChatSection',
+          await this.chatServerService.sendMessage(data),
+        );
+    } catch {}
   }
 }
