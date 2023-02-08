@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Lottie from "lottie-react";
 import { Stream } from "stream";
 import pongLottie from "../components/icons/pong.json";
@@ -6,9 +6,26 @@ import loaddingPong from "../components/icons/start.json";
 import { Button } from "flowbite-react";
 import { Arrow } from "../components/icons";
 import { useRouter } from "next/router";
+import { GeneralContext } from "./_app";
+import axios from "axios";
 
 const Index = (props: any) => {
   const router = useRouter();
+  const Context: any = useContext(GeneralContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      axios
+        .get("/api/users/me/fullprofile")
+        .then((response:any) => {
+        })
+        .catch((e:any) => {
+          console.log("index error", e);
+          Context.routeMo("/login", false, true, true);
+        });
+    };
+    fetchData();
+  }, []);
 
   return (
     <>

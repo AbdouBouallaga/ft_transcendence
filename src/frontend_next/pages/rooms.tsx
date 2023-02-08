@@ -5,18 +5,23 @@ import Image from "next/image";
 import { Button, Modal, TextInput } from "flowbite-react";
 import { Lock, Unlock } from "../components/icons";
 import axios from "axios";
-import { useRouter } from "next/router";
+import Router,{ useRouter } from "next/router";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
   const router = useRouter();
 
   const fetchRooms = async () => {
-    const res = await axios.get("/api/chat/publicChannels").then((res) => { setRooms(res.data) }).catch((err) => { });
+    const res = await axios
+      .get("/api/chat/publicChannels")
+      .then((res) => {
+        setRooms(res.data);
+      })
+      .catch((err) => {
+        Router.replace("/");
+      });
     // const { status, data } = res;
     // status === 200 && setRooms(data);
-
-    
   };
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -61,22 +66,25 @@ const RoomCard = ({ room }: any) => {
   const router = useRouter();
 
   const joinRoom = async (id: number, password?: string) => {
-    const res = await axios.post("/api/chat/joinChannel", {
-      channelId: id,
-      password,
-    })
+    console.log("clicked");
+    await axios
+      .post("/api/chat/joinChannel", {
+        channelId: id,
+        password,
+      })
       .then((res) => {
-        if (res.data.success) {
-          
+        if (!res.data.success) {
           setError(true);
         } else {
           router.push(`/chat/${id}`);
         }
-      }
-      ).catch((err) => { });
+      })
+      .catch((err) => {
+        Router.replace("/");
+      });
     // const { success } = res.data;
     // if (!success) {
-    //   
+    //
     //   setError(true);
     // } else {
     //   router.push(`/chat/${id}`);
@@ -129,18 +137,21 @@ const RoomCard = ({ room }: any) => {
       >
         <Modal.Header>enter the password</Modal.Header>
         <Modal.Body>
-          <div>
+          <div className="flex justify-center flex-col">
             <TextInput
-              color={error ? "danger" : "primary"}
-              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              color={error ? "failure" : "primary"}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value), setError(false);
+              }}
+              helperText={error ? "wrong password" : ""}
             />
             <Button
+              className="mt-4"
               type="button"
               onClick={(e) => {
                 e.preventDefault();
-                
-                
-                // return;
                 joinRoom(id, password);
               }}
             >

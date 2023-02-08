@@ -1,4 +1,4 @@
-import { Avatar } from "flowbite-react";
+import { Avatar, Tooltip } from "flowbite-react";
 import { Block, Mute, Admine, Play, RemoveAdmin, Unmute } from "../icons";
 import Router from "next/router";
 import axios from "axios";
@@ -14,8 +14,9 @@ const Drawer = ({
 }: any) => {
   return (
     <div
-      className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${drawer ? "" : "transition-transform translate-x-full"
-        }`}
+      className={`fixed top-[60px] right-0 z-40 h-screen p-4 overflow-y-auto  bg-white w-80 dark:bg-gray-800 ${
+        drawer ? "" : "transition-transform translate-x-full"
+      }`}
     >
       <h5
         id="drawer-right-label"
@@ -119,10 +120,13 @@ const ShowIcon = (
         otherLogin42: username,
         channelId: parseInt(id as string),
       },
-    }).then((response) => {
-      setTrigger((prev: any) => !prev);
-    }).catch((error) => { })
-    
+    })
+      .then((response) => {
+        setTrigger((prev: any) => !prev);
+      })
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
 
   const handleUnMute = () => {
@@ -133,10 +137,13 @@ const ShowIcon = (
         otherLogin42: username,
         channelId: parseInt(id as string),
       },
-    }).then((response) => {
-      setTrigger((prev: any) => !prev);
-    }).catch((error) => { })
-    
+    })
+      .then((response) => {
+        setTrigger((prev: any) => !prev);
+      })
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
   const handleMute = () => {
     axios({
@@ -146,10 +153,13 @@ const ShowIcon = (
         otherLogin42: username,
         channelId: parseInt(id as string),
       },
-    }).then((response) => {
-      setTrigger((prev: any) => !prev);
-    }).catch((error) => { })
-    
+    })
+      .then((response) => {
+        setTrigger((prev: any) => !prev);
+      })
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
 
   const handleRemoveAdmin = () => {
@@ -160,10 +170,13 @@ const ShowIcon = (
         otherLogin42: username,
         channelId: parseInt(id as string),
       },
-    }).then((response) => {
-      setTrigger((prev: any) => !prev);
-    }).catch((error) => { })
-    
+    })
+      .then((response) => {
+        setTrigger((prev: any) => !prev);
+      })
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
   const handleAddAdmin = () => {
     axios({
@@ -173,42 +186,67 @@ const ShowIcon = (
         otherLogin42: username,
         channelId: parseInt(id as string),
       },
-    }).then((response) => {
-      setTrigger((prev: any) => !prev);
-    }).catch((error) => { })
-    
+    })
+      .then((response) => {
+        setTrigger((prev: any) => !prev);
+      })
+      .catch((error) => {
+        Router.replace("/");
+      });
   };
   if (username !== profile && (myRole === "owner" || myRole === "admin")) {
     if (myRole === "admin" && userRole === "owner") {
-      return <Play username={username} />;
+      return (
+        <Tooltip content={"Play Now"}>
+          <Play username={username} />
+        </Tooltip>
+      );
     } else
       return (
         <>
-          <button onClick={handleBan}>
-            <Block />
-          </button>
+          <Tooltip content={"Block the user"}>
+            <button onClick={handleBan}>
+              <Block />
+            </button>
+          </Tooltip>
           {isMuted ? (
-            <button onClick={handleUnMute}>
-              <Unmute />
-            </button>
+            <Tooltip content={"unMute the user"}>
+              <button onClick={handleUnMute}>
+                <Unmute />
+              </button>
+            </Tooltip>
           ) : (
-            <button onClick={handleMute}>
-              <Mute />
-            </button>
+            <Tooltip content={"Mute the user"}>
+              <button onClick={handleMute}>
+                <Mute />
+              </button>
+            </Tooltip>
           )}
           {userRole === "admin" ? (
-            <button onClick={handleRemoveAdmin}>
-              <RemoveAdmin />
-            </button>
+            <Tooltip content={"Remove Admin Role"}>
+              <button onClick={handleRemoveAdmin}>
+                <RemoveAdmin />
+              </button>
+            </Tooltip>
           ) : (
-            <button onClick={handleAddAdmin}>
-              <Admine />
-            </button>
+            <Tooltip content={"Add admin Role"}>
+              <button onClick={handleAddAdmin}>
+                <Admine />
+              </button>
+            </Tooltip>
           )}
-          {profile !== username && <Play username={username} />}
+          {profile !== username && (
+            <Tooltip content={"Play Now"}>
+              <Play username={username} />
+            </Tooltip>
+          )}
         </>
       );
   } else if (myRole === "member" && profile !== username) {
-    return <Play username={username} />;
+    return (
+      <Tooltip content={"Play Now"}>
+        <Play username={username} />
+      </Tooltip>
+    );
   }
 };

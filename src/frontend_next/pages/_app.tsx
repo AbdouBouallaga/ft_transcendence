@@ -14,7 +14,7 @@ import { Socket } from "dgram";
 export const GeneralContext: any = createContext({
   Socket: null,
   Profile: null,
-  ChatSocket: null
+  ChatSocket: null,
 });
 
 export default function App({ Component, pageProps, ...AppProps }: AppProps) {
@@ -35,12 +35,12 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
     games: [],
   });
   // axios.interceptors.response.use(function (response) {
-  //   
+  //
   //   // Any status code that lie within the range of 2xx cause this function to trigger
   //   // Do something with response data
   //   return response;
   // }, function (error) {
-  //   
+  //
   //   // Any status codes that falls outside the range of 2xx cause this function to trigger
   //   // Do something with response error
   //   return Promise.reject(error);
@@ -60,8 +60,6 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       uri = AppProps.router.route;
     if (AppProps.router.route === "/welcome") nav = false;
 
-    
-    
     Router.replace({
       pathname: uri,
       query: Router.query,
@@ -82,12 +80,11 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
       setInterval(() => {
         gameSocket.emit("initUser", profile.username);
       }, 60000);
-      
     }
   }, [profile.login42]);
   useEffect(() => {
     if (!Router.isReady) return;
-    
+
     if (AppProps.router.route == "/verify2fa") {
       routeMo("/verify2fa", false, true);
     } else {
@@ -95,8 +92,6 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         axios
           .get("/api/users/me/fullprofile")
           .then((response) => {
-            
-            
             const { login42, username, avatar, tfaEnabled, friends } =
               response.data;
             setProfile({
@@ -111,14 +106,13 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
             }
           })
           .catch((e) => {
-            
+            console.log("error app", e);
             routeMo("/login", false, true, true);
           });
       };
       fetchData();
       if (profile.login42 !== "") {
         // gameSocket.emit("initUser", profile.login42);
-        
       }
     }
   }, [reloadApp, Router.isReady]);
@@ -133,7 +127,11 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
         />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="true"
+        />
         {/* <link
           href="https://fonts.googleapis.com/css2?family=Chakra+Petch&display=swap"
           rel="stylesheet"
@@ -145,7 +143,7 @@ export default function App({ Component, pageProps, ...AppProps }: AppProps) {
             <Navbar {...pageProps} profile={profile} gameSocket={gameSocket} />
           )}
           <GeneralContext.Provider
-            value={{ Socket: gameSocket, Profile: profile, ChatSocket }}
+            value={{ Socket: gameSocket, Profile: profile, ChatSocket, routeMo }}
           >
             <Component
               {...pageProps}

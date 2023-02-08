@@ -32,7 +32,7 @@ const EditRoom = ({ setEditRoom, data: oldData }: any) => {
 
   const handelSubmit = (e: any) => {
     e.preventDefault();
-    
+
     const send = async () => {
       try {
         let res = await axios.post("/api/chat/updateRoom", data);
@@ -67,7 +67,7 @@ const EditRoom = ({ setEditRoom, data: oldData }: any) => {
           disabled
           onChange={handleChangeName}
           value={name}
-          id="name"
+          name="name"
           placeholder="Name of the room"
           color={error ? "failure" : "primary"}
           required={true}
@@ -83,10 +83,10 @@ const EditRoom = ({ setEditRoom, data: oldData }: any) => {
       <div>
         <div className="mb-2 block">
           <Label htmlFor="access" value="Access" />
-          {/* select */}
         </div>
         <Select
-          id="access"
+          // id="access"
+          name="access"
           value={type}
           onChange={(e) => setData((old) => ({ ...old, type: e.target.value }))}
         >
