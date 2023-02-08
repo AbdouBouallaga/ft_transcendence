@@ -140,7 +140,10 @@ const Profile = (props: any) => {
         .then((resizedImage) => {
           setImg(resizedImage);
         })
-        .catch((e) => { });
+        .catch((e) => {
+          setEditError(true);
+          FileInput.files = null;
+        });
     }
   }
   async function PushEdits(Username: string, imgInput: File) {
@@ -190,6 +193,7 @@ const Profile = (props: any) => {
       }
       if (InputRef.current?.value) PushEdits(InputRef.current?.value, imgInput);
     } catch (e) { }
+    setEditError(false);
   }
 
   // Fetch the user's profile data when the component mounts
@@ -276,7 +280,11 @@ const Profile = (props: any) => {
                   <>
                     {/* EDIT button and modal*/}
                     <React.Fragment>
-                      <Button className="m-2" onClick={toggleEditModal}>
+                      <Button className="m-2" onClick={() => {
+                        toggleEditModal();
+                        setEditError(false);
+                      }
+                      }>
                         Edit
                       </Button>
                       <Modal
@@ -286,7 +294,7 @@ const Profile = (props: any) => {
                       >
                         <Modal.Header>Edit Profile</Modal.Header>
                         <Modal.Body>
-                          {editError ?? (
+                          {editError && (
                             <Badge color="failure">Error editing profile</Badge>
                           )}
                           <div className="form-group flex flex-col place-items-center">
@@ -314,7 +322,11 @@ const Profile = (props: any) => {
                         </Modal.Body>
                         <Modal.Footer>
                           <Button onClick={ProcessEdits}>Save</Button>
-                          <Button color="failure" onClick={toggleEditModal}>
+                          <Button color="failure" onClick={() => {
+                            toggleEditModal();
+                            setEditError(false);
+                          }
+                          }>
                             Cancel
                           </Button>
                         </Modal.Footer>
