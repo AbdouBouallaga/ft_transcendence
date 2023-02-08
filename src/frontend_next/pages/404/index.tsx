@@ -10,7 +10,7 @@ const index = () => {
   return (
     <div>
       <h1 className="text-4xl font-bold text-center mt-16">Page Not Found</h1>
-      <div className="w-[80%] mt-16 mx-auto">
+      <div className="w-[60%] mt-16 mx-auto">
         <Lottie animationData={error} />
       </div>
       <Button type="button" className="m-auto" onClick={() => router.push("/")}>
