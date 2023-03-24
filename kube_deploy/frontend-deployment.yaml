@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml --volumes hostPath
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: frontend
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml --volumes hostPath
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/ft-transcendence-my-network: "true"
+        io.kompose.service: frontend
+    spec:
+      containers:
+        - args:
+            - bash
+            - -c
+            - npm install && npm run build && npm run start
+          image: node:18.12.1-buster
+          name: frontend
+          ports:
+            - containerPort: 3000
+          resources: {}
+          volumeMounts:
+            - mountPath: /usr/src/app
+              name: frontend-hostpath0
+          workingDir: /usr/src/app
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /home/ubuntu/projects/ft_transcendence/src/frontend_next
+          name: frontend-hostpath0
+status: {}

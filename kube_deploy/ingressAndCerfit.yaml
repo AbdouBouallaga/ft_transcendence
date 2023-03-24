@@ -1,0 +1,34 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pong-certificate
+spec:
+  secretName: pong-certificate
+  issuerRef:
+    name: acme-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - pong.babdelka.systems
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pong-ingress
+spec:
+  rules:
+    - host: pong.babdelka.systems
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: loadbalancer
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - pong.babdelka.systems
+      secretName: pong-certificate
+---

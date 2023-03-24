@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yml --volumes hostPath
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: loadbalancer
+  name: loadbalancer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: loadbalancer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ../docker-compose.yml --volumes hostPath
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/ft-transcendence-my-network: "true"
+        io.kompose.service: loadbalancer
+    spec:
+      containers:
+        - image: nginx:1.19.6
+          name: loadbalancer
+          ports:
+            - containerPort: 80
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d
+              name: loadbalancer-hostpath0
+            - mountPath: /usr/share/nginx/html/public
+              name: loadbalancer-hostpath1
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /home/ubuntu/projects/ft_transcendence/storage/nginx/conf.d
+          name: loadbalancer-hostpath0
+        - hostPath:
+            path: /home/ubuntu/projects/ft_transcendence/src/frontend_next/public
+          name: loadbalancer-hostpath1
+status: {}
